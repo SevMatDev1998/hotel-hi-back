@@ -1,0 +1,810 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums based on C# enums
+enum EmailSentStatus {
+  Scheduled
+  Delivered
+  NotDelivered
+}
+
+enum FoodType {
+  Breakfast
+  Lunch
+  Supper
+}
+
+enum LegalEntityType {
+  LLC
+  PE       // Private Entrepreneur
+  CJSC
+  OJSC
+  NGO
+}
+
+enum OrderStatus {
+  Reserved
+  Pending
+  Approved
+  Arrived
+  Completed
+  Canceled
+}
+
+enum HotelRoomReservationStatus {
+  Reserved
+  Pending
+  Approved
+}
+
+enum OrderCheckinType {
+  DefinitiveDates
+  VariableDates
+}
+
+enum OrderSource {
+  Web
+  InternalTools
+}
+
+enum PartnerStatus {
+  Draft
+  Pending
+  Waiting
+  Approved
+}
+
+enum PhoneCodesEnum {
+  AM    // +374
+  USA   // +1
+  RUS   // +7
+}
+
+enum PriceNotificationStatus {
+  Scheduled
+  Sent
+  Failed
+  WaitingForPartnerConfirmation
+}
+
+enum HotelRoomStatus {
+  Active
+  Incomplete
+  Inactive
+  Deleted
+}
+
+enum BedType {
+  Main
+  Cradle
+  Additional
+}
+
+enum ServicePayMethod {
+  Once
+  Hour
+  Day
+}
+
+enum ServiceTypeAvailabilityBy {
+  Shared
+  Room
+}
+
+enum CompletenessStatus {
+  Draft
+  Completed
+}
+
+enum HotelServiceHourlyAvailabilityType {
+  AllDay
+  Hours
+}
+
+enum ServiceOffer {
+  PetsAllowed
+  AccessGuestsNotStayingInRoom
+  FoodFromOutside
+}
+
+enum ServiceOfferStatus {
+  Allowed
+  Requested
+  NotAllowed
+}
+
+enum MenuItem {
+  Hotel
+  Room
+  Food
+  Service
+  Price
+  Partners
+  Notification
+}
+
+// Core entities
+model Country {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotels          Hotel[]  @relation("HotelCountry")
+  registerHotels  Hotel[]  @relation("RegisterCountry")
+  partners        Partner[]
+
+  @@map("Countries")
+}
+
+model Currency {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(64)
+  code      String   @db.VarChar(10)
+  symbol    String   @db.VarChar(10)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotels Hotel[]
+
+  @@map("Currencies")
+}
+
+model Language {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(64)
+  code      String   @db.VarChar(10)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  localizationResources        LocalizationResource[]
+  priceNotificationSchedules   PriceNotificationSchedule[]
+
+  @@map("Languages")
+}
+
+model Hotel {
+  id                   Int      @id @default(autoincrement())
+  name                 String   @db.VarChar(256)
+  contactPerson        String   @db.VarChar(256)
+  phoneCode            Int
+  phoneNumber          String   @db.VarChar(32)
+  logoUrl              String?  @db.VarChar(256)
+  websiteUrl           String?  @db.VarChar(64)
+  countryId            Int
+  state                String   @db.VarChar(256)
+  city                 String   @db.VarChar(256)
+  registerCountryId    Int?
+  registerState        String?  @db.VarChar(256)
+  registerCity         String?  @db.VarChar(256)
+  tinNumber            String   @db.VarChar(64)
+  director             String   @db.VarChar(64)
+  bankName             String   @db.VarChar(64)
+  bankAccountNumber    String   @db.VarChar(64)
+  bankPhoneCode        Int
+  bankPhoneNumber      String   @db.VarChar(32)
+  isActive             Boolean  @default(true)
+  currencyId           Int
+  extractUrl           String?  @db.VarChar(512)
+  bookingIntegration   Boolean  @default(false)
+  legalPerson          String?  @db.VarChar(256)
+  priceSendEmail       String   @db.VarChar(256)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  deletedAt            DateTime?
+
+  country               Country                     @relation("HotelCountry", fields: [countryId], references: [id])
+  registerCountry       Country?                    @relation("RegisterCountry", fields: [registerCountryId], references: [id])
+  currency              Currency                    @relation(fields: [currencyId], references: [id])
+  
+  hotelPartners         HotelPartner[]
+  userHotels            UserHotel[]
+  hotelServiceOffers    HotelServiceOffer[]
+  hotelRooms            HotelRoom[]
+  hotelServices         HotelService[]
+  hotelFoods            HotelFood[]
+  orders                Order[]
+  hotelAvailabilities   HotelAvailability[]
+  priceNotificationSchedules PriceNotificationSchedule[]
+
+  @@map("Hotels")
+}
+
+model Partner {
+  id                Int               @id @default(autoincrement())
+  email             String            @db.VarChar(256)
+  tin               String            @db.VarChar(64)
+  name              String            @db.VarChar(256)
+  ltd               String            @db.VarChar(256)
+  accountNumber     String            @db.VarChar(256)
+  director          String            @db.VarChar(256)
+  phone             String            @db.VarChar(256)
+  status            PartnerStatus
+  countryId         Int
+  legalEntityTypeId LegalEntityType
+  isSystem          Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  deletedAt         DateTime?
+
+  country                       Country                     @relation(fields: [countryId], references: [id])
+  
+  hotelPartners                 HotelPartner[]
+  orders                        Order[]
+  emailStatuses                 EmailStatus[]
+  priceNotificationSchedules    PriceNotificationSchedule[]
+
+  @@map("Partners")
+}
+
+model HotelPartner {
+  id         Int      @id @default(autoincrement())
+  hotelId    Int
+  partnerId  Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  hotel   Hotel   @relation(fields: [hotelId], references: [id])
+  partner Partner @relation(fields: [partnerId], references: [id])
+
+  @@unique([hotelId, partnerId])
+  @@map("HotelPartners")
+}
+
+model PaymentMethod {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("PaymentMethods")
+}
+
+model Invoice {
+  id        Int      @id @default(autoincrement())
+  number    String   @db.VarChar(100)
+  amount    Decimal  @db.Decimal(18, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("Invoices")
+}
+
+model Order {
+  id                  Int               @id @default(autoincrement())
+  hotelId             Int
+  statusId            OrderStatus
+  invoiceId           Int?
+  orderNumber         String            @db.VarChar(100)
+  paymentMethodId     Int?
+  orderCheckinTypeId  OrderCheckinType
+  hotelPartnerId      Int?
+  sourceId            OrderSource
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime?
+
+  hotel                Hotel                   @relation(fields: [hotelId], references: [id])
+  hotelPartner         Partner?                @relation(fields: [hotelPartnerId], references: [id])
+  paymentMethod        PaymentMethod?          @relation(fields: [paymentMethodId], references: [id])
+  invoice              Invoice?                @relation(fields: [invoiceId], references: [id])
+  
+  orderCheckinDates    OrderCheckinDate[]
+  orderHotelServices   OrderHotelService[]
+  orderContactPersons  OrderContactPerson[]
+  orderGuests          OrderGuest[]
+  orderHotelRooms      OrderHotelRoom[]
+
+  @@map("Orders")
+}
+
+model OrderCheckinDate {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  checkinDate DateTime
+  checkoutDate DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("OrderCheckinDates")
+}
+
+model OrderContactPerson {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  firstName   String   @db.VarChar(128)
+  lastName    String   @db.VarChar(128)
+  email       String   @db.VarChar(256)
+  phoneCode   Int
+  phoneNumber String   @db.VarChar(32)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("OrderContactPersons")
+}
+
+model OrderGuest {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  firstName String   @db.VarChar(128)
+  lastName  String   @db.VarChar(128)
+  age       Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("OrderGuests")
+}
+
+model OrderHotelRoom {
+  id           Int      @id @default(autoincrement())
+  orderId      Int
+  hotelRoomId  Int
+  quantity     Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  order     Order     @relation(fields: [orderId], references: [id])
+  hotelRoom HotelRoom @relation(fields: [hotelRoomId], references: [id])
+
+  @@map("OrderHotelRooms")
+}
+
+model OrderHotelService {
+  id             Int      @id @default(autoincrement())
+  orderId        Int
+  hotelServiceId Int
+  quantity       Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  order        Order        @relation(fields: [orderId], references: [id])
+  hotelService HotelService @relation(fields: [hotelServiceId], references: [id])
+
+  @@map("OrderHotelServices")
+}
+
+model RoomClass {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotelRooms HotelRoom[]
+
+  @@map("RoomClasses")
+}
+
+model RoomView {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotelRooms HotelRoom[]
+
+  @@map("RoomViews")
+}
+
+model HotelRoom {
+  id                      Int               @id @default(autoincrement())
+  name                    String            @db.VarChar(256)
+  hotelId                 Int
+  roomClassId             Int
+  roomViewId              Int?
+  numbers                 String            @db.VarChar(256)
+  area                    String            @db.VarChar(50)
+  mainGuestQuantity       Int
+  additionalGuestQuantity Int
+  status                  HotelRoomStatus
+  roomNumberQuantity      Int
+  completeness            CompletenessStatus
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  deletedAt               DateTime?
+
+  hotel        Hotel       @relation(fields: [hotelId], references: [id])
+  roomClass    RoomClass   @relation(fields: [roomClassId], references: [id])
+  roomView     RoomView?   @relation(fields: [roomViewId], references: [id])
+  
+  hotelRoomParts    HotelRoomPart[]
+  hotelRoomNumbers  HotelRoomNumber[]
+  hotelRoomPrices   HotelRoomPrice[]
+  orderHotelRooms   OrderHotelRoom[]
+
+  @@map("HotelRooms")
+}
+
+model RoomPart {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotelRoomParts HotelRoomPart[]
+
+  @@map("RoomParts")
+}
+
+model HotelRoomPart {
+  id           Int      @id @default(autoincrement())
+  hotelRoomId  Int
+  roomPartId   Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  hotelRoom HotelRoom @relation(fields: [hotelRoomId], references: [id])
+  roomPart  RoomPart  @relation(fields: [roomPartId], references: [id])
+
+  hotelRoomPartBeds HotelRoomPartBed[]
+
+  @@map("HotelRoomParts")
+}
+
+model RoomBedSizeType {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roomBedSizes RoomBedSize[]
+
+  @@map("RoomBedSizeTypes")
+}
+
+model RoomBedSize {
+  id                 Int      @id @default(autoincrement())
+  roomBedSizeTypeId  Int
+  size               String   @db.VarChar(64)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  roomBedSizeType   RoomBedSizeType    @relation(fields: [roomBedSizeTypeId], references: [id])
+  
+  hotelRoomPartBeds HotelRoomPartBed[]
+
+  @@map("RoomBedSizes")
+}
+
+model HotelRoomPartBed {
+  id               Int      @id @default(autoincrement())
+  hotelRoomPartId  Int
+  bedType          BedType
+  roomBedSizeId    Int
+  quantity         Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  hotelRoomPart HotelRoomPart @relation(fields: [hotelRoomPartId], references: [id])
+  roomBedSize   RoomBedSize   @relation(fields: [roomBedSizeId], references: [id])
+
+  @@map("HotelRoomPartBeds")
+}
+
+model HotelRoomNumber {
+  id           Int      @id @default(autoincrement())
+  hotelRoomId  Int
+  roomNumber   String   @db.VarChar(32)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  hotelRoom HotelRoom @relation(fields: [hotelRoomId], references: [id])
+
+  @@map("HotelRoomNumbers")
+}
+
+model HotelRoomPrice {
+  id           Int      @id @default(autoincrement())
+  hotelRoomId  Int
+  price        Decimal  @db.Decimal(18, 2)
+  dateFrom     DateTime
+  dateTo       DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  hotelRoom HotelRoom @relation(fields: [hotelRoomId], references: [id])
+
+  @@map("HotelRoomPrices")
+}
+
+model SystemServiceGroup {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  systemServices SystemService[]
+
+  @@map("SystemServiceGroups")
+}
+
+model SystemServiceType {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  systemServices SystemService[]
+
+  @@map("SystemServiceTypes")
+}
+
+model SystemService {
+  id                   Int      @id @default(autoincrement())
+  systemServiceGroupId Int
+  systemServiceTypeId  Int
+  name                 String   @db.VarChar(256)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  systemServiceGroup SystemServiceGroup @relation(fields: [systemServiceGroupId], references: [id])
+  systemServiceType  SystemServiceType  @relation(fields: [systemServiceTypeId], references: [id])
+  
+  hotelServices HotelService[]
+
+  @@map("SystemServices")
+}
+
+model HotelService {
+  id            Int                @id @default(autoincrement())
+  hotelId       Int
+  serviceId     Int
+  description   String?            @db.VarChar(1024)
+  statusId      CompletenessStatus
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+
+  service SystemService @relation(fields: [serviceId], references: [id])
+  hotel   Hotel         @relation(fields: [hotelId], references: [id])
+  
+  hotelServiceAvailabilities HotelServiceAvailability[]
+  hotelServicePrices         HotelServicePrice[]
+  orderHotelServices         OrderHotelService[]
+
+  @@map("HotelServices")
+}
+
+model HotelServiceAvailability {
+  id                        Int                               @id @default(autoincrement())
+  hotelServiceId            Int
+  availabilityTypeId        ServiceTypeAvailabilityBy
+  hourlyAvailabilityTypeId  HotelServiceHourlyAvailabilityType
+  payMethodId               ServicePayMethod
+  startTime                 DateTime?
+  endTime                   DateTime?
+  createdAt                 DateTime                          @default(now())
+  updatedAt                 DateTime                          @updatedAt
+
+  hotelService HotelService @relation(fields: [hotelServiceId], references: [id])
+
+  @@map("HotelServiceAvailabilities")
+}
+
+model HotelServicePrice {
+  id             Int      @id @default(autoincrement())
+  hotelServiceId Int
+  price          Decimal  @db.Decimal(18, 2)
+  dateFrom       DateTime
+  dateTo         DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  hotelService HotelService @relation(fields: [hotelServiceId], references: [id])
+
+  @@map("HotelServicePrices")
+}
+
+model HotelServiceOffer {
+  id                 Int                 @id @default(autoincrement())
+  hotelId            Int
+  serviceOfferId     ServiceOffer
+  serviceOfferStatus ServiceOfferStatus
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@map("HotelServiceOffers")
+}
+
+model Cuisine {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotelFoodCuisines HotelFoodCuisine[]
+
+  @@map("Cuisines")
+}
+
+model OfferType {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotelFoodOfferTypes HotelFoodOfferType[]
+
+  @@map("OfferTypes")
+}
+
+model HotelFood {
+  id            Int                @id @default(autoincrement())
+  hotelId       Int
+  name          String             @db.VarChar(256)
+  description   String?            @db.VarChar(1024)
+  foodType      FoodType
+  statusId      CompletenessStatus
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+  
+  hotelFoodCuisines    HotelFoodCuisine[]
+  hotelFoodOfferTypes  HotelFoodOfferType[]
+  hotelFoodPrices      HotelFoodPrice[]
+
+  @@map("HotelFoods")
+}
+
+model HotelFoodCuisine {
+  id          Int      @id @default(autoincrement())
+  hotelFoodId Int
+  cuisineId   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  hotelFood HotelFood @relation(fields: [hotelFoodId], references: [id])
+  cuisine   Cuisine   @relation(fields: [cuisineId], references: [id])
+
+  @@unique([hotelFoodId, cuisineId])
+  @@map("HotelFoodCuisines")
+}
+
+model HotelFoodOfferType {
+  id          Int      @id @default(autoincrement())
+  hotelFoodId Int
+  offerTypeId Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  hotelFood HotelFood @relation(fields: [hotelFoodId], references: [id])
+  offerType OfferType @relation(fields: [offerTypeId], references: [id])
+
+  @@unique([hotelFoodId, offerTypeId])
+  @@map("HotelFoodOfferTypes")
+}
+
+model HotelFoodPrice {
+  id          Int      @id @default(autoincrement())
+  hotelFoodId Int
+  price       Decimal  @db.Decimal(18, 2)
+  dateFrom    DateTime
+  dateTo      DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  hotelFood HotelFood @relation(fields: [hotelFoodId], references: [id])
+
+  @@map("HotelFoodPrices")
+}
+
+model HotelAvailability {
+  id        Int      @id @default(autoincrement())
+  hotelId   Int
+  dateFrom  DateTime
+  dateTo    DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+  
+  priceNotificationSchedules PriceNotificationSchedule[]
+
+  @@map("HotelAvailabilities")
+}
+
+model EmailStatus {
+  id            Int             @id @default(autoincrement())
+  messageId     String          @db.VarChar(256)
+  status        EmailSentStatus
+  partnerId     Int?
+  availabilityId Int?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime?
+
+  partner Partner? @relation(fields: [partnerId], references: [id])
+
+  @@map("EmailStatuses")
+}
+
+model PriceNotificationSchedule {
+  id             Int                      @id @default(autoincrement())
+  partnerId      Int
+  availabilityId Int
+  hotelId        Int
+  languageId     Int
+  status         PriceNotificationStatus
+  sentDate       DateTime?
+  createdAt      DateTime                 @default(now())
+
+  partner           Partner           @relation(fields: [partnerId], references: [id])
+  hotelAvailability HotelAvailability @relation(fields: [availabilityId], references: [id])
+  hotel             Hotel             @relation(fields: [hotelId], references: [id])
+  language          Language          @relation(fields: [languageId], references: [id])
+
+  @@map("PriceNotificationSchedules")
+}
+
+model LocalizationResource {
+  id         Int      @id @default(autoincrement())
+  key        String   @db.VarChar(256)
+  value      String   @db.VarChar(512)
+  languageId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([key, languageId])
+  @@map("LocalizationResources")
+}
+
+model UserHotel {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.VarChar(450) // ASP.NET Identity user ID
+  hotelId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hotel Hotel @relation(fields: [hotelId], references: [id])
+
+  @@unique([userId, hotelId])
+  @@map("UserHotels")
+}
+
+model HotelState {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(256)
+  countryId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("HotelStates")
+}
+
+model SystemStateSetting {
+  id        Int      @id @default(autoincrement())
+  key       String   @db.VarChar(256)
+  value     String   @db.VarChar(512)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key])
+  @@map("SystemStateSettings")
+}
