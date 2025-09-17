@@ -2,10 +2,10 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function seedRoomBeds() {
+export async function seedRoomBeds(): Promise<void> {
   console.log('🛏️ Загружаем типы и размеры кроватей...');
 
-  const roomBedTypes = [
+  const roomBedTypes: Array<{ name: string }> = [
     { name: 'Single' },
     { name: 'Double' },
     { name: 'Queen' },
@@ -25,22 +25,26 @@ export async function seedRoomBeds() {
   ];
 
   // Создаем типы кроватей
-  // try {
-  //   const existingBedTypes = await prisma.roomBedType.findMany();
-  //   if (existingBedTypes.length === 0) {
-  //     await prisma.roomBedType.createMany({
-  //       data: roomBedTypes,
-  //       skipDuplicates: true,
-  //     });
-  //     console.log('✅ Типы кроватей созданы!');
-  //   } else {
-  //     console.log('ℹ️ Типы кроватей уже существуют');
-  //   }
-  // } catch (error) {
-  //   console.error('Error seeding bed types:', error);
-  // }
+  try {
+    const bedTypesCount = await prisma.roomBedType.count();
+    if (bedTypesCount === 0) {
+      await prisma.roomBedType.createMany({
+        data: roomBedTypes,
+        skipDuplicates: true,
+      });
+      console.log('✅ Типы кроватей созданы!');
+    } else {
+      console.log('ℹ️ Типы кроватей уже существуют');
+    }
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Error seeding bed types:', err.message);
+    } else {
+      console.error('Error seeding bed types:', err);
+    }
+  }
 
-  const roomBedSizes = [
+  const roomBedSizes: Array<{ size: string }> = [
     { size: '80' }, // Single
     { size: '90' }, // Single wide
     { size: '120' }, // Small double
@@ -54,15 +58,22 @@ export async function seedRoomBeds() {
 
   // Создаем размеры кроватей
   try {
-    const existingBedSizes = await prisma.roomBedSize.findMany();
-    if (existingBedSizes.length === 0) {
+    const bedSizesCount = await prisma.roomBedSize.count();
+    if (bedSizesCount === 0) {
       await prisma.roomBedSize.createMany({
         data: roomBedSizes,
         skipDuplicates: true,
       });
+      console.log('✅ Размеры кроватей созданы!');
+    } else {
+      console.log('ℹ️ Размеры кроватей уже существуют');
     }
-  } catch (error) {
-    console.error('Error seeding bed sizes:', error);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Error seeding bed sizes:', err.message);
+    } else {
+      console.error('Error seeding bed sizes:', err);
+    }
   }
 
   console.log('✅ Типы и размеры кроватей загружены!');

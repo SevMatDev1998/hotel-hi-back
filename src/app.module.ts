@@ -12,6 +12,8 @@ import { RoomClassesModule } from './modules/room-classes/room-classes.module';
 import { RoomPartsModule } from './modules/room-parts/room-parts.module';
 import { HotelRoomModule } from './modules/hotel-room/hotel-room.module';
 import { HotelRoomPartsModule } from './modules/hotel-room-parts/hotel-room-parts.module';
+import { RoomBedTypesModule } from './modules/room-bed-types/room-bed-types.module';
+import { RoomBedSizesModule } from './modules/room-bed-sizes/room-bed-sizes.module';
 import {
   databaseConfig,
   jwtConfig,
@@ -35,6 +37,8 @@ import {
     RoomPartsModule,
     HotelRoomModule,
     HotelRoomPartsModule,
+    RoomBedTypesModule,
+    RoomBedSizesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
