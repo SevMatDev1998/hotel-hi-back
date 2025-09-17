@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export async function seedOfferTypes() {
   console.log('🎯 Загружаем типы предложений...');
 
-      const offerTypes = [
+  const offerTypes = [
     { name: 'Swedish' },
     { name: 'PersonalDelivery' },
     { name: 'DeliveryRoom' },

@@ -5,56 +5,64 @@ const prisma = new PrismaClient();
 export async function seedRoomBeds() {
   console.log('🛏️ Загружаем типы и размеры кроватей...');
 
-  const roomBedSizeTypes = [
-    { name: 'Single bed' },
-    { name: 'Double bed' },
-    { name: 'Queen bed' },
-    { name: 'King bed' },
-    { name: 'Twin bed' },
-    { name: 'Full bed' },
+  const roomBedTypes = [
+    { name: 'Single' },
+    { name: 'Double' },
+    { name: 'Queen' },
+    { name: 'King' },
+    { name: 'Twin' },
+    { name: 'Full' },
     { name: 'California King' },
-    { name: 'Bunk bed' },
-    { name: 'Sofa bed' },
-    { name: 'Murphy bed' },
+    { name: 'Bunk' },
+    { name: 'Sofa' },
+    { name: 'Murphy' },
     { name: 'Daybed' },
     { name: 'Futon' },
-    { name: 'Rollaway bed' },
+    { name: 'Rollaway' },
+    { name: 'Cradle' },
     { name: 'Crib' },
     { name: 'Bassinet' },
   ];
 
   // Создаем типы кроватей
-  const existingBedTypes = await prisma.roomBedSizeType.findMany();
-  if (existingBedTypes.length === 0) {
-    await prisma.roomBedSizeType.createMany({
-      data: roomBedSizeTypes,
-      skipDuplicates: true,
-    });
-  }
-
-  // Получаем созданные типы кроватей для связи с размерами
-  const bedTypes = await prisma.roomBedSizeType.findMany();
+  // try {
+  //   const existingBedTypes = await prisma.roomBedType.findMany();
+  //   if (existingBedTypes.length === 0) {
+  //     await prisma.roomBedType.createMany({
+  //       data: roomBedTypes,
+  //       skipDuplicates: true,
+  //     });
+  //     console.log('✅ Типы кроватей созданы!');
+  //   } else {
+  //     console.log('ℹ️ Типы кроватей уже существуют');
+  //   }
+  // } catch (error) {
+  //   console.error('Error seeding bed types:', error);
+  // }
 
   const roomBedSizes = [
-    { size: 'Twin', roomBedSizeTypeId: bedTypes[4]?.id || 1 }, // Twin bed
-    { size: 'Twin XL', roomBedSizeTypeId: bedTypes[4]?.id || 1 }, // Twin bed
-    { size: 'Full', roomBedSizeTypeId: bedTypes[5]?.id || 2 }, // Full bed
-    { size: 'Queen', roomBedSizeTypeId: bedTypes[2]?.id || 3 }, // Queen bed
-    { size: 'King', roomBedSizeTypeId: bedTypes[3]?.id || 4 }, // King bed
-    { size: 'California King', roomBedSizeTypeId: bedTypes[6]?.id || 5 }, // California King
-    { size: 'Single', roomBedSizeTypeId: bedTypes[0]?.id || 1 }, // Single bed
-    { size: 'Double', roomBedSizeTypeId: bedTypes[1]?.id || 2 }, // Double bed
-    { size: 'Super Single', roomBedSizeTypeId: bedTypes[0]?.id || 1 }, // Single bed
-    { size: 'Emperor', roomBedSizeTypeId: bedTypes[3]?.id || 4 }, // King bed
+    { size: '80' }, // Single
+    { size: '90' }, // Single wide
+    { size: '120' }, // Small double
+    { size: '140' }, // Double
+    { size: '160' }, // Queen
+    { size: '180' }, // King
+    { size: '200' }, // Super King
+    { size: '70' }, // Child bed
+    { size: '60' }, // Crib/Cradle
   ];
 
   // Создаем размеры кроватей
-  const existingBedSizes = await prisma.roomBedSize.findMany();
-  if (existingBedSizes.length === 0) {
-    await prisma.roomBedSize.createMany({
-      data: roomBedSizes,
-      skipDuplicates: true,
-    });
+  try {
+    const existingBedSizes = await prisma.roomBedSize.findMany();
+    if (existingBedSizes.length === 0) {
+      await prisma.roomBedSize.createMany({
+        data: roomBedSizes,
+        skipDuplicates: true,
+      });
+    }
+  } catch (error) {
+    console.error('Error seeding bed sizes:', error);
   }
 
   console.log('✅ Типы и размеры кроватей загружены!');

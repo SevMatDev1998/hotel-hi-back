@@ -202,7 +202,7 @@ model Hotel {
   extractUrl           String?  @db.VarChar(512)
   bookingIntegration   Boolean  @default(false)
   legalPerson          String?  @db.VarChar(256)
-  priceSendEmail       String   @db.VarChar(256)
+  priceSendEmail       String?   @db.VarChar(256)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   deletedAt            DateTime?
@@ -464,25 +464,22 @@ model HotelRoomPart {
   @@map("HotelRoomParts")
 }
 
-model RoomBedSizeType {
+model RoomBedType {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(128)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  roomBedSizes RoomBedSize[]
+  hotelRoomPartBeds HotelRoomPartBed[]
 
-  @@map("RoomBedSizeTypes")
+  @@map("RoomBedTypes")
 }
 
 model RoomBedSize {
   id                 Int      @id @default(autoincrement())
-  roomBedSizeTypeId  Int
   size               String   @db.VarChar(64)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-
-  roomBedSizeType   RoomBedSizeType    @relation(fields: [roomBedSizeTypeId], references: [id])
   
   hotelRoomPartBeds HotelRoomPartBed[]
 
@@ -494,12 +491,14 @@ model HotelRoomPartBed {
   hotelRoomPartId  Int
   bedType          BedType
   roomBedSizeId    Int
+  roomBedTypeId    Int
   quantity         Int
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   hotelRoomPart HotelRoomPart @relation(fields: [hotelRoomPartId], references: [id])
   roomBedSize   RoomBedSize   @relation(fields: [roomBedSizeId], references: [id])
+  roomBedType   RoomBedType   @relation(fields: [roomBedTypeId], references: [id])
 
   @@map("HotelRoomPartBeds")
 }
