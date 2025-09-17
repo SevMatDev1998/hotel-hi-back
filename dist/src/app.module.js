@@ -18,6 +18,7 @@ const hotel_module_1 = require("./modules/hotel/hotel.module");
 const countries_module_1 = require("./modules/countries/countries.module");
 const room_views_module_1 = require("./modules/room-views/room-views.module");
 const room_classes_module_1 = require("./modules/room-classes/room-classes.module");
+const room_parts_module_1 = require("./modules/room-parts/room-parts.module");
 const hotel_room_module_1 = require("./modules/hotel-room/hotel-room.module");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
@@ -37,6 +38,7 @@ exports.AppModule = AppModule = __decorate([
             countries_module_1.CountriesModule,
             room_views_module_1.RoomViewsModule,
             room_classes_module_1.RoomClassesModule,
+            room_parts_module_1.RoomPartsModule,
             hotel_room_module_1.HotelRoomModule,
         ],
         controllers: [app_controller_1.AppController],

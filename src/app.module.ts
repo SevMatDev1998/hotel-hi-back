@@ -9,6 +9,7 @@ import { HotelModule } from './modules/hotel/hotel.module';
 import { CountriesModule } from './modules/countries/countries.module';
 import { RoomViewsModule } from './modules/room-views/room-views.module';
 import { RoomClassesModule } from './modules/room-classes/room-classes.module';
+import { RoomPartsModule } from './modules/room-parts/room-parts.module';
 import { HotelRoomModule } from './modules/hotel-room/hotel-room.module';
 import {
   databaseConfig,
@@ -30,6 +31,7 @@ import {
     CountriesModule,
     RoomViewsModule,
     RoomClassesModule,
+    RoomPartsModule,
     HotelRoomModule,
   ],
   controllers: [AppController],
