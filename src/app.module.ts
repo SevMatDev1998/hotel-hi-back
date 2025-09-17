@@ -6,6 +6,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { HotelModule } from './modules/hotel/hotel.module';
+import { CountriesModule } from './modules/countries/countries.module';
+import { RoomViewsModule } from './modules/room-views/room-views.module';
+import { RoomClassesModule } from './modules/room-classes/room-classes.module';
 import {
   databaseConfig,
   jwtConfig,
@@ -18,12 +21,14 @@ import {
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, jwtConfig, appConfig, swaggerConfig],
-      envFilePath: '.env',
     }),
     PrismaModule,
     AuthModule,
     UserModule,
     HotelModule,
+    CountriesModule,
+    RoomViewsModule,
+    RoomClassesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

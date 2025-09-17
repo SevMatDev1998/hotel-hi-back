@@ -15,6 +15,9 @@ const prisma_module_1 = require("./prisma/prisma.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const user_module_1 = require("./modules/user/user.module");
 const hotel_module_1 = require("./modules/hotel/hotel.module");
+const countries_module_1 = require("./modules/countries/countries.module");
+const room_views_module_1 = require("./modules/room-views/room-views.module");
+const room_classes_module_1 = require("./modules/room-classes/room-classes.module");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
 };
@@ -25,12 +28,14 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 load: [configuration_1.databaseConfig, configuration_1.jwtConfig, configuration_1.appConfig, configuration_1.swaggerConfig],
-                envFilePath: '.env',
             }),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             user_module_1.UserModule,
             hotel_module_1.HotelModule,
+            countries_module_1.CountriesModule,
+            room_views_module_1.RoomViewsModule,
+            room_classes_module_1.RoomClassesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
