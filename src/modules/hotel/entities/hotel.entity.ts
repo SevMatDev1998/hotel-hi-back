@@ -25,7 +25,7 @@ export class Hotel implements PrismaHotel {
   extractUrl: string | null;
   bookingIntegration: boolean;
   legalPerson: string | null;
-  priceSendEmail: string;
+  priceSendEmail: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;

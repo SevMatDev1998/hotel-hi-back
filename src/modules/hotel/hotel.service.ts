@@ -65,7 +65,7 @@ export class HotelService {
       include: { hotel: true },
     });
 
-    return userHotels.map((userHotel) => userHotel.hotel);
+    return userHotels.map((userHotel) => userHotel.hotel as Hotel);
   }
 
   // Base Information Methods
