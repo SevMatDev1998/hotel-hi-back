@@ -9,6 +9,7 @@ import { HotelModule } from './modules/hotel/hotel.module';
 import { CountriesModule } from './modules/countries/countries.module';
 import { RoomViewsModule } from './modules/room-views/room-views.module';
 import { RoomClassesModule } from './modules/room-classes/room-classes.module';
+import { HotelRoomModule } from './modules/hotel-room/hotel-room.module';
 import {
   databaseConfig,
   jwtConfig,
@@ -29,6 +30,7 @@ import {
     CountriesModule,
     RoomViewsModule,
     RoomClassesModule,
+    HotelRoomModule,
   ],
   controllers: [AppController],
   providers: [AppService],
