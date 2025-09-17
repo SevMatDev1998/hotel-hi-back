@@ -1,6 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Hotel } from './entities/hotel.entity';
+import {
+  GetHotelBaseInfoDto,
+  UpdateHotelBaseInfoDto,
+} from './dto/hotel-base-info.dto';
+import {
+  GetHotelLegalInfoDto,
+  UpdateHotelLegalInfoDto,
+} from './dto/hotel-legal-info.dto';
 
 @Injectable()
 export class HotelService {
@@ -58,5 +66,119 @@ export class HotelService {
     });
 
     return userHotels.map((userHotel) => userHotel.hotel);
+  }
+
+  // Base Information Methods
+  async getHotelBaseInfo(hotelId: number): Promise<GetHotelBaseInfoDto> {
+    const hotel = await this.prisma.hotel.findUnique({
+      where: { id: hotelId },
+      select: {
+        id: true,
+        contactPerson: true,
+        phoneCode: true,
+        phoneNumber: true,
+        countryId: true,
+        state: true,
+        city: true,
+        currencyId: true,
+      },
+    });
+
+    if (!hotel) {
+      throw new NotFoundException(`Hotel with ID ${hotelId} not found`);
+    }
+
+    return hotel;
+  }
+
+  async updateHotelBaseInfo(
+    hotelId: number,
+    updateData: UpdateHotelBaseInfoDto,
+  ): Promise<GetHotelBaseInfoDto> {
+    const hotel = await this.prisma.hotel.findUnique({
+      where: { id: hotelId },
+    });
+
+    if (!hotel) {
+      throw new NotFoundException(`Hotel with ID ${hotelId} not found`);
+    }
+
+    // Update only the fields that are allowed in UpdateHotelBaseInfoDto
+    const updatedHotel = await this.prisma.hotel.update({
+      where: { id: hotelId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        contactPerson: true,
+        phoneCode: true,
+        phoneNumber: true,
+        logoUrl: true,
+        websiteUrl: true,
+        countryId: true,
+        state: true,
+        city: true,
+        priceSendEmail: true,
+        isActive: true,
+        bookingIntegration: true,
+        currencyId: true,
+      },
+    });
+
+    return updatedHotel;
+  }
+
+  // Legal Information Methods
+  async getHotelLegalInfo(hotelId: number): Promise<GetHotelLegalInfoDto> {
+    const hotel = await this.prisma.hotel.findUnique({
+      where: { id: hotelId },
+      select: {
+        id: true,
+        registerCountryId: true,
+        registerState: true,
+        registerCity: true,
+        tinNumber: true,
+        director: true,
+        legalPerson: true,
+        extractUrl: true,
+      },
+    });
+
+    if (!hotel) {
+      throw new NotFoundException(`Hotel with ID ${hotelId} not found`);
+    }
+
+    return hotel;
+  }
+
+  async updateHotelLegalInfo(
+    hotelId: number,
+    updateData: UpdateHotelLegalInfoDto,
+  ): Promise<GetHotelLegalInfoDto> {
+    const hotel = await this.prisma.hotel.findUnique({
+      where: { id: hotelId },
+    });
+
+    if (!hotel) {
+      throw new NotFoundException(`Hotel with ID ${hotelId} not found`);
+    }
+
+    // Update only the fields that are allowed in UpdateHotelLegalInfoDto
+    const updatedHotel = await this.prisma.hotel.update({
+      where: { id: hotelId },
+      data: updateData,
+      select: {
+        id: true,
+        registerCountryId: true,
+        registerState: true,
+        registerCity: true,
+        tinNumber: true,
+        director: true,
+        legalPerson: true,
+        extractUrl: true,
+      },
+    });
+
+    return updatedHotel;
   }
 }
