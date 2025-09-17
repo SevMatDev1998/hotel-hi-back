@@ -3,6 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { HotelModule } from './modules/hotel/hotel.module';
 import {
   databaseConfig,
   jwtConfig,
@@ -18,6 +21,9 @@ import {
       envFilePath: '.env',
     }),
     PrismaModule,
+    AuthModule,
+    UserModule,
+    HotelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
