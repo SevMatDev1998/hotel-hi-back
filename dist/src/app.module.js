@@ -26,6 +26,9 @@ const room_bed_types_module_1 = require("./modules/room-bed-types/room-bed-types
 const room_bed_sizes_module_1 = require("./modules/room-bed-sizes/room-bed-sizes.module");
 const food_offer_types_module_1 = require("./modules/food-offer-types/food-offer-types.module");
 const cuisines_module_1 = require("./modules/cuisines/cuisines.module");
+const system_service_module_1 = require("./modules/system-service/system-service.module");
+const system_service_type_module_1 = require("./modules/system-service-type/system-service-type.module");
+const system_service_group_module_1 = require("./modules/system-service-group/system-service-group.module");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
 };
@@ -52,6 +55,9 @@ exports.AppModule = AppModule = __decorate([
             room_bed_sizes_module_1.RoomBedSizesModule,
             food_offer_types_module_1.FoodOfferTypesModule,
             cuisines_module_1.CuisinesModule,
+            system_service_module_1.SystemServiceModule,
+            system_service_type_module_1.SystemServiceTypeModule,
+            system_service_group_module_1.SystemServiceGroupModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

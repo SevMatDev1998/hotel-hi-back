@@ -17,6 +17,9 @@ import { RoomBedTypesModule } from './modules/room-bed-types/room-bed-types.modu
 import { RoomBedSizesModule } from './modules/room-bed-sizes/room-bed-sizes.module';
 import { FoodOfferTypesModule } from './modules/food-offer-types/food-offer-types.module';
 import { CuisinesModule } from './modules/cuisines/cuisines.module';
+import { SystemServiceModule } from './modules/system-service/system-service.module';
+import { SystemServiceTypeModule } from './modules/system-service-type/system-service-type.module';
+import { SystemServiceGroupModule } from './modules/system-service-group/system-service-group.module';
 import {
   databaseConfig,
   jwtConfig,
@@ -45,6 +48,9 @@ import {
     RoomBedSizesModule,
     FoodOfferTypesModule,
     CuisinesModule,
+    SystemServiceModule,
+    SystemServiceTypeModule,
+    SystemServiceGroupModule,
   ],
   controllers: [AppController],
   providers: [AppService],
