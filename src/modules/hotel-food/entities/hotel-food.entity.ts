@@ -3,9 +3,15 @@ import { FoodType } from '../../../common/enums';
 export class HotelFood {
   id: number;
   hotelId: number;
+  name: string;
+  description?: string;
   foodType: FoodType;
+  statusId: any; // CompletenessStatus enum
+  startDate: Date;
+  endDate: Date;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
 
   // Relations
   hotel?: any; // Will be properly typed when Hotel entity is available
