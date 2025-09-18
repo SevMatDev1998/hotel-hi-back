@@ -3,7 +3,7 @@ import { seedLocalization } from './seeds/localization.seed';
 import { seedCountries } from './seeds/countries.seed';
 import { seedCurrencies } from './seeds/currencies.seed';
 import { seedCuisines } from './seeds/cuisines.seed';
-import { seedOfferTypes } from './seeds/offer-types.seed';
+import { seedFoodOfferTypes } from './seeds/food-offer-types.seed';
 import { seedRoomClasses } from './seeds/room-classes.seed';
 import { seedRoomViews } from './seeds/room-views.seed';
 import { seedRoomParts } from './seeds/room-parts.seed';
@@ -15,36 +15,34 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Начинаем заполнение базы данных начальными данными...');
-  
+
   try {
     // 1. Базовая локализация (должна быть первой)
     await seedLocalization();
-    
     // 2. Справочные данные
     await seedCountries();
     await seedCurrencies();
     await seedCuisines();
-    await seedOfferTypes();
-    
+    await seedFoodOfferTypes();
     // 3. Данные для номеров
     await seedRoomClasses();
     await seedRoomViews();
     await seedRoomParts();
     await seedRoomBeds();
-    
+
     // 4. Услуги отеля
     await seedServices();
-    
+
     // 5. Системные настройки
     await seedSystemSettings();
-    
+
     console.log('✅ Все данные успешно загружены!');
     console.log('📊 Статистика загрузки:');
     console.log('   - Локализация: 206+ записей');
     console.log('   - Страны: 3');
     console.log('   - Валюты: 3');
     console.log('   - Кухни: 8');
-    console.log('   - Типы предложений: 3');
+    console.log('   - Типы предложений еды: 3');
     console.log('   - Классы номеров: 25');
     console.log('   - Виды из номеров: 10');
     console.log('   - Части номеров: 11');

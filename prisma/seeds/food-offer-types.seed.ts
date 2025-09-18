@@ -2,25 +2,25 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function seedOfferTypes() {
-  console.log('🎯 Загружаем типы предложений...');
+export async function seedFoodOfferTypes() {
+  console.log('🎯 Загружаем типы предложений еды...');
 
-  const offerTypes = [
+  const foodOfferTypes = [
     { name: 'Swedish' },
     { name: 'PersonalDelivery' },
     { name: 'DeliveryRoom' },
   ];
 
-  // Создаем типы предложений
-  const existingOfferTypes = await prisma.offerType.findMany();
-  if (existingOfferTypes.length === 0) {
-    await prisma.offerType.createMany({
-      data: offerTypes,
+  // Создаем типы предложений еды
+  const existingFoodOfferTypes = await prisma.foodOfferType.findMany();
+  if (existingFoodOfferTypes.length === 0) {
+    await prisma.foodOfferType.createMany({
+      data: foodOfferTypes,
       skipDuplicates: true,
     });
   }
 
-  // Добавляем переводы для типов предложений
+  // Добавляем переводы для типов предложений еды
   const armenianLang = await prisma.language.findFirst({
     where: { code: 'hy' },
   });
@@ -29,7 +29,7 @@ export async function seedOfferTypes() {
   });
 
   if (armenianLang && englishLang) {
-    const offerTypeTranslations = [
+    const foodOfferTypeTranslations = [
       {
         key: 'Swedish',
         translations: {
@@ -53,22 +53,22 @@ export async function seedOfferTypes() {
       },
     ];
 
-    for (const item of offerTypeTranslations) {
-      const offerType = await prisma.offerType.findFirst({
+    for (const item of foodOfferTypeTranslations) {
+      const foodOfferType = await prisma.foodOfferType.findFirst({
         where: { name: item.key },
       });
-      if (offerType) {
+      if (foodOfferType) {
         for (const [languageId, value] of Object.entries(item.translations)) {
           await prisma.localizationResource.upsert({
             where: {
               key_languageId: {
-                key: `OfferType_${offerType.id}`,
+                key: `FoodOfferType_${foodOfferType.id}`,
                 languageId: parseInt(languageId),
               },
             },
             update: { value },
             create: {
-              key: `OfferType_${offerType.id}`,
+              key: `FoodOfferType_${foodOfferType.id}`,
               value,
               languageId: parseInt(languageId),
             },
@@ -78,5 +78,5 @@ export async function seedOfferTypes() {
     }
   }
 
-  console.log('✅ Типы предложений загружены!');
+  console.log('✅ Типы предложений еды загружены!');
 }

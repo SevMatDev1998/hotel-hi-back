@@ -641,7 +641,7 @@ model Cuisine {
   @@map("Cuisines")
 }
 
-model OfferType {
+model FoodOfferType {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(128)
   createdAt DateTime @default(now())
@@ -649,7 +649,7 @@ model OfferType {
 
   hotelFoodOfferTypes HotelFoodOfferType[]
 
-  @@map("OfferTypes")
+  @@map("FoodOfferTypes")
 }
 
 model HotelFood {
@@ -693,8 +693,8 @@ model HotelFoodOfferType {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  hotelFood HotelFood @relation(fields: [hotelFoodId], references: [id])
-  offerType OfferType @relation(fields: [offerTypeId], references: [id])
+  hotelFood HotelFood     @relation(fields: [hotelFoodId], references: [id])
+  offerType FoodOfferType @relation(fields: [offerTypeId], references: [id])
 
   @@unique([hotelFoodId, offerTypeId])
   @@map("HotelFoodOfferTypes")
