@@ -5,7 +5,7 @@ const localization_seed_1 = require("./seeds/localization.seed");
 const countries_seed_1 = require("./seeds/countries.seed");
 const currencies_seed_1 = require("./seeds/currencies.seed");
 const cuisines_seed_1 = require("./seeds/cuisines.seed");
-const offer_types_seed_1 = require("./seeds/offer-types.seed");
+const food_offer_types_seed_1 = require("./seeds/food-offer-types.seed");
 const room_classes_seed_1 = require("./seeds/room-classes.seed");
 const room_views_seed_1 = require("./seeds/room-views.seed");
 const room_parts_seed_1 = require("./seeds/room-parts.seed");
@@ -20,7 +20,7 @@ async function main() {
         await (0, countries_seed_1.seedCountries)();
         await (0, currencies_seed_1.seedCurrencies)();
         await (0, cuisines_seed_1.seedCuisines)();
-        await (0, offer_types_seed_1.seedOfferTypes)();
+        await (0, food_offer_types_seed_1.seedFoodOfferTypes)();
         await (0, room_classes_seed_1.seedRoomClasses)();
         await (0, room_views_seed_1.seedRoomViews)();
         await (0, room_parts_seed_1.seedRoomParts)();
@@ -33,7 +33,7 @@ async function main() {
         console.log('   - Страны: 3');
         console.log('   - Валюты: 3');
         console.log('   - Кухни: 8');
-        console.log('   - Типы предложений: 3');
+        console.log('   - Типы предложений еды: 3');
         console.log('   - Классы номеров: 25');
         console.log('   - Виды из номеров: 10');
         console.log('   - Части номеров: 11');
