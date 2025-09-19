@@ -20,6 +20,8 @@ import { CuisinesModule } from './modules/cuisines/cuisines.module';
 import { SystemServiceModule } from './modules/system-service/system-service.module';
 import { SystemServiceTypeModule } from './modules/system-service-type/system-service-type.module';
 import { SystemServiceGroupModule } from './modules/system-service-group/system-service-group.module';
+import { HotelServiceModule } from './modules/hotel-service/hotel-service.module';
+import { HotelServiceAvailabilityModule } from './modules/hotel-service-availability/hotel-service-availability.module';
 import {
   databaseConfig,
   jwtConfig,
@@ -51,6 +53,8 @@ import {
     SystemServiceModule,
     SystemServiceTypeModule,
     SystemServiceGroupModule,
+    HotelServiceModule,
+    HotelServiceAvailabilityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
