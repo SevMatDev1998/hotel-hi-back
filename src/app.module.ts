@@ -22,6 +22,7 @@ import { SystemServiceTypeModule } from './modules/system-service-type/system-se
 import { SystemServiceGroupModule } from './modules/system-service-group/system-service-group.module';
 import { HotelServiceModule } from './modules/hotel-service/hotel-service.module';
 import { HotelServiceAvailabilityModule } from './modules/hotel-service-availability/hotel-service-availability.module';
+import { HotelAvailabilityModule } from './modules/hotel-availability/hotel-availability.module';
 import {
   databaseConfig,
   jwtConfig,
@@ -55,6 +56,7 @@ import {
     SystemServiceGroupModule,
     HotelServiceModule,
     HotelServiceAvailabilityModule,
+    HotelAvailabilityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -31,6 +31,7 @@ const system_service_type_module_1 = require("./modules/system-service-type/syst
 const system_service_group_module_1 = require("./modules/system-service-group/system-service-group.module");
 const hotel_service_module_1 = require("./modules/hotel-service/hotel-service.module");
 const hotel_service_availability_module_1 = require("./modules/hotel-service-availability/hotel-service-availability.module");
+const hotel_availability_module_1 = require("./modules/hotel-availability/hotel-availability.module");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
 };
@@ -62,6 +63,7 @@ exports.AppModule = AppModule = __decorate([
             system_service_group_module_1.SystemServiceGroupModule,
             hotel_service_module_1.HotelServiceModule,
             hotel_service_availability_module_1.HotelServiceAvailabilityModule,
+            hotel_availability_module_1.HotelAvailabilityModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
