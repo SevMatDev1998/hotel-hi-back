@@ -516,15 +516,17 @@ model HotelRoomNumber {
 }
 
 model HotelRoomPrice {
-  id           Int      @id @default(autoincrement())
-  hotelRoomId  Int
-  price        Decimal  @db.Decimal(18, 2)
-  dateFrom     DateTime
-  dateTo       DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  hotelRoomId          Int
+  hotelAvailabilityId  Int?     // Добавляем связь с HotelAvailability
+  price                Decimal  @db.Decimal(18, 2)
+  dateFrom             DateTime
+  dateTo               DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  hotelRoom HotelRoom @relation(fields: [hotelRoomId], references: [id])
+  hotelRoom         HotelRoom         @relation(fields: [hotelRoomId], references: [id])
+  hotelAvailability HotelAvailability? @relation(fields: [hotelAvailabilityId], references: [id])
 
   @@map("HotelRoomPrices")
 }
@@ -604,15 +606,17 @@ model HotelServiceAvailability {
 }
 
 model HotelServicePrice {
-  id             Int      @id @default(autoincrement())
-  hotelServiceId Int
-  price          Decimal  @db.Decimal(18, 2)
-  dateFrom       DateTime
-  dateTo         DateTime
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  hotelServiceId       Int
+  hotelAvailabilityId  Int?     // Добавляем связь с HotelAvailability
+  price                Decimal  @db.Decimal(18, 2)
+  dateFrom             DateTime
+  dateTo               DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  hotelService HotelService @relation(fields: [hotelServiceId], references: [id])
+  hotelService      HotelService      @relation(fields: [hotelServiceId], references: [id])
+  hotelAvailability HotelAvailability? @relation(fields: [hotelAvailabilityId], references: [id])
 
   @@map("HotelServicePrices")
 }
@@ -703,15 +707,17 @@ model HotelFoodOfferType {
 }
 
 model HotelFoodPrice {
-  id          Int      @id @default(autoincrement())
-  hotelFoodId Int
-  price       Decimal  @db.Decimal(18, 2)
-  dateFrom    DateTime
-  dateTo      DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  hotelFoodId          Int
+  hotelAvailabilityId  Int?     // Добавляем связь с HotelAvailability
+  price                Decimal  @db.Decimal(18, 2)
+  dateFrom             DateTime
+  dateTo               DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  hotelFood HotelFood @relation(fields: [hotelFoodId], references: [id])
+  hotelFood         HotelFood         @relation(fields: [hotelFoodId], references: [id])
+  hotelAvailability HotelAvailability? @relation(fields: [hotelAvailabilityId], references: [id])
 
   @@map("HotelFoodPrices")
 }
@@ -723,12 +729,33 @@ model HotelAvailability {
   dateTo    DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  
   hotel Hotel @relation(fields: [hotelId], references: [id])
   
   priceNotificationSchedules PriceNotificationSchedule[]
+  hotelAgeAssignments        HotelAgeAssignment[]
+  hotelRoomPrices            HotelRoomPrice[]
+  hotelServicePrices         HotelServicePrice[]
+  hotelFoodPrices            HotelFoodPrice[]
 
   @@map("HotelAvailabilities")
+}
+
+model HotelAgeAssignment {
+  id                   Int      @id @default(autoincrement())
+  hotelAvailabilityId  Int
+  name                 String   @db.VarChar(256)
+  fromAge              Int
+  toAge                Int?
+  bedType              BedType
+  isAdditional         Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  deletedAt            DateTime?
+
+  hotelAvailability HotelAvailability @relation(fields: [hotelAvailabilityId], references: [id])
+
+  @@map("HotelAgeAssignments")
 }
 
 model EmailStatus {
@@ -807,7 +834,7 @@ model User {
 
 model UserHotel {
   id        Int      @id @default(autoincrement())
-  userId    Int      // Changed from String to Int to match User.id
+  userId    Int
   hotelId   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
