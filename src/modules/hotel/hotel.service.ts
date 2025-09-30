@@ -74,12 +74,12 @@ export class HotelService {
       where: { id: hotelId },
       select: {
         id: true,
+        name: true,
+        countryId: true,
         contactPerson: true,
         phoneCode: true,
         phoneNumber: true,
-        countryId: true,
         state: true,
-        city: true,
         currencyId: true,
       },
     });

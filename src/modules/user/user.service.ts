@@ -44,4 +44,8 @@ export class UserService {
       where: { id },
     });
   }
+
+  async validatePassword(password: string, hashedPassword: string): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
+  }
 }

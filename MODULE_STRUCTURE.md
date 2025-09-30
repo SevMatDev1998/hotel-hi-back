@@ -32,7 +32,6 @@
   "hotelName": "Grand Hotel Example",
   "email": "owner@grandhotel.com",
   "password": "SecurePassword123",
-  "passwordConfirm": "SecurePassword123"
 }
 ```
 

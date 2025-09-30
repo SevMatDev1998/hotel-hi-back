@@ -1,21 +1,33 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsNotEmpty } from 'class-validator';
 
 export class GetHotelBaseInfoDto {
+  name: string;
   id: number;
   contactPerson: string;
   phoneCode: number;
   phoneNumber: string;
   countryId: number;
   state: string;
-  city: string;
   currencyId: number;
 }
 
 export class UpdateHotelBaseInfoDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
   @IsOptional()
+  @IsNumber()
+  countryId?: number;
+
+    @IsOptional()
+  @IsString()
+  city?: string;
+
+    @IsOptional()
   @IsString()
   contactPerson?: string;
-
+  
   @IsOptional()
   @IsNumber()
   phoneCode?: number;
@@ -24,19 +36,9 @@ export class UpdateHotelBaseInfoDto {
   @IsString()
   phoneNumber?: string;
 
-  @IsOptional()
-  @IsNumber()
-  countryId?: number;
-
-  @IsOptional()
-  @IsString()
-  state?: string;
-
-  @IsOptional()
-  @IsString()
-  city?: string;
 
   @IsOptional()
   @IsNumber()
   currencyId?: number;
+
 }

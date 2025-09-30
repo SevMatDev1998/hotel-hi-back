@@ -2,10 +2,12 @@ import {
   Injectable,
   ConflictException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { HotelService } from '../hotel/hotel.service';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -18,12 +20,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const { hotelName, email, password, passwordConfirm } = registerDto;
-
-    // Validate password confirmation
-    if (password !== passwordConfirm) {
-      throw new BadRequestException('Passwords do not match');
-    }
+    const { hotelName, email, password } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.userService.findByEmail(email);
@@ -53,5 +50,45 @@ export class AuthService {
     } catch {
       throw new BadRequestException('Registration failed. Please try again.');
     }
+  }
+
+  async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+    const { email, password } = loginDto;
+    console.log(123123);
+    
+    // Find user by email
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Validate password
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    
+    const isPasswordValid = await this.userService.validatePassword(
+      password,
+      user.passwordHash,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Get user's hotel
+    const hotels = await this.hotelService.findByUserId(user.id);
+    if (!hotels || hotels.length === 0) {
+      throw new BadRequestException('No hotel associated with this user');
+    }
+
+    const hotel = hotels[0]; // Get the first hotel
+
+    return {
+      id: user.id,
+      email: user.email!,
+      hotelId: hotel.id,
+      hotelName: hotel.name,
+      message: 'Login successful',
+    };
   }
 }
