@@ -4,11 +4,23 @@ export declare const databaseConfig: (() => {
     url: string | undefined;
 }>;
 export declare const jwtConfig: (() => {
-    secret: string;
-    expiresIn: string;
+    access: {
+        secret: string;
+        expiresIn: string;
+    };
+    refresh: {
+        secret: string;
+        expiresIn: string;
+    };
 }) & import("@nestjs/config").ConfigFactoryKeyHost<{
-    secret: string;
-    expiresIn: string;
+    access: {
+        secret: string;
+        expiresIn: string;
+    };
+    refresh: {
+        secret: string;
+        expiresIn: string;
+    };
 }>;
 export declare const appConfig: (() => {
     port: number;

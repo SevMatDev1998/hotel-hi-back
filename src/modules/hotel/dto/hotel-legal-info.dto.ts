@@ -1,24 +1,21 @@
-import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsNumber,  } from 'class-validator';
 
 export class GetHotelLegalInfoDto {
-  id: number;
   registerCountryId: number | null;
-  registerState: string | null;
   registerCity: string | null;
   tinNumber: string;
   director: string;
   legalPerson: string | null;
-  extractUrl: string | null;
 }
 
 export class UpdateHotelLegalInfoDto {
   @IsOptional()
-  @IsNumber()
-  registerCountryId?: number;
+  @IsString()
+  legalPerson?: string;
 
   @IsOptional()
-  @IsString()
-  registerState?: string;
+  @IsNumber()
+  registerCountryId?: number | null; // Prisma expects number | null
 
   @IsOptional()
   @IsString()
@@ -31,4 +28,12 @@ export class UpdateHotelLegalInfoDto {
   @IsOptional()
   @IsString()
   director?: string;
+
+  @IsOptional()
+  @IsString()
+  priceSendEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string; // ✅ Fix: match Prisma type (string or nullable string)
 }

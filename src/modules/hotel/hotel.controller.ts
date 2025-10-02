@@ -5,6 +5,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Post,
 } from '@nestjs/common';
 import { HotelService } from './hotel.service';
 import {
@@ -28,7 +29,7 @@ export class HotelController {
     return this.hotelService.getHotelBaseInfo(id);
   }
 
-  @Put(':id/base-information')
+  @Post(':id/base-information')
   async updateHotelBaseInfo(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateData: UpdateHotelBaseInfoDto,
@@ -44,7 +45,7 @@ export class HotelController {
     return this.hotelService.getHotelLegalInfo(id);
   }
 
-  @Put(':id/legal-information')
+  @Post(':id/legal-information')
   async updateHotelLegalInfo(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateData: UpdateHotelLegalInfoDto,

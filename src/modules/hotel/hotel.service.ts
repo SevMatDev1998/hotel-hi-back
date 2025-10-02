@@ -59,13 +59,12 @@ export class HotelService {
     });
   }
 
-  async findByUserId(userId: number): Promise<Hotel[]> {
-    const userHotels = await this.prisma.userHotel.findMany({
+  async findByUserId(userId: number): Promise<Hotel | null> {
+    const userHotel = await this.prisma.userHotel.findFirst({
       where: { userId },
       include: { hotel: true },
     });
-
-    return userHotels.map((userHotel) => userHotel.hotel as Hotel);
+    return userHotel ? userHotel.hotel : null;
   }
 
   // Base Information Methods
@@ -73,13 +72,12 @@ export class HotelService {
     const hotel = await this.prisma.hotel.findUnique({
       where: { id: hotelId },
       select: {
-        id: true,
         name: true,
         countryId: true,
+        city: true,
         contactPerson: true,
         phoneCode: true,
         phoneNumber: true,
-        state: true,
         currencyId: true,
       },
     });
@@ -133,14 +131,12 @@ export class HotelService {
     const hotel = await this.prisma.hotel.findUnique({
       where: { id: hotelId },
       select: {
-        id: true,
+        legalPerson: true,
         registerCountryId: true,
-        registerState: true,
         registerCity: true,
         tinNumber: true,
         director: true,
-        legalPerson: true,
-        extractUrl: true,
+        priceSendEmail: true,
       },
     });
 

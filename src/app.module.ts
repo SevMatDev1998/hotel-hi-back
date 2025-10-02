@@ -29,6 +29,7 @@ import {
   appConfig,
   swaggerConfig,
 } from './config/configuration';
+import { CurrencyModule } from './modules/currency/currency.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import {
     HotelServiceModule,
     HotelServiceAvailabilityModule,
     HotelAvailabilityModule,
+    CurrencyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,8 +5,14 @@ export const databaseConfig = registerAs('database', () => ({
 }));
 
 export const jwtConfig = registerAs('jwt', () => ({
-  secret: process.env.JWT_SECRET || 'fallback-secret-key',
-  expiresIn: process.env.JWT_EXPIRATION || '24h',
+  access: {
+    secret: process.env.JWT_ACCESS_SECRET || 'fallback-access-secret',
+    expiresIn: process.env.JWT_ACCESS_EXPIRATION || '15m',
+  },
+  refresh: {
+    secret: process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
+    expiresIn: process.env.JWT_REFRESH_EXPIRATION || '30d',
+  },
 }));
 
 export const appConfig = registerAs('app', () => ({
