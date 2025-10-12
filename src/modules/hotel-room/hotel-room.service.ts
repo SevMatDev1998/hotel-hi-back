@@ -11,17 +11,17 @@ import { HotelRoom } from '@prisma/client';
 export class HotelRoomService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createHotelRoomDto: CreateHotelRoomDto): Promise<HotelRoom> {
+  async create(
+    hotelId: number,
+    createHotelRoomDto: CreateHotelRoomDto,
+  ): Promise<HotelRoom> {
     try {
       // Validate that the hotel exists
       const hotel = await this.prisma.hotel.findUnique({
-        where: { id: createHotelRoomDto.hotelId },
+        where: { id: hotelId },
       });
-
       if (!hotel) {
-        throw new NotFoundException(
-          `Hotel with ID ${createHotelRoomDto.hotelId} not found`,
-        );
+        throw new NotFoundException(`Hotel with ID ${hotelId} not found`);
       }
 
       // Validate that the room class exists
@@ -51,17 +51,17 @@ export class HotelRoomService {
       // Create the hotel room
       const hotelRoom = await this.prisma.hotelRoom.create({
         data: {
-          name: createHotelRoomDto.name,
-          hotelId: createHotelRoomDto.hotelId,
+          name: 'createHotelRoomDto.name',
+          hotelId: hotelId,
           roomClassId: createHotelRoomDto.roomClassId,
           roomViewId: createHotelRoomDto.roomViewId,
-          numbers: createHotelRoomDto.numbers,
+          numbers: '',
           area: createHotelRoomDto.area,
-          mainGuestQuantity: createHotelRoomDto.mainGuestQuantity,
-          additionalGuestQuantity: createHotelRoomDto.additionalGuestQuantity,
-          status: createHotelRoomDto.status,
-          roomNumberQuantity: createHotelRoomDto.roomNumberQuantity,
-          completeness: createHotelRoomDto.completeness,
+          mainGuestQuantity: 0,
+          additionalGuestQuantity: 0,
+          status: 'Incomplete',
+          roomNumberQuantity: 0,
+          completeness: 'Draft',
         },
         include: {
           hotel: true,
@@ -80,5 +80,19 @@ export class HotelRoomService {
       }
       throw new BadRequestException('Failed to create hotel room');
     }
+  }
+
+  async getHotelRoomsByHotelId(hotelId: number): Promise<HotelRoom[]> {
+    const hotelRooms = await this.prisma.hotelRoom.findMany({
+      where: {
+        hotelId: hotelId,
+      },
+      include: { roomView: true, roomClass: true },
+        orderBy: {
+        name: 'asc',
+      },
+    });
+
+    return hotelRooms;
   }
 }

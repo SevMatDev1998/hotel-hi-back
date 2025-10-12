@@ -22,7 +22,7 @@ export class HotelRoomPartsController {
     return this.hotelRoomPartsService.createRoomParts(createHotelRoomPartsDto);
   }
 
-  @Get('hotel-room/:hotelRoomId')
+  @Get('/:hotelRoomId')
   async getRoomPartsByHotelRoom(
     @Param('hotelRoomId', ParseIntPipe) hotelRoomId: number,
   ): Promise<HotelRoomPart[]> {
