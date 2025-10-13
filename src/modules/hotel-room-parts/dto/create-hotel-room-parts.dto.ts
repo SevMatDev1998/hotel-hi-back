@@ -11,9 +11,6 @@ export class RoomPartItem {
 }
 
 export class CreateHotelRoomPartsDto {
-  @IsNumber()
-  hotelRoomId: number;
-
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => RoomPartItem)

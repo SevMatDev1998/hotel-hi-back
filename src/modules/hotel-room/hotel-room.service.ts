@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateHotelRoomDto } from './dto';
 import { HotelRoom } from '@prisma/client';
+import { EditHotelRoomDto } from './dto/edit-hotel-room.dto';
 
 @Injectable()
 export class HotelRoomService {
@@ -60,7 +61,7 @@ export class HotelRoomService {
           mainGuestQuantity: 0,
           additionalGuestQuantity: 0,
           status: 'Incomplete',
-          roomNumberQuantity: 0,
+          roomNumberQuantity: createHotelRoomDto.roomNumberQuantity,
           completeness: 'Draft',
         },
         include: {
@@ -82,17 +83,70 @@ export class HotelRoomService {
     }
   }
 
+  async edit(
+    roomId: number,
+    editHotelRoomDto: EditHotelRoomDto,
+  ): Promise<HotelRoom> {
+    try {
+      // Validate that the hotel room exists
+      const hotelRoom = await this.prisma.hotelRoom.findUnique({
+        where: { id: roomId },
+      });
+      if (!hotelRoom) {
+        throw new NotFoundException(`Hotel room with ID ${roomId} not found`);
+      }
+      // Update the hotel room
+      const updatedHotelRoom = await this.prisma.hotelRoom.update({
+        where: { id: roomId },
+        data: {
+          roomClassId: editHotelRoomDto.roomClassId,
+          roomViewId: editHotelRoomDto.roomViewId,
+          area: editHotelRoomDto.area,
+          roomNumberQuantity: editHotelRoomDto.roomNumberQuantity,
+        },
+        include: {
+          hotel: true,
+          roomClass: true,
+          roomView: true,
+        },
+      });
+
+      return updatedHotelRoom;
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to edit hotel room');
+    }
+  }
+
   async getHotelRoomsByHotelId(hotelId: number): Promise<HotelRoom[]> {
     const hotelRooms = await this.prisma.hotelRoom.findMany({
       where: {
         hotelId: hotelId,
       },
       include: { roomView: true, roomClass: true },
-        orderBy: {
+      orderBy: {
         name: 'asc',
       },
     });
 
     return hotelRooms;
+  }
+
+  async getHotelRoomById(roomId: number): Promise<HotelRoom> {
+    
+    const hotelRoom = await this.prisma.hotelRoom.findUnique({
+      where: { id: roomId },
+      include: { roomView: true, roomClass: true },
+    });
+
+    if (!hotelRoom) {
+      throw new NotFoundException(`Hotel room with ID ${roomId} not found`);
+    }
+    return hotelRoom;
   }
 }

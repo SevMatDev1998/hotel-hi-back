@@ -13,13 +13,17 @@ import { HotelRoomPart } from '@prisma/client';
 
 @Controller('hotel-room-parts')
 export class HotelRoomPartsController {
-  constructor(private readonly hotelRoomPartsService: HotelRoomPartsService) {}
+  constructor(private readonly hotelRoomPartsService: HotelRoomPartsService) { }
 
-  @Post()
+  @Post(':hotelId')
   async createRoomParts(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
     @Body() createHotelRoomPartsDto: CreateHotelRoomPartsDto,
   ): Promise<HotelRoomPart[]> {
-    return this.hotelRoomPartsService.createRoomParts(createHotelRoomPartsDto);
+    return this.hotelRoomPartsService.createRoomParts(
+      hotelId,
+      createHotelRoomPartsDto,
+    );
   }
 
   @Get('/:hotelRoomId')

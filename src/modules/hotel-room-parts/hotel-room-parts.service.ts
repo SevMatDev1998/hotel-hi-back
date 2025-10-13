@@ -12,17 +12,18 @@ export class HotelRoomPartsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createRoomParts(
+    hotelRoomId: number,
     createHotelRoomPartsDto: CreateHotelRoomPartsDto,
   ): Promise<HotelRoomPart[]> {
     try {
       // Validate that the hotel room exists
       const hotelRoom = await this.prisma.hotelRoom.findUnique({
-        where: { id: createHotelRoomPartsDto.hotelRoomId },
+        where: { id: hotelRoomId },
       });
 
       if (!hotelRoom) {
         throw new NotFoundException(
-          `Hotel room with ID ${createHotelRoomPartsDto.hotelRoomId} not found`,
+          `Hotel room with ID ${hotelRoomId} not found`,
         );
       }
 
@@ -44,7 +45,7 @@ export class HotelRoomPartsService {
 
       // Delete existing room parts for this hotel room
       await this.prisma.hotelRoomPart.deleteMany({
-        where: { hotelRoomId: createHotelRoomPartsDto.hotelRoomId },
+        where: { hotelRoomId: hotelRoomId },
       });
 
       // Create individual records for each room part based on quantity
@@ -56,7 +57,7 @@ export class HotelRoomPartsService {
       createHotelRoomPartsDto.roomParts.forEach((roomPartItem) => {
         for (let i = 0; i < roomPartItem.quantity; i++) {
           roomPartsToCreate.push({
-            hotelRoomId: createHotelRoomPartsDto.hotelRoomId,
+            hotelRoomId: hotelRoomId,
             roomPartId: roomPartItem.roomPartId,
           });
         }
@@ -69,7 +70,7 @@ export class HotelRoomPartsService {
 
       // Return the created room parts with relations
       const result = await this.prisma.hotelRoomPart.findMany({
-        where: { hotelRoomId: createHotelRoomPartsDto.hotelRoomId },
+        where: { hotelRoomId: hotelRoomId },
         include: {
           roomPart: true,
           hotelRoom: {
@@ -94,6 +95,7 @@ export class HotelRoomPartsService {
 
   async getRoomPartsByHotelRoom(hotelRoomId: number): Promise<HotelRoomPart[]> {
     try {
+      console.log('hotelRoomId', hotelRoomId);
       const hotelRoom = await this.prisma.hotelRoom.findUnique({
         where: { id: hotelRoomId },
       });
