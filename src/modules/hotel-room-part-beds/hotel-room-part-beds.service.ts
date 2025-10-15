@@ -116,16 +116,14 @@ export class HotelRoomPartBedsService {
   ): Promise<HotelRoomPartBed[]> {
     return this.prisma.hotelRoomPartBed.findMany({
       where: { hotelRoomPartId },
-      include: {
-        hotelRoomPart: {
-          include: {
-            hotelRoom: true,
-            roomPart: true,
-          },
-        },
-        roomBedSize: true,
-        roomBedType: true,
-      },
+      // include: {
+      //   hotelRoomPart: {
+      //     include: {
+      //       hotelRoom: true,
+      //       roomPart: true,
+      //     },
+      //   },
+      // },
     });
   }
 

@@ -1,12 +1,12 @@
 import {
   Controller,
-  Post,
   Body,
   Get,
   Param,
   Delete,
   HttpStatus,
   ParseIntPipe,
+  Put,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,7 +26,7 @@ export class HotelRoomPartBedsController {
     private readonly hotelRoomPartBedsService: HotelRoomPartBedsService,
   ) {}
 
-  @Post()
+  @Put('/edit')
   @ApiOperation({
     summary: 'Create bed configurations for a hotel room part',
     description:
