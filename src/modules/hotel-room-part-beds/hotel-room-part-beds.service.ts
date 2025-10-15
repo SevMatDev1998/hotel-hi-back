@@ -76,7 +76,7 @@ export class HotelRoomPartBedsService {
           bedType: config.bedType,
           roomBedSizeId: config.roomBedSizeId,
           roomBedTypeId: config.roomBedTypeId,
-          quantity: config.quantity,
+          quantity: 1,
         }),
       );
 

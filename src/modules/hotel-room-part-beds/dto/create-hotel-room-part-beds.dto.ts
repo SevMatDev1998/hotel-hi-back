@@ -1,4 +1,4 @@
-import { IsInt, IsArray, ValidateNested, Min, IsEnum } from 'class-validator';
+import { IsInt, IsArray, ValidateNested, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { BedType } from '@prisma/client';
@@ -29,15 +29,15 @@ export class BedConfigurationItem {
   @IsInt()
   roomBedTypeId: number;
 
-  @ApiProperty({
-    description: 'Quantity of beds with this configuration',
-    example: 2,
-    minimum: 1,
-    type: Number,
-  })
-  @IsInt()
-  @Min(1)
-  quantity: number;
+  // @ApiProperty({
+  //   description: 'Quantity of beds with this configuration',
+  //   example: 2,
+  //   minimum: 1,
+  //   type: Number,
+  // })
+  // @IsInt()
+  // @Min(1)
+  // quantity: number;
 }
 
 export class CreateHotelRoomPartBedsDto {
@@ -57,13 +57,13 @@ export class CreateHotelRoomPartBedsDto {
         bedType: 'Main',
         roomBedSizeId: 1,
         roomBedTypeId: 1,
-        quantity: 2,
+        // quantity: 2,
       },
       {
         bedType: 'Additional',
         roomBedSizeId: 2,
         roomBedTypeId: 2,
-        quantity: 1,
+        // quantity: 1,
       },
     ],
   })

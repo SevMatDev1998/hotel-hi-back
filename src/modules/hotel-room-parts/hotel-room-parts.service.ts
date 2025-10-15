@@ -110,11 +110,7 @@ export class HotelRoomPartsService {
         where: { hotelRoomId },
         include: {
           roomPart: true,
-          hotelRoom: {
-            include: {
-              hotel: true,
-            },
-          },
+          hotelRoomPartBeds: true,
         },
       });
     } catch (error) {

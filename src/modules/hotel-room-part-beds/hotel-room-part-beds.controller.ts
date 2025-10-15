@@ -55,7 +55,7 @@ export class HotelRoomPartBedsController {
     return this.hotelRoomPartBedsService.create(createHotelRoomPartBedsDto);
   }
 
-  @Get('hotel-room-part/:hotelRoomPartId')
+  @Get('/:roomPartId')
   @ApiOperation({
     summary: 'Get all bed configurations for a hotel room part',
     description:
@@ -77,12 +77,12 @@ export class HotelRoomPartBedsController {
     description: 'Hotel room part not found',
   })
   async findByHotelRoomPartId(
-    @Param('hotelRoomPartId', ParseIntPipe) hotelRoomPartId: number,
+    @Param('roomPartId', ParseIntPipe) roomPartId: number,
   ): Promise<HotelRoomPartBed[]> {
-    return this.hotelRoomPartBedsService.findByHotelRoomPartId(hotelRoomPartId);
+    return this.hotelRoomPartBedsService.findByHotelRoomPartId(roomPartId);
   }
 
-  @Delete('hotel-room-part/:hotelRoomPartId')
+  @Delete('/:roomPartId')
   @ApiOperation({
     summary: 'Delete all bed configurations for a hotel room part',
     description:
