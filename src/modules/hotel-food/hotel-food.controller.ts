@@ -7,14 +7,15 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Query,
-} from '@nestjs/common';
+} from '@nestjs/common'; 
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HotelFoodService } from './hotel-food.service';
 import { CreateHotelFoodDto, UpdateHotelFoodDto } from './dto';
 
 @ApiTags('Hotel Food')
-@Controller('hotel-food')
+@Controller('hotel-foods')
 export class HotelFoodController {
   constructor(private readonly hotelFoodService: HotelFoodService) {}
 
@@ -34,7 +35,7 @@ export class HotelFoodController {
     return this.hotelFoodService.findAll(hotelId);
   }
 
-  @Get('hotel/:hotelId')
+  @Get('/hotel/:hotelId')
   @ApiOperation({ summary: 'Get all food services for a specific hotel' })
   @ApiResponse({ status: 200, description: 'Hotel food services retrieved successfully.' })
   findByHotel(@Param('hotelId', ParseIntPipe) hotelId: number) {
@@ -49,15 +50,16 @@ export class HotelFoodController {
     return this.hotelFoodService.findOne(id);
   }
 
-  @Patch(':id')
+  //////////// Update and Delete Endpoints ////////////
+  @Put(':hotelId')
   @ApiOperation({ summary: 'Update a hotel food service' })
   @ApiResponse({ status: 200, description: 'Hotel food service updated successfully.' })
   @ApiResponse({ status: 404, description: 'Hotel food service not found.' })
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('hotelId', ParseIntPipe) hotelId: number,
     @Body() updateHotelFoodDto: UpdateHotelFoodDto,
   ) {
-    return this.hotelFoodService.update(id, updateHotelFoodDto);
+    return this.hotelFoodService.update(hotelId, updateHotelFoodDto);
   }
 
   @Delete(':id')

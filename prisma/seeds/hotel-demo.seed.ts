@@ -198,8 +198,8 @@ export async function seedHotelDemo() {
         description: 'Continental breakfast with local specialties',
         foodType: 'Breakfast',
         statusId: 'Completed',
-        startDate: new Date('2025-01-01'),
-        endDate: new Date('2025-12-31'),
+        startDate: "12:34",
+        endDate: '15:33',
       },
     });
 

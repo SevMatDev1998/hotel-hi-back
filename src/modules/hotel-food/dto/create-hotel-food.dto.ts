@@ -1,11 +1,4 @@
-import {
-  IsEnum,
-  IsNumber,
-  IsArray,
-  IsString,
-  IsOptional,
-  IsDateString,
-} from 'class-validator';
+import { IsNumber, IsArray, IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { FoodType } from '../../../common/enums';
 
@@ -31,15 +24,14 @@ export class CreateHotelFoodDto {
     enum: FoodType,
     example: FoodType.Breakfast,
   })
-  @IsEnum(FoodType)
   foodType: FoodType;
 
   @ApiProperty({ description: 'Start date for the food service' })
-  @IsDateString()
+  @IsString()
   startDate: string;
 
   @ApiProperty({ description: 'End date for the food service' })
-  @IsDateString()
+  @IsString()
   endDate: string;
 
   @ApiProperty({

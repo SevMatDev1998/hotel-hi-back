@@ -30,6 +30,7 @@ import {
   swaggerConfig,
 } from './config/configuration';
 import { CurrencyModule } from './modules/currency/currency.module';
+import { HotelFoodModule } from './modules/hotel-food/hotel-food.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { CurrencyModule } from './modules/currency/currency.module';
     RoomClassesModule,
     RoomPartsModule,
     HotelRoomModule,
+    HotelFoodModule,
     HotelRoomPartsModule,
     HotelRoomPartBedsModule,
     RoomBedTypesModule,

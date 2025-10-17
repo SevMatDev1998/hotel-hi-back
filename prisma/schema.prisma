@@ -663,8 +663,8 @@ model HotelFood {
   description   String?            @db.VarChar(1024)
   foodType      FoodType
   statusId      CompletenessStatus
-  startDate     DateTime
-  endDate       DateTime
+  startDate     String
+  endDate       String
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   deletedAt     DateTime?

@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateHotelFoodDto, UpdateHotelFoodDto } from './dto';
 import { FoodType as PrismaFoodType } from '@prisma/client';
+import { FoodType } from 'src/common/enums/food-type.enum';
 
 @Injectable()
 export class HotelFoodService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createHotelFoodDto: CreateHotelFoodDto) {
     const {
@@ -26,8 +27,8 @@ export class HotelFoodService {
         name,
         description,
         foodType: foodType as unknown as PrismaFoodType,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: startDate,
+        endDate: endDate,
         statusId: 'Draft', // Required field in schema
       },
     });
@@ -101,24 +102,24 @@ export class HotelFoodService {
   }
 
   async findByHotel(hotelId: number) {
-    return this.prisma.hotelFood.findMany({
-      where: { hotelId },
-      include: {
-        hotelFoodCuisines: {
-          include: {
-            cuisine: true,
-          },
-        },
-        hotelFoodOfferTypes: {
-          include: {
-            offerType: true,
-          },
-        },
-      },
-    });
+    return this.prisma.$queryRawUnsafe<any[]>(`
+      SELECT 
+        hf.id,
+        hf.name,
+        hf."startDate",
+        hf."endDate",
+        hf."foodType" AS "foodType",
+        ARRAY_AGG(DISTINCT hfc."cuisineId") AS "cuisineIds",
+        ARRAY_AGG(DISTINCT hfot."offerTypeId") AS "foodOfferTypeIds"
+      FROM "HotelFoods" hf
+      LEFT JOIN "HotelFoodCuisines" hfc ON hfc."hotelFoodId" = hf.id
+      LEFT JOIN "HotelFoodOfferTypes" hfot ON hfot."hotelFoodId" = hf.id
+      WHERE hf."hotelId" = ${hotelId}
+      GROUP BY hf.id;
+    `);
   }
 
-  async update(id: number, updateHotelFoodDto: UpdateHotelFoodDto) {
+  async update(hotelId: number, updateHotelFoodDto: UpdateHotelFoodDto) {
     const {
       name,
       description,
@@ -129,71 +130,73 @@ export class HotelFoodService {
       foodOfferTypeIds,
     } = updateHotelFoodDto;
 
-    // Check if the record exists
-    await this.findOne(id);
+    // Проверяем, есть ли текущая запись HotelFood
+    const existingHotelFood = await this.prisma.hotelFood.findFirst({
+      where: { hotelId, foodType: foodType as unknown as PrismaFoodType },
+    });
 
-    // Update the main HotelFood record
-    const updateData: {
-      name?: string;
-      description?: string;
-      foodType?: PrismaFoodType;
-      startDate?: Date;
-      endDate?: Date;
-    } = {};
-    
-    if (name !== undefined) updateData.name = name;
-    if (description !== undefined) updateData.description = description;
-    if (foodType !== undefined) {
-      updateData.foodType = foodType as unknown as PrismaFoodType;
-    }
-    if (startDate !== undefined) updateData.startDate = new Date(startDate);
-    if (endDate !== undefined) updateData.endDate = new Date(endDate);
+    if (existingHotelFood) {
+      const existingId = existingHotelFood.id;
 
-    if (Object.keys(updateData).length > 0) {
-      await this.prisma.hotelFood.update({
-        where: { id },
-        data: updateData,
-      });
-    }
-
-    // Update cuisines if provided
-    if (cuisineIds !== undefined) {
-      // Delete existing relations
+      // Удаляем все связи
       await this.prisma.hotelFoodCuisine.deleteMany({
-        where: { hotelFoodId: id },
+        where: { hotelFoodId: existingId },
       });
 
-      // Create new relations
-      if (cuisineIds.length > 0) {
-        await this.prisma.hotelFoodCuisine.createMany({
-          data: cuisineIds.map((cuisineId: number) => ({
-            hotelFoodId: id,
-            cuisineId,
-          })),
-        });
-      }
-    }
-
-    // Update food offer types if provided
-    if (foodOfferTypeIds !== undefined) {
-      // Delete existing relations
       await this.prisma.hotelFoodOfferType.deleteMany({
-        where: { hotelFoodId: id },
+        where: { hotelFoodId: existingId },
       });
 
-      // Create new relations
-      if (foodOfferTypeIds.length > 0) {
-        await this.prisma.hotelFoodOfferType.createMany({
-          data: foodOfferTypeIds.map((offerTypeId: number) => ({
-            hotelFoodId: id,
-            offerTypeId,
-          })),
-        });
-      }
+      // Удаляем саму запись
+      await this.prisma.hotelFood.delete({
+        where: { id: existingId },
+      });
+    }
+    // Создаём новую запись HotelFood
+    const newHotelFood = await this.prisma.hotelFood.create({
+      data: {
+        hotelId,
+        name: 'name!',
+        description: 'description!',
+        // foodType: foodType as unknown as PrismaFoodType, // ✅ Конвертация
+        foodType: foodType as unknown as PrismaFoodType, // ✅ Конвертация
+
+        startDate: startDate!,
+        endDate: endDate!,
+        statusId: 'Draft', // Required field in schema
+      },
+    });
+
+    // Добавляем кухни
+    if (cuisineIds && cuisineIds.length > 0) {
+      await this.prisma.hotelFoodCuisine.createMany({
+        data: cuisineIds.map((cuisineId: number) => ({
+          hotelFoodId: newHotelFood.id,
+          cuisineId,
+        })),
+      });
     }
 
-    return this.findOne(id);
+    // Добавляем типы предложений
+    if (foodOfferTypeIds && foodOfferTypeIds.length > 0) {
+      await this.prisma.hotelFoodOfferType.createMany({
+        data: foodOfferTypeIds.map((offerTypeId: number) => ({
+          hotelFoodId: newHotelFood.id,
+          offerTypeId,
+        })),
+      });
+    }
+
+    // Возвращаем новую запись
+    return this.prisma.hotelFood.findUnique({
+      where: { id: newHotelFood.id },
+      include: {
+        hotelFoodCuisines: true,
+        hotelFoodOfferTypes: true,
+      },
+    });
   }
+
 
   async remove(id: number) {
     await this.findOne(id); // Check if exists

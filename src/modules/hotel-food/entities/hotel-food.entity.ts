@@ -7,8 +7,8 @@ export class HotelFood {
   description?: string;
   foodType: FoodType;
   statusId: any; // CompletenessStatus enum
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
