@@ -2,11 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateHotelFoodDto, UpdateHotelFoodDto } from './dto';
 import { FoodType as PrismaFoodType } from '@prisma/client';
-import { FoodType } from 'src/common/enums/food-type.enum';
 
 @Injectable()
 export class HotelFoodService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createHotelFoodDto: CreateHotelFoodDto) {
     const {
@@ -196,7 +195,6 @@ export class HotelFoodService {
       },
     });
   }
-
 
   async remove(id: number) {
     await this.findOne(id); // Check if exists

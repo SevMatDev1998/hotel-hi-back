@@ -20,4 +20,16 @@ export class SystemServiceTypeService {
       updatedAt: serviceType.updatedAt,
     }));
   }
+
+  async findByGroupId(groupId: number): Promise<SystemServiceTypeDto[]> {
+    const systemServiceTypes = await this.prisma.systemServiceType.findMany({
+      where: {
+        systemServiceGroupId: groupId,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    return systemServiceTypes;
+  }
 }

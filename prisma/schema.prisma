@@ -537,33 +537,39 @@ model SystemServiceGroup {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  systemServices SystemService[]
+  // ✅ Одна группа имеет много типов
+  systemServiceTypes SystemServiceType[]
 
   @@map("SystemServiceGroups")
 }
 
 model SystemServiceType {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(128)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  name                 String   @db.VarChar(128)
+  systemServiceGroupId Int      // ✅ теперь хранит groupId
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
+  // ✅ Связь с группой
+  systemServiceGroup SystemServiceGroup @relation(fields: [systemServiceGroupId], references: [id])
+
+  // ✅ Один тип имеет много сервисов
   systemServices SystemService[]
 
   @@map("SystemServiceTypes")
 }
 
 model SystemService {
-  id                   Int      @id @default(autoincrement())
-  systemServiceGroupId Int
-  systemServiceTypeId  Int
-  name                 String   @db.VarChar(256)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  systemServiceTypeId Int
+  name                String   @db.VarChar(256)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  systemServiceGroup SystemServiceGroup @relation(fields: [systemServiceGroupId], references: [id])
-  systemServiceType  SystemServiceType  @relation(fields: [systemServiceTypeId], references: [id])
-  
+  // ✅ связь теперь только с типом
+  systemServiceType SystemServiceType @relation(fields: [systemServiceTypeId], references: [id])
+
+  // ✅ конкретные реализации в отелях
   hotelServices HotelService[]
 
   @@map("SystemServices")
@@ -579,7 +585,10 @@ model HotelService {
   updatedAt     DateTime           @updatedAt
   deletedAt     DateTime?
 
+  // ✅ связь с системным сервисом
   service SystemService @relation(fields: [serviceId], references: [id])
+
+  // ✅ связь с конкретным отелем
   hotel   Hotel         @relation(fields: [hotelId], references: [id])
   
   hotelServiceAvailabilities HotelServiceAvailability[]
@@ -588,6 +597,7 @@ model HotelService {
 
   @@map("HotelServices")
 }
+
 
 model HotelServiceAvailability {
   id                        Int                               @id @default(autoincrement())

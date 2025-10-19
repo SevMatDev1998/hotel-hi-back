@@ -4,7 +4,7 @@ import { SystemServiceDto } from './dto/system-service.dto';
 
 @Injectable()
 export class SystemServiceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll(): Promise<SystemServiceDto[]> {
     const systemServices = await this.prisma.systemService.findMany({
@@ -15,11 +15,21 @@ export class SystemServiceService {
 
     return systemServices.map((service) => ({
       id: service.id,
-      systemServiceGroupId: service.systemServiceGroupId,
-      systemServiceTypeId: service.systemServiceTypeId,
       name: service.name,
       createdAt: service.createdAt,
       updatedAt: service.updatedAt,
     }));
+  }
+
+  async findByTypeId(typeId: number): Promise<SystemServiceDto[]> {
+    const systemServices = await this.prisma.systemService.findMany({
+      where: {
+        systemServiceTypeId: typeId,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    return systemServices;
   }
 }

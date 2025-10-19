@@ -5,25 +5,6 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 async function seedServices() {
     console.log('🏨 Загружаем услуги отеля...');
-    const serviceTypes = [
-        { name: 'Basic' },
-        { name: 'Premium' },
-        { name: 'Luxury' },
-        { name: 'Free' },
-        { name: 'Paid' },
-    ];
-    const existingTypes = await prisma.systemServiceType.findMany();
-    if (existingTypes.length === 0) {
-        await prisma.systemServiceType.createMany({
-            data: serviceTypes,
-            skipDuplicates: true,
-        });
-    }
-    const types = await prisma.systemServiceType.findMany();
-    const basicType = types.find(t => t.name === 'Basic') || types[0];
-    const premiumType = types.find(t => t.name === 'Premium') || types[1];
-    const freeType = types.find(t => t.name === 'Free') || types[3];
-    const paidType = types.find(t => t.name === 'Paid') || types[4];
     const serviceGroups = [
         { name: 'Parking and Transport' },
         { name: 'Hotel Amenities' },
@@ -40,50 +21,65 @@ async function seedServices() {
         });
     }
     const groups = await prisma.systemServiceGroup.findMany();
+    const serviceTypes = [
+        { name: 'Basic', systemServiceGroupId: groups[0]?.id || 1 },
+        { name: 'Premium', systemServiceGroupId: groups[0]?.id || 1 },
+        { name: 'Luxury', systemServiceGroupId: groups[1]?.id || 2 },
+        { name: 'Free', systemServiceGroupId: groups[2]?.id || 3 },
+        { name: 'Paid', systemServiceGroupId: groups[3]?.id || 4 },
+    ];
+    const existingTypes = await prisma.systemServiceType.findMany();
+    if (existingTypes.length === 0) {
+        await prisma.systemServiceType.createMany({
+            data: serviceTypes,
+            skipDuplicates: true,
+        });
+    }
+    const types = await prisma.systemServiceType.findMany();
+    const basicType = types.find(t => t.name === 'Basic') || types[0];
+    const premiumType = types.find(t => t.name === 'Premium') || types[1];
+    const freeType = types.find(t => t.name === 'Free') || types[3];
+    const paidType = types.find(t => t.name === 'Paid') || types[4];
     const services = [
-        { name: 'Free parking', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: freeType?.id || 1 },
-        { name: 'Paid parking', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: paidType?.id || 1 },
-        { name: 'Valet parking', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Electric vehicle charging station', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Garage', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Covered parking', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Airport shuttle', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Free airport shuttle', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: freeType?.id || 1 },
-        { name: 'Paid airport shuttle', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: paidType?.id || 1 },
-        { name: 'Taxi service', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: paidType?.id || 1 },
-        { name: 'Car rental', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: paidType?.id || 1 },
-        { name: 'Bicycle rental', systemServiceGroupId: groups[0]?.id || 1, systemServiceTypeId: paidType?.id || 1 },
-        { name: 'Free WiFi', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: freeType?.id || 1 },
-        { name: 'Paid WiFi', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: paidType?.id || 1 },
-        { name: 'High-speed internet', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: premiumType?.id || 1 },
-        { name: '24-hour front desk', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Concierge service', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Luggage storage', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: freeType?.id || 1 },
-        { name: 'Bell service', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Room service', systemServiceGroupId: groups[1]?.id || 2, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Kids club', systemServiceGroupId: groups[2]?.id || 3, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Playground', systemServiceGroupId: groups[2]?.id || 3, systemServiceTypeId: freeType?.id || 1 },
-        { name: 'Game room', systemServiceGroupId: groups[2]?.id || 3, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Pool', systemServiceGroupId: groups[2]?.id || 3, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Water slides', systemServiceGroupId: groups[2]?.id || 3, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Restaurant', systemServiceGroupId: groups[3]?.id || 4, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Bar', systemServiceGroupId: groups[3]?.id || 4, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Breakfast included', systemServiceGroupId: groups[3]?.id || 4, systemServiceTypeId: freeType?.id || 1 },
-        { name: 'All inclusive', systemServiceGroupId: groups[3]?.id || 4, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Kitchen', systemServiceGroupId: groups[3]?.id || 4, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Business center', systemServiceGroupId: groups[4]?.id || 5, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Meeting rooms', systemServiceGroupId: groups[4]?.id || 5, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Conference facilities', systemServiceGroupId: groups[4]?.id || 5, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Printing services', systemServiceGroupId: groups[4]?.id || 5, systemServiceTypeId: paidType?.id || 1 },
-        { name: 'Spa', systemServiceGroupId: groups[5]?.id || 6, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Fitness center', systemServiceGroupId: groups[5]?.id || 6, systemServiceTypeId: basicType?.id || 1 },
-        { name: 'Sauna', systemServiceGroupId: groups[5]?.id || 6, systemServiceTypeId: premiumType?.id || 1 },
-        { name: 'Massage', systemServiceGroupId: groups[5]?.id || 6, systemServiceTypeId: premiumType?.id || 1 },
-        {
-            name: 'Wellness center',
-            systemServiceGroupId: groups[5]?.id || 6,
-            systemServiceTypeId: premiumType?.id || 1,
-        },
+        { name: 'Free parking', systemServiceTypeId: freeType.id },
+        { name: 'Paid parking', systemServiceTypeId: paidType.id },
+        { name: 'Valet parking', systemServiceTypeId: premiumType.id },
+        { name: 'Electric vehicle charging station', systemServiceTypeId: basicType.id },
+        { name: 'Garage', systemServiceTypeId: basicType.id },
+        { name: 'Covered parking', systemServiceTypeId: basicType.id },
+        { name: 'Airport shuttle', systemServiceTypeId: basicType.id },
+        { name: 'Free airport shuttle', systemServiceTypeId: freeType.id },
+        { name: 'Paid airport shuttle', systemServiceTypeId: paidType.id },
+        { name: 'Taxi service', systemServiceTypeId: paidType.id },
+        { name: 'Car rental', systemServiceTypeId: paidType.id },
+        { name: 'Bicycle rental', systemServiceTypeId: paidType.id },
+        { name: 'Free WiFi', systemServiceTypeId: freeType.id },
+        { name: 'Paid WiFi', systemServiceTypeId: paidType.id },
+        { name: 'High-speed internet', systemServiceTypeId: premiumType.id },
+        { name: '24-hour front desk', systemServiceTypeId: basicType.id },
+        { name: 'Concierge service', systemServiceTypeId: premiumType.id },
+        { name: 'Luggage storage', systemServiceTypeId: freeType.id },
+        { name: 'Bell service', systemServiceTypeId: basicType.id },
+        { name: 'Room service', systemServiceTypeId: premiumType.id },
+        { name: 'Kids club', systemServiceTypeId: basicType.id },
+        { name: 'Playground', systemServiceTypeId: freeType.id },
+        { name: 'Game room', systemServiceTypeId: basicType.id },
+        { name: 'Pool', systemServiceTypeId: basicType.id },
+        { name: 'Water slides', systemServiceTypeId: premiumType.id },
+        { name: 'Restaurant', systemServiceTypeId: basicType.id },
+        { name: 'Bar', systemServiceTypeId: basicType.id },
+        { name: 'Breakfast included', systemServiceTypeId: freeType.id },
+        { name: 'All inclusive', systemServiceTypeId: premiumType.id },
+        { name: 'Kitchen', systemServiceTypeId: basicType.id },
+        { name: 'Business center', systemServiceTypeId: basicType.id },
+        { name: 'Meeting rooms', systemServiceTypeId: premiumType.id },
+        { name: 'Conference facilities', systemServiceTypeId: premiumType.id },
+        { name: 'Printing services', systemServiceTypeId: paidType.id },
+        { name: 'Spa', systemServiceTypeId: premiumType.id },
+        { name: 'Fitness center', systemServiceTypeId: basicType.id },
+        { name: 'Sauna', systemServiceTypeId: premiumType.id },
+        { name: 'Massage', systemServiceTypeId: premiumType.id },
+        { name: 'Wellness center', systemServiceTypeId: premiumType.id },
     ];
     const existingServices = await prisma.systemService.findMany();
     if (existingServices.length === 0) {

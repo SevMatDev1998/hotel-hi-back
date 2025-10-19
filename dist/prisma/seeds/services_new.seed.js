@@ -6,11 +6,11 @@ const prisma = new client_1.PrismaClient();
 async function seedServices() {
     console.log('🏨 Загружаем услуги отеля...');
     const serviceTypes = [
-        { name: 'Basic' },
-        { name: 'Premium' },
-        { name: 'Luxury' },
-        { name: 'Free' },
-        { name: 'Paid' },
+        { name: 'Basic', systemServiceGroupId: 1 },
+        { name: 'Premium', systemServiceGroupId: 2 },
+        { name: 'Luxury', systemServiceGroupId: 3 },
+        { name: 'Free', systemServiceGroupId: 4 },
+        { name: 'Paid', systemServiceGroupId: 5 },
     ];
     const existingTypes = await prisma.systemServiceType.findMany();
     if (existingTypes.length === 0) {
