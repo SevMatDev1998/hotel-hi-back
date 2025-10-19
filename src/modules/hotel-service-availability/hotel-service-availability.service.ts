@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { HotelServiceService } from '../hotel-service/hotel-service.service';
 import { CreateHotelServiceAvailabilityDto } from './dto';
-import { CompletenessStatus } from '@prisma/client';
+import { CompletenessStatus, HotelServiceAvailability } from '@prisma/client';
 
 @Injectable()
 export class HotelServiceAvailabilityService {
   constructor(
     private prisma: PrismaService,
     private hotelServiceService: HotelServiceService,
-  ) {}
+  ) { }
 
   async createHotelServiceWithAvailabilities(
     createDto: CreateHotelServiceAvailabilityDto,
@@ -57,5 +57,19 @@ export class HotelServiceAvailabilityService {
       hotelService,
       availabilities: createdAvailabilities,
     };
+  }
+
+  async findByhotelServiceId(
+    hotelServiceId: number,
+  ): Promise<HotelServiceAvailability | null> {
+    
+    const test = await this.prisma.hotelServiceAvailability.findFirst({
+      where: {
+        hotelServiceId,
+      }
+    });
+    console.log(test, hotelServiceId);
+
+    return test 
   }
 }
