@@ -1,14 +1,14 @@
-import { IsNotEmpty, IsInt, IsDateString } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateHotelAvailabilityDto {
-  @ApiProperty({
-    description: 'Hotel ID',
-    example: 1,
-  })
+  @ApiProperty({ description: 'Availability title', example: 'Summer Season' })
   @IsNotEmpty()
-  @IsInt()
-  hotelId: number;
+  title: string;
+
+  // @ApiProperty({ description: 'Calendar color', example: '#FFAA00' })
+  // @IsNotEmpty()
+  // color: string;
 
   @ApiProperty({
     description: 'Start date of availability period',
@@ -17,8 +17,8 @@ export class CreateHotelAvailabilityDto {
     format: 'date-time',
   })
   @IsNotEmpty()
-  @IsDateString()
-  dateFrom: string;
+  // @IsDateString()
+  checkInTime: string;
 
   @ApiProperty({
     description: 'End date of availability period',
@@ -27,6 +27,6 @@ export class CreateHotelAvailabilityDto {
     format: 'date-time',
   })
   @IsNotEmpty()
-  @IsDateString()
-  dateTo: string;
+  // @IsDateString()
+  checkoutTime: string;
 }

@@ -735,13 +735,17 @@ model HotelFoodPrice {
 model HotelAvailability {
   id        Int      @id @default(autoincrement())
   hotelId   Int
-  dateFrom  DateTime
-  dateTo    DateTime
+
+  title          String   @db.VarChar(256)
+  color          String   @db.VarChar(256)
+  checkInTime    DateTime
+  checkoutTime   DateTime
+  confirmed      Boolean  @default(false)
+   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   hotel Hotel @relation(fields: [hotelId], references: [id])
-  
   priceNotificationSchedules PriceNotificationSchedule[]
   hotelAgeAssignments        HotelAgeAssignment[]
   hotelRoomPrices            HotelRoomPrice[]

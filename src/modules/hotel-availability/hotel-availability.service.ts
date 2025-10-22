@@ -9,15 +9,27 @@ export class HotelAvailabilityService {
 
   async create(
     createHotelAvailabilityDto: CreateHotelAvailabilityDto,
+    hotelId: number,
   ): Promise<HotelAvailability> {
-    const { hotelId, dateFrom, dateTo } = createHotelAvailabilityDto;
+    const { title, checkInTime, checkoutTime } = createHotelAvailabilityDto;
 
     return this.prisma.hotelAvailability.create({
       data: {
         hotelId,
-        dateFrom: new Date(dateFrom),
-        dateTo: new Date(dateTo),
+        title,
+        color: '',
+        // checkInTime: new Date(checkInTime),
+        // checkoutTime: new Date(checkoutTime),
+
+        checkInTime: new Date(),
+        checkoutTime: new Date(),
       },
+    });
+  }
+
+  async findByHotelId(hotelId: number): Promise<HotelAvailability[]> {
+    return this.prisma.hotelAvailability.findMany({
+      where: { hotelId },
     });
   }
 }

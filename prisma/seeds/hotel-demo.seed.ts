@@ -8,12 +8,12 @@ export async function seedHotelDemo() {
   try {
     // 1. Создаём демо пользователя
     console.log('👤 Создаём демо пользователя...');
-    
+
     // Получаем язык
     const language = await prisma.language.findFirst({
       where: { code: 'en' },
     });
-    
+
     if (!language) {
       throw new Error(
         'Язык English не найден. Запустите сначала базовые seeds.',
@@ -36,7 +36,7 @@ export async function seedHotelDemo() {
 
     // 2. Создаём демо отель
     console.log('🏨 Создаём демо отель...');
-    
+
     // Получаем необходимые справочники
     const country = await prisma.country.findFirst({
       where: { code: 'AM' },
@@ -97,7 +97,7 @@ export async function seedHotelDemo() {
 
     // 4. Создаём комнату с типами
     console.log('🛏️ Создаём демо комнату...');
-    
+
     // Получаем класс и вид комнаты
     const roomClass = await prisma.roomClass.findFirst({
       where: { name: 'Standard' },
@@ -131,7 +131,7 @@ export async function seedHotelDemo() {
 
     // 5. Создаём части комнаты и связываем с кроватями
     console.log('🏠 Создаём части комнаты и кровати...');
-    
+
     // Получаем части комнаты
     const roomParts = await prisma.roomPart.findMany({
       where: {
@@ -178,7 +178,7 @@ export async function seedHotelDemo() {
 
     // 6. Создаём cuisines и связываем с отелем
     console.log('🍽️ Создаём блюда и связываем кухни...');
-    
+
     // Получаем кухни
     const cuisines = await prisma.cuisine.findMany({
       where: {
@@ -222,12 +222,14 @@ export async function seedHotelDemo() {
 
     // 7. Создаём hotel availability
     console.log('📅 Создаём доступность отеля...');
-    
+
     const hotelAvailability = await prisma.hotelAvailability.create({
       data: {
         hotelId: demoHotel.id,
-        dateFrom: new Date('2025-01-01'),
-        dateTo: new Date('2025-12-31'),
+        checkInTime: new Date('2025-01-01'),
+        checkoutTime: new Date('2025-12-31'),
+        title: '',
+        color: ''
       },
     });
 
@@ -297,7 +299,7 @@ export async function seedHotelDemo() {
     console.log(`   - Блюдо: ${hotelFood.name}`);
     console.log(`   - Связанные кухни: ${cuisines.length}`);
     console.log(
-      `   - Доступность: ${hotelAvailability.dateFrom.toDateString()} - ${hotelAvailability.dateTo.toDateString()}`,
+      `   - Доступность: ${hotelAvailability.checkInTime.toDateString()} - ${hotelAvailability.checkoutTime.toDateString()}`,
     );
     console.log(`   - Цена комнаты: ${50000} AMD/ночь`);
     console.log(`   - Цена завтрака: ${5000} AMD/персона`);

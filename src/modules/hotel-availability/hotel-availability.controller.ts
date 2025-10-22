@@ -1,4 +1,11 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  ParseIntPipe,
+  Param,
+  Get,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HotelAvailabilityService } from './hotel-availability.service';
 import { CreateHotelAvailabilityDto } from './dto/create-hotel-availability.dto';
@@ -11,7 +18,7 @@ export class HotelAvailabilityController {
     private readonly hotelAvailabilityService: HotelAvailabilityService,
   ) {}
 
-  @Post()
+  @Post('/create/:hotelId')
   @ApiOperation({ summary: 'Create hotel availability' })
   @ApiResponse({
     status: 201,
@@ -19,8 +26,25 @@ export class HotelAvailabilityController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   async create(
+    @Param('hotelId', ParseIntPipe) hotelId: number, // <-- Param belongs here
+
     @Body() createHotelAvailabilityDto: CreateHotelAvailabilityDto,
   ): Promise<HotelAvailability> {
-    return this.hotelAvailabilityService.create(createHotelAvailabilityDto);
+    return this.hotelAvailabilityService.create(
+      createHotelAvailabilityDto,
+      hotelId,
+    );
+  }
+
+  @Get('/:hotelId')
+  @ApiOperation({ summary: 'Get hotel availability by hotel ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Hotel availability records retrieved successfully.',
+  })
+  async findByHotelId(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
+  ): Promise<HotelAvailability[]> {
+    return this.hotelAvailabilityService.findByHotelId(hotelId);
   }
 }

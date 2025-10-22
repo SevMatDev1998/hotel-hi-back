@@ -20,7 +20,7 @@ import { EditHotelRoomDto } from './dto/edit-hotel-room.dto';
 @ApiTags('Hotel Rooms')
 @Controller('hotel-rooms')
 export class HotelRoomController {
-  constructor(private readonly hotelRoomService: HotelRoomService) { }
+  constructor(private readonly hotelRoomService: HotelRoomService) {}
 
   @Post('/create/:hotelId')
   @HttpCode(HttpStatus.CREATED)
@@ -50,7 +50,6 @@ export class HotelRoomController {
   ): Promise<HotelRoom> {
     return this.hotelRoomService.edit(roomId, editHotelRoomDto);
   }
-
 
   @Get('hotel/:hotelId')
   async findAll(
