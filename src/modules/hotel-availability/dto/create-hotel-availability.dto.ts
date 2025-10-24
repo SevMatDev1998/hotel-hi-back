@@ -1,5 +1,12 @@
-import { IsNotEmpty } from 'class-validator';
+import {
+  IsNotEmpty,
+  ValidateNested,
+  IsArray,
+  IsOptional
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { HotelAgeAssignmentDto } from 'src/modules/hotel-age-assignment/dto/hotel-age-assignment.dto';
 
 export class CreateHotelAvailabilityDto {
   @ApiProperty({ description: 'Availability title', example: 'Summer Season' })
@@ -29,4 +36,15 @@ export class CreateHotelAvailabilityDto {
   @IsNotEmpty()
   // @IsDateString()
   checkoutTime: string;
+
+  @ApiProperty({
+    description: 'Hotel age assignments',
+    type: [HotelAgeAssignmentDto],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => HotelAgeAssignmentDto)
+  hotelAgeAssignments?: HotelAgeAssignmentDto[];
 }
