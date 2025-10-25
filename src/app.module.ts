@@ -31,6 +31,8 @@ import {
 } from './config/configuration';
 import { CurrencyModule } from './modules/currency/currency.module';
 import { HotelFoodModule } from './modules/hotel-food/hotel-food.module';
+import { PartnersModule } from './modules/partners/partners.module';
+import { HotelPartnerModule } from './modules/hotel-partner/hotel-partner.module';
 
 @Module({
   imports: [
@@ -61,6 +63,8 @@ import { HotelFoodModule } from './modules/hotel-food/hotel-food.module';
     HotelServiceAvailabilityModule,
     HotelAvailabilityModule,
     CurrencyModule,
+    PartnersModule,
+    HotelPartnerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

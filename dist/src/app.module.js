@@ -35,6 +35,8 @@ const hotel_availability_module_1 = require("./modules/hotel-availability/hotel-
 const configuration_1 = require("./config/configuration");
 const currency_module_1 = require("./modules/currency/currency.module");
 const hotel_food_module_1 = require("./modules/hotel-food/hotel-food.module");
+const partners_module_1 = require("./modules/partners/partners.module");
+const hotel_partner_module_1 = require("./modules/hotel-partner/hotel-partner.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -68,6 +70,8 @@ exports.AppModule = AppModule = __decorate([
             hotel_service_availability_module_1.HotelServiceAvailabilityModule,
             hotel_availability_module_1.HotelAvailabilityModule,
             currency_module_1.CurrencyModule,
+            partners_module_1.PartnersModule,
+            hotel_partner_module_1.HotelPartnerModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
