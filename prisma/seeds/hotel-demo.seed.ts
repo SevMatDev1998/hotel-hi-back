@@ -248,8 +248,10 @@ export async function seedHotelDemo() {
       data: {
         hotelFoodId: hotelFood.id,
         price: 5000, // 5,000 AMD
-        dateFrom: new Date('2025-01-01'),
-        dateTo: new Date('2025-12-31'),
+        hotelAgeAssignmentId: null,
+        hotelAvailabilityId: hotelAvailability.id,
+        // dateFrom: new Date('2025-01-01'),
+        // dateTo: new Date('2025-12-31'),
       },
     });
 

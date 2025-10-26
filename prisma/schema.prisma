@@ -718,19 +718,21 @@ model HotelFoodOfferType {
 
 model HotelFoodPrice {
   id                   Int      @id @default(autoincrement())
+  hotelAvailabilityId  Int
+  hotelAgeAssignmentId Int?
   hotelFoodId          Int
-  hotelAvailabilityId  Int?     // Добавляем связь с HotelAvailability
   price                Decimal  @db.Decimal(18, 2)
-  dateFrom             DateTime
-  dateTo               DateTime
+  includedInPrice      Boolean?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  hotelFood         HotelFood         @relation(fields: [hotelFoodId], references: [id])
-  hotelAvailability HotelAvailability? @relation(fields: [hotelAvailabilityId], references: [id])
+  hotelAvailability HotelAvailability @relation(fields: [hotelAvailabilityId], references: [id])
+  hotelAgeAssignment HotelAgeAssignment? @relation(fields: [hotelAgeAssignmentId], references: [id])
+  hotelFood          HotelFood          @relation(fields: [hotelFoodId], references: [id])
 
   @@map("HotelFoodPrices")
 }
+
 
 model HotelAvailability {
   id        Int      @id @default(autoincrement())
@@ -768,6 +770,8 @@ model HotelAgeAssignment {
   deletedAt            DateTime?
 
   hotelAvailability HotelAvailability @relation(fields: [hotelAvailabilityId], references: [id])
+  hotelFoodPrices      HotelFoodPrice[]
+
 
   @@map("HotelAgeAssignments")
 }
