@@ -22,8 +22,10 @@ export class HotelAvailabilityService {
         hotelId,
         title,
         color: '',
-        checkInTime: new Date(checkInTime),
-        checkoutTime: new Date(checkoutTime),
+        // checkInTime: new Date(checkInTime),
+        // checkoutTime: new Date(checkoutTime),
+             checkInTime: new Date(),
+        checkoutTime: new Date(),
       },
     });
 

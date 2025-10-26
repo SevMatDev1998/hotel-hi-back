@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 
 export class HotelAgeAssignmentDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsInt()
   hotelAvailabilityId: number;
 
