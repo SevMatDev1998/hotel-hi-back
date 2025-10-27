@@ -33,6 +33,8 @@ import { CurrencyModule } from './modules/currency/currency.module';
 import { HotelFoodModule } from './modules/hotel-food/hotel-food.module';
 import { PartnersModule } from './modules/partners/partners.module';
 import { HotelPartnerModule } from './modules/hotel-partner/hotel-partner.module';
+import { HotelFoodPriceModule } from './modules/hotel-food-price/hotel-food-price.module';
+import { HotelAgeAssignmentModule } from './modules/hotel-age-assignment/hotel-age-assignment.module';
 
 @Module({
   imports: [
@@ -65,6 +67,8 @@ import { HotelPartnerModule } from './modules/hotel-partner/hotel-partner.module
     CurrencyModule,
     PartnersModule,
     HotelPartnerModule,
+    HotelFoodPriceModule,
+    HotelAgeAssignmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

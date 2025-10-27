@@ -27,4 +27,12 @@ export class HotelAgeAssignmentService {
       },
     });
   }
+
+  async findByHotelAvailabilityId(hotelAvailabilityId: number) {
+    return this.prisma.hotelAgeAssignment.findMany({
+      where: {
+        hotelAvailabilityId,
+      },
+    });
+  }
 }
