@@ -14,9 +14,10 @@ export class HotelServiceService {
       include: {
         service: {
           select: {
-            name: true, // ✅ this is correct
+            name: true,
           },
         },
+        hotelServiceAvailabilities: true,
       },
       orderBy: {
         id: 'asc',

@@ -2,51 +2,50 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { HotelServiceService } from '../hotel-service/hotel-service.service';
 import { CreateHotelServiceAvailabilityDto } from './dto';
-import { CompletenessStatus, HotelServiceAvailability } from '@prisma/client';
+import { HotelServiceAvailability } from '@prisma/client';
 
 @Injectable()
 export class HotelServiceAvailabilityService {
   constructor(
     private prisma: PrismaService,
     private hotelServiceService: HotelServiceService,
-  ) { }
+  ) {}
 
   async createHotelServiceWithAvailabilities(
+    hotelServiceId: number,
     createDto: CreateHotelServiceAvailabilityDto,
   ) {
-    const { hotelId, serviceId, availabilities } = createDto;
+    const { availabilities } = createDto;
 
-    // 1. Check if HotelService already exists
-    let hotelService = await this.prisma.hotelService.findFirst({
-      where: {
-        hotelId,
-        serviceId,
-      },
+    // 1. Check if HotelService exists
+    const hotelService = await this.prisma.hotelService.findUnique({
+      where: { id: hotelServiceId },
     });
 
-    // 2. If not exists, create new HotelService
     if (!hotelService) {
-      hotelService = await this.hotelServiceService.createHotelService(
-        hotelId,
-        serviceId,
-        CompletenessStatus.Draft,
-      );
+      throw new Error(`HotelService with ID ${hotelServiceId} not found.`);
     }
 
-    // 3. Create all availabilities
+    // Delete existing room parts for this hotel room
+    await this.prisma.hotelServiceAvailability.deleteMany({
+      where: { hotelServiceId: hotelServiceId },
+    });
+
+    // 2. Create all availabilities
     const createdAvailabilities = await Promise.all(
       availabilities.map((availability) =>
         this.prisma.hotelServiceAvailability.create({
           data: {
-            hotelServiceId: hotelService.id,
-            availabilityTypeId: availability.availabilityTypeId,
+            hotelServiceId: hotelServiceId,
+            isPaid: availability.isPaid ?? false,
+            startMonth: new Date(availability.startMonth),
+            endMonth: new Date(availability.endMonth),
             hourlyAvailabilityTypeId: availability.hourlyAvailabilityTypeId,
-            payMethodId: availability.payMethodId,
-            startTime: availability.startTime
-              ? new Date(availability.startTime)
+            startHour: availability.startHour
+              ? new Date(availability.startHour)
               : null,
-            endTime: availability.endTime
-              ? new Date(availability.endTime)
+            endHour: availability.endHour
+              ? new Date(availability.endHour)
               : null,
           },
         }),
@@ -62,14 +61,13 @@ export class HotelServiceAvailabilityService {
   async findByhotelServiceId(
     hotelServiceId: number,
   ): Promise<HotelServiceAvailability | null> {
-    
     const test = await this.prisma.hotelServiceAvailability.findFirst({
       where: {
         hotelServiceId,
-      }
+      },
     });
     console.log(test, hotelServiceId);
 
-    return test 
+    return test;
   }
 }

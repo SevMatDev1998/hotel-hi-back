@@ -1,4 +1,11 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { HotelServiceAvailabilityService } from './hotel-service-availability.service';
 import { CreateHotelServiceAvailabilityDto } from './dto';
 import { HotelServiceAvailability } from '@prisma/client';
@@ -7,7 +14,7 @@ import { HotelServiceAvailability } from '@prisma/client';
 export class HotelServiceAvailabilityController {
   constructor(
     private readonly hotelServiceAvailabilityService: HotelServiceAvailabilityService,
-  ) { }
+  ) {}
 
   @Get('/:hotelServiceId')
   async findByhotelServiceId(
@@ -16,12 +23,15 @@ export class HotelServiceAvailabilityController {
     return this.hotelServiceAvailabilityService.findByhotelServiceId(
       hotelServiceId,
     );
-  };
+  }
 
-
-  @Post()
-  async create(@Body() createDto: CreateHotelServiceAvailabilityDto) {
+  @Post('/:hotelServiceId')
+  async create(
+    @Param('hotelServiceId', ParseIntPipe) hotelServiceId: number,
+    @Body() createDto: CreateHotelServiceAvailabilityDto,
+  ) {
     return this.hotelServiceAvailabilityService.createHotelServiceWithAvailabilities(
+      hotelServiceId,
       createDto,
     );
   }

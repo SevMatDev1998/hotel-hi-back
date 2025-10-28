@@ -621,18 +621,19 @@ model HotelAdditionalService {
 
 
 model HotelServiceAvailability {
-  id                        Int                               @id @default(autoincrement())
+  id                       Int                              @id @default(autoincrement())
   hotelServiceId            Int
-  availabilityTypeId        ServiceTypeAvailabilityBy
+  isPaid                    Boolean                         @default(false)
+  startMonth                DateTime                        // Prisma doesn't have DateOnly; use DateTime
+  endMonth                  DateTime
   hourlyAvailabilityTypeId  HotelServiceHourlyAvailabilityType
-  payMethodId               ServicePayMethod
-  startTime                 DateTime?
-  endTime                   DateTime?
-  createdAt                 DateTime                          @default(now())
-  updatedAt                 DateTime                          @updatedAt
+  startHour                 DateTime?                       // TimeSpan → DateTime?
+  endHour                   DateTime?
 
-  hotelService HotelService @relation(fields: [hotelServiceId], references: [id])
+  createdAt                 DateTime                        @default(now())
+  updatedAt                 DateTime                        @updatedAt
 
+  hotelService              HotelService                     @relation(fields: [hotelServiceId], references: [id])
 
   @@map("HotelServiceAvailabilities")
 }
