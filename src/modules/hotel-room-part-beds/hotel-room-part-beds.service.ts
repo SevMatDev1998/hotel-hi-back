@@ -15,6 +15,7 @@ export class HotelRoomPartBedsService {
     createHotelRoomPartBedsDto: CreateHotelRoomPartBedsDto,
   ): Promise<HotelRoomPartBed[]> {
     try {
+
       // Validate that the hotel room part exists
       const hotelRoomPart = await this.prisma.hotelRoomPart.findUnique({
         where: { id: createHotelRoomPartBedsDto.hotelRoomPartId },

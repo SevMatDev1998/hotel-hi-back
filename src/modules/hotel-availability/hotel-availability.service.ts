@@ -24,11 +24,10 @@ export class HotelAvailabilityService {
         color: '',
         // checkInTime: new Date(checkInTime),
         // checkoutTime: new Date(checkoutTime),
-             checkInTime: new Date(),
+        checkInTime: new Date(),
         checkoutTime: new Date(),
       },
     });
-
     if (hotelAgeAssignments && hotelAgeAssignments.length > 0) {
       for (const assignment of hotelAgeAssignments) {
         await this.hotelAgeAssignmentService.create({

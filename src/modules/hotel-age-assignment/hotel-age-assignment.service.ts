@@ -29,7 +29,7 @@ export class HotelAgeAssignmentService {
   }
 
   async findByHotelAvailabilityId(hotelAvailabilityId: number) {
-    return this.prisma.hotelAgeAssignment.findMany({
+    return await this.prisma.hotelAgeAssignment.findMany({
       where: {
         hotelAvailabilityId,
       },

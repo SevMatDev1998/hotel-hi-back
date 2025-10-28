@@ -6,22 +6,22 @@ const prisma = new client_1.PrismaClient();
 async function seedRoomBeds() {
     console.log('🛏️ Загружаем типы и размеры кроватей...');
     const roomBedTypes = [
-        { name: 'Single' },
-        { name: 'Double' },
-        { name: 'Queen' },
-        { name: 'King' },
-        { name: 'Twin' },
-        { name: 'Full' },
-        { name: 'California King' },
-        { name: 'Bunk' },
-        { name: 'Sofa' },
-        { name: 'Murphy' },
-        { name: 'Daybed' },
-        { name: 'Futon' },
-        { name: 'Rollaway' },
-        { name: 'Cradle' },
-        { name: 'Crib' },
-        { name: 'Bassinet' },
+        { name: 'Single', personCount: 1 },
+        { name: 'Double', personCount: 2 },
+        { name: 'Queen', personCount: 2 },
+        { name: 'King', personCount: 2 },
+        { name: 'Twin', personCount: 2 },
+        { name: 'Full', personCount: 2 },
+        { name: 'California King', personCount: 2 },
+        { name: 'Bunk', personCount: 1 },
+        { name: 'Sofa', personCount: 4 },
+        { name: 'Murphy', personCount: 1 },
+        { name: 'Daybed', personCount: 2 },
+        { name: 'Futon', personCount: 2 },
+        { name: 'Rollaway', personCount: 2 },
+        { name: 'Cradle', personCount: 2 },
+        { name: 'Crib', personCount: 1 },
+        { name: 'Bassinet', personCount: 3 },
     ];
     try {
         const bedTypesCount = await prisma.roomBedType.count();

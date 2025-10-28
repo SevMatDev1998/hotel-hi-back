@@ -430,6 +430,7 @@ model HotelRoom {
   roomClass    RoomClass   @relation(fields: [roomClassId], references: [id])
   roomView     RoomView?   @relation(fields: [roomViewId], references: [id])
   
+  hotelAdditionalServices   HotelAdditionalService[]
   hotelRoomParts    HotelRoomPart[]
   hotelRoomNumbers  HotelRoomNumber[]
   hotelRoomPrices   HotelRoomPrice[]
@@ -467,6 +468,7 @@ model HotelRoomPart {
 model RoomBedType {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(128)
+  personCount  Int     @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -585,18 +587,37 @@ model HotelService {
   updatedAt     DateTime           @updatedAt
   deletedAt     DateTime?
 
-  // ✅ связь с системным сервисом
   service SystemService @relation(fields: [serviceId], references: [id])
-
-  // ✅ связь с конкретным отелем
   hotel   Hotel         @relation(fields: [hotelId], references: [id])
   
+  hotelAdditionalServices    HotelAdditionalService[]
   hotelServiceAvailabilities HotelServiceAvailability[]
   hotelServicePrices         HotelServicePrice[]
   orderHotelServices         OrderHotelService[]
 
   @@map("HotelServices")
 }
+
+
+model HotelAdditionalService {
+  id                  Int      @id @default(autoincrement())
+  hotelServiceId      Int
+  hotelAvailabilityId Int
+  hotelRoomId         Int?
+  isTimeLimited       Boolean  @default(false)
+  price               Decimal?
+  startTime           DateTime?
+  percentage          Float?
+  notConstantValue    Boolean  @default(false)
+  serviceName         String   @db.VarChar(256)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  hotelService      HotelService      @relation(fields: [hotelServiceId], references: [id])
+  hotelAvailability HotelAvailability @relation(fields: [hotelAvailabilityId], references: [id])
+  hotelRoom         HotelRoom?        @relation(fields: [hotelRoomId], references: [id])
+}
+
 
 
 model HotelServiceAvailability {
@@ -611,6 +632,7 @@ model HotelServiceAvailability {
   updatedAt                 DateTime                          @updatedAt
 
   hotelService HotelService @relation(fields: [hotelServiceId], references: [id])
+
 
   @@map("HotelServiceAvailabilities")
 }
@@ -753,7 +775,7 @@ model HotelAvailability {
   hotelRoomPrices            HotelRoomPrice[]
   hotelServicePrices         HotelServicePrice[]
   hotelFoodPrices            HotelFoodPrice[]
-
+  hotelAdditionalServices    HotelAdditionalService[]
   @@map("HotelAvailabilities")
 }
 

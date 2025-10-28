@@ -138,7 +138,6 @@ export class HotelRoomService {
   }
 
   async getHotelRoomById(roomId: number): Promise<HotelRoom> {
-    
     const hotelRoom = await this.prisma.hotelRoom.findUnique({
       where: { id: roomId },
       include: { roomView: true, roomClass: true },
@@ -149,4 +148,5 @@ export class HotelRoomService {
     }
     return hotelRoom;
   }
+
 }
