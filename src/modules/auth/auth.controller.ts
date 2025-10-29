@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpStatus, Get } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -9,7 +9,6 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { Public } from './decorators/public.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
-import { ConfirmEmailDto } from './dto/confirm-email.dto';
 import { ValidateTokenDto } from './dto/validate-token.dto';
 import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
 
@@ -69,7 +68,7 @@ export class AuthController {
     return this.authService.refresh(body.refreshToken);
   }
 
-  @Post('confirm-email')
+  @Get('verify-registration/:token')
   @Public()
   @ApiOperation({ summary: 'Confirm email address with token' })
   @ApiResponse({
@@ -81,9 +80,9 @@ export class AuthController {
     description: 'Invalid or expired confirmation token',
   })
   async confirmEmail(
-    @Body() confirmEmailDto: ConfirmEmailDto,
+    @Param('token') token: string,
   ): Promise<{ message: string }> {
-    return this.authService.confirmEmail(confirmEmailDto.token);
+    return this.authService.confirmEmail(token);
   }
 
   @Post('resend-confirmation')

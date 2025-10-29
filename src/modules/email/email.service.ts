@@ -103,9 +103,9 @@ export class EmailService {
   ): Promise<boolean> {
     const frontendUrl = this.configService.get<string>(
       'FRONTEND_URL',
-      'http://localhost:3001',
+      'http://localhost:5173',
     );
-    const confirmUrl = `${frontendUrl}/auth/confirm-email?token=${token}`;
+    const confirmUrl = `${frontendUrl}/verify?token=${token}`;
 
     const html = `
       <!DOCTYPE html>
@@ -180,7 +180,7 @@ export class EmailService {
   async sendPasswordReset(email: string, token: string): Promise<boolean> {
     const frontendUrl = this.configService.get<string>(
       'FRONTEND_URL',
-      'http://localhost:3001',
+      'http://localhost:5173',
     );
     const resetUrl = `${frontendUrl}/auth/reset-password?token=${token}`;
 

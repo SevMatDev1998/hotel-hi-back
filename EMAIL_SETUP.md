@@ -99,7 +99,7 @@ Content: [confirmation link with token]
    SMTP_SECURE=false
    SMTP_USER="your-email@gmail.com"
    SMTP_PASS="your-16-char-app-password"
-   FRONTEND_URL="http://localhost:3001"
+   FRONTEND_URL="http://localhost:5173"
    ```
 
 ### Setup for AWS SES
