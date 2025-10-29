@@ -846,24 +846,26 @@ model LocalizationResource {
 }
 
 model User {
-  id                   Int       @id @default(autoincrement())
-  userName             String?   @db.VarChar(256)
-  normalizedUserName   String?   @db.VarChar(256)
-  email                String?   @db.VarChar(256)
-  normalizedEmail      String?   @db.VarChar(256)
-  emailConfirmed       Boolean   @default(false)
-  passwordHash         String?   @db.VarChar(512)
-  securityStamp        String?   @db.VarChar(128)
-  concurrencyStamp     String    @default(cuid()) @db.VarChar(128)
-  phoneNumber          String?   @db.VarChar(32)
-  phoneNumberConfirmed Boolean   @default(false)
-  twoFactorEnabled     Boolean   @default(false)
-  lockoutEnd           DateTime?
-  lockoutEnabled       Boolean   @default(true)
-  accessFailedCount    Int       @default(0)
-  defaultLanguageId    Int
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  id                          Int       @id @default(autoincrement())
+  userName                    String?   @db.VarChar(256)
+  normalizedUserName          String?   @db.VarChar(256)
+  email                       String?   @db.VarChar(256)
+  normalizedEmail             String?   @db.VarChar(256)
+  emailConfirmed              Boolean   @default(false)
+  emailConfirmationToken      String?   @db.VarChar(512)
+  emailConfirmationTokenExpiry DateTime?
+  passwordHash                String?   @db.VarChar(512)
+  securityStamp               String?   @db.VarChar(128)
+  concurrencyStamp            String    @default(cuid()) @db.VarChar(128)
+  phoneNumber                 String?   @db.VarChar(32)
+  phoneNumberConfirmed        Boolean   @default(false)
+  twoFactorEnabled            Boolean   @default(false)
+  lockoutEnd                  DateTime?
+  lockoutEnabled              Boolean   @default(true)
+  accessFailedCount           Int       @default(0)
+  defaultLanguageId           Int
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
 
   defaultLanguage Language     @relation(fields: [defaultLanguageId], references: [id])
   userHotels      UserHotel[]

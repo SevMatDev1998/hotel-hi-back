@@ -11,6 +11,8 @@ export class User implements PrismaUser {
   securityStamp: string | null;
   concurrencyStamp: string;
   phoneNumber: string | null;
+  emailConfirmationToken: string | null;
+  emailConfirmationTokenExpiry: Date | null;
   phoneNumberConfirmed: boolean;
   twoFactorEnabled: boolean;
   lockoutEnd: Date | null;

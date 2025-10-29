@@ -13,6 +13,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
+import { EmailService } from '../email/email.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +23,7 @@ export class AuthService {
     private readonly hotelService: HotelService,
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -38,8 +41,33 @@ export class AuthService {
         // Create user
         const user = await this.userService.createUser(email, password);
 
+        // Generate email confirmation token
+        const confirmationToken = this.generateConfirmationToken();
+        const tokenExpiry = new Date();
+        tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours expiry
+
+        // Update user with confirmation token
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            emailConfirmationToken: confirmationToken,
+            emailConfirmationTokenExpiry: tokenExpiry,
+          },
+        });
+
         // Create hotel and associate with user
         const hotel = await this.hotelService.createHotel(hotelName, user.id);
+
+        // Send confirmation email (non-blocking)
+        this.emailService
+          .sendEmailConfirmation(
+            email,
+            confirmationToken,
+            user.email || undefined,
+          )
+          .catch((error) => {
+            console.error('Failed to send confirmation email:', error);
+          });
 
         return { user, hotel };
       });
@@ -49,7 +77,8 @@ export class AuthService {
         email: result.user.email!,
         hotelId: result.hotel.id,
         hotelName: result.hotel.name,
-        message: 'Registration successful',
+        message:
+          'Registration successful. Please check your email to confirm your account.',
       };
     } catch {
       throw new BadRequestException('Registration failed. Please try again.');
@@ -127,8 +156,7 @@ export class AuthService {
     try {
       payload = await this.jwtService.verifyAsync(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
-      }) as any;
-
+      });
     } catch {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
@@ -163,6 +191,101 @@ export class AuthService {
       accessToken,
       refreshToken: newRefreshToken,
     };
-}
+  }
 
+  // ============ Email Confirmation Methods ============
+
+  private generateConfirmationToken(): string {
+    return crypto.randomBytes(32).toString('hex');
+  }
+
+  async confirmEmail(token: string): Promise<{ message: string }> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        emailConfirmationToken: token,
+        emailConfirmationTokenExpiry: {
+          gte: new Date(), // Token not expired
+        },
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired confirmation token');
+    }
+
+    // Update user: confirm email and clear token
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailConfirmed: true,
+        emailConfirmationToken: null,
+        emailConfirmationTokenExpiry: null,
+      },
+    });
+
+    return {
+      message: 'Email confirmed successfully. You can now log in.',
+    };
+  }
+
+  async resendConfirmationEmail(email: string): Promise<{ message: string }> {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.emailConfirmed) {
+      throw new BadRequestException('Email is already confirmed');
+    }
+
+    // Generate new confirmation token
+    const confirmationToken = this.generateConfirmationToken();
+    const tokenExpiry = new Date();
+    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hours expiry
+
+    // Update user with new token
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailConfirmationToken: confirmationToken,
+        emailConfirmationTokenExpiry: tokenExpiry,
+      },
+    });
+
+    // Send confirmation email
+    await this.emailService.sendEmailConfirmation(
+      email,
+      confirmationToken,
+      user.email || undefined,
+    );
+
+    return {
+      message: 'Confirmation email sent. Please check your inbox.',
+    };
+  }
+
+  async validateToken(
+    token: string,
+  ): Promise<{ valid: boolean; email?: string; userId?: number }> {
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      });
+
+      const user = await this.userService.findById(payload.sub);
+
+      if (!user) {
+        return { valid: false };
+      }
+
+      return {
+        valid: true,
+        email: user.email || undefined,
+        userId: user.id,
+      };
+    } catch {
+      return { valid: false };
+    }
+  }
 }

@@ -9,6 +9,9 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { Public } from './decorators/public.decorator';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
+import { ConfirmEmailDto } from './dto/confirm-email.dto';
+import { ValidateTokenDto } from './dto/validate-token.dto';
+import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -20,7 +23,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user with hotel' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'User and hotel created successfully',
+    description:
+      'User and hotel created successfully. Confirmation email sent.',
     type: AuthResponseDto,
   })
   @ApiResponse({
@@ -63,5 +67,52 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
   async refresh(@Body() body: RefreshTokenDto): Promise<RefreshResponseDto> {
     return this.authService.refresh(body.refreshToken);
+  }
+
+  @Post('confirm-email')
+  @Public()
+  @ApiOperation({ summary: 'Confirm email address with token' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Email confirmed successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid or expired confirmation token',
+  })
+  async confirmEmail(
+    @Body() confirmEmailDto: ConfirmEmailDto,
+  ): Promise<{ message: string }> {
+    return this.authService.confirmEmail(confirmEmailDto.token);
+  }
+
+  @Post('resend-confirmation')
+  @Public()
+  @ApiOperation({ summary: 'Resend email confirmation' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Confirmation email sent',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'User not found or email already confirmed',
+  })
+  async resendConfirmation(
+    @Body() resendDto: ResendConfirmationDto,
+  ): Promise<{ message: string }> {
+    return this.authService.resendConfirmationEmail(resendDto.email);
+  }
+
+  @Post('validate-token')
+  @Public()
+  @ApiOperation({ summary: 'Validate if JWT token is valid' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Token validation result',
+  })
+  async validateToken(
+    @Body() validateTokenDto: ValidateTokenDto,
+  ): Promise<{ valid: boolean; email?: string; userId?: number }> {
+    return this.authService.validateToken(validateTokenDto.token);
   }
 }
