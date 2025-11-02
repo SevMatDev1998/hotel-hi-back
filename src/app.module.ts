@@ -35,6 +35,7 @@ import { PartnersModule } from './modules/partners/partners.module';
 import { HotelPartnerModule } from './modules/hotel-partner/hotel-partner.module';
 import { HotelFoodPriceModule } from './modules/hotel-food-price/hotel-food-price.module';
 import { HotelAgeAssignmentModule } from './modules/hotel-age-assignment/hotel-age-assignment.module';
+import { HotelAvailabilityDateCommissionModule } from './modules/hotel-availability-date-commission/hotel-availability-date-commission.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { HotelAgeAssignmentModule } from './modules/hotel-age-assignment/hotel-a
     HotelServiceModule,
     HotelServiceAvailabilityModule,
     HotelAvailabilityModule,
+    HotelAvailabilityDateCommissionModule,
     CurrencyModule,
     PartnersModule,
     HotelPartnerModule,
