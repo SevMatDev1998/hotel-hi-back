@@ -770,11 +770,10 @@ model HotelAvailability {
    
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+  hotelAvailabilityDateCommissions HotelAvailabilityDateCommission[] 
 
-  dates               HotelAvailabilityDate[]
+
   partnerCommissions  PartnerCommission[]
-
 
   hotel Hotel @relation(fields: [hotelId], references: [id])
   priceNotificationSchedules PriceNotificationSchedule[]
@@ -915,72 +914,52 @@ model SystemStateSetting {
   @@unique([key])
   @@map("SystemStateSettings")
 }
-
-
-model HotelAvailabilityDate {
-  id                  Int                @id @default(autoincrement())
+model HotelAvailabilityDateCommission {
+  id                  Int                 @id @default(autoincrement())
   hotelAvailabilityId Int
   date                DateTime
-  calendarId          String             @db.VarChar(256)
+  calendarId          String              @db.VarChar(256)
 
   startDate           DateTime?           @default(now())
   endDate             DateTime?
- 
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
 
-  hotelAvailability   HotelAvailability  @relation(fields: [hotelAvailabilityId], references: [id])
-  hotelCommissions    HotelAvailabilityCommission[]
+  roomFee             Decimal             @db.Decimal(18, 2)
+  foodFee             Decimal             @db.Decimal(18, 2)
+  additionalFee       Decimal             @db.Decimal(18, 2)
+  serviceFee          Decimal             @db.Decimal(18, 2)
+
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  hotelAvailability   HotelAvailability   @relation(fields: [hotelAvailabilityId], references: [id])
   partnerCommissions  PartnerCommission[]
-
 
   @@index([hotelAvailabilityId])
   @@index([date])
   @@index([hotelAvailabilityId, date])
-  @@map("HotelAvailabilityDates")
-}
-
-
-model HotelAvailabilityCommission {
-  id                      Int                   @id @default(autoincrement())
-  hotelAvailabilityDateId Int
-  roomFee                 Decimal               @db.Decimal(18, 2)
-  foodFee                 Decimal               @db.Decimal(18, 2)
-  additionalFee           Decimal               @db.Decimal(18, 2)
-  serviceFee              Decimal               @db.Decimal(18, 2)
-
-
-
-  startDate               DateTime              @default(now())
-  endDate                 DateTime?
-  
-  createdAt               DateTime              @default(now())
-  updatedAt               DateTime              @updatedAt
-
-  hotelAvailabilityDate   HotelAvailabilityDate @relation(fields: [hotelAvailabilityDateId], references: [id])
-
-  @@index([hotelAvailabilityDateId])
-  @@map("HotelAvailabilityCommissions")
+  @@map("HotelAvailabilityDateCommissions")
 }
 
 
 model PartnerCommission {
-  id                      Int                   @id @default(autoincrement())
+  id                      Int                        @id @default(autoincrement())
   partnerId               Int
   hotelAvailabilityId     Int?
   hotelAvailabilityDateId Int?
-  roomFee                 Decimal               @db.Decimal(18, 2)
-  foodFee                 Decimal               @db.Decimal(18, 2)
-  additionalFee           Decimal               @db.Decimal(18, 2)
-  serviceFee              Decimal               @db.Decimal(18, 2)
-  isDefault               Boolean               @default(false)
-  createdAt               DateTime              @default(now())
-  updatedAt               DateTime              @updatedAt
+
+  roomFee                 Decimal                    @db.Decimal(18, 2)
+  foodFee                 Decimal                    @db.Decimal(18, 2)
+  additionalFee           Decimal                    @db.Decimal(18, 2)
+  serviceFee              Decimal                    @db.Decimal(18, 2)
+
+  isDefault               Boolean                    @default(false)
+  createdAt               DateTime                   @default(now())
+  updatedAt               DateTime                   @updatedAt
   deletedAt               DateTime?
 
-  partner                 Partner               @relation(fields: [partnerId], references: [id])
-  hotelAvailability       HotelAvailability?    @relation(fields: [hotelAvailabilityId], references: [id])
-  hotelAvailabilityDate   HotelAvailabilityDate? @relation(fields: [hotelAvailabilityDateId], references: [id])
+  partner                 Partner                    @relation(fields: [partnerId], references: [id])
+  hotelAvailability       HotelAvailability?          @relation(fields: [hotelAvailabilityId], references: [id])
+  hotelAvailabilityDate   HotelAvailabilityDateCommission? @relation(fields: [hotelAvailabilityDateId], references: [id])
 
 
   @@index([partnerId])
@@ -990,4 +969,3 @@ model PartnerCommission {
   @@index([partnerId, hotelAvailabilityDateId])
   @@map("PartnerCommissions")
 }
-

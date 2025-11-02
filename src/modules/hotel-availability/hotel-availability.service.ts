@@ -10,13 +10,14 @@ export class HotelAvailabilityService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly hotelAgeAssignmentService: HotelAgeAssignmentService,
-  ) { }
+  ) {}
 
   async create(
     createHotelAvailabilityDto: CreateHotelAvailabilityDto,
     hotelId: number,
   ): Promise<HotelAvailability> {
-    const { title, checkInTime, checkoutTime, hotelAgeAssignments } = createHotelAvailabilityDto;
+    const { title, checkInTime, checkoutTime, hotelAgeAssignments } =
+      createHotelAvailabilityDto;
 
     const hotelAvailability = await this.prisma.hotelAvailability.create({
       data: {
@@ -41,7 +42,6 @@ export class HotelAvailabilityService {
     return hotelAvailability;
   }
 
-
   async findByHotelId(hotelId: number): Promise<HotelAvailability[]> {
     return this.prisma.hotelAvailability.findMany({
       where: { hotelId },
@@ -52,7 +52,7 @@ export class HotelAvailabilityService {
     return this.prisma.hotelAvailability.findMany({
       where: { hotelId },
       include: {
-        dates: true,
+        hotelAvailabilityDateCommissions: true,
       },
     });
   }
@@ -61,30 +61,36 @@ export class HotelAvailabilityService {
     hotelId: number,
     dto: UpdateHotelAvailabilityListDto,
   ): Promise<HotelAvailability[]> {
-    const { availabilities } = dto;
+    const { availabilities, commissionDate } = dto;
 
     if (!availabilities || availabilities.length === 0) {
+      console.log('⚠️ No availability data provided for update.');
+      //
       // throw new NotFoundException('No availability data provided.');
     }
+
+
 
     try {
       await this.prisma.$transaction(async (tx) => {
         for (const availability of availabilities) {
-          // 1️⃣ Проверка существования
+          // 1️⃣ Проверяем, существует ли запись availability
           const existing = await tx.hotelAvailability.findFirst({
             where: { id: availability.id, hotelId },
           });
 
           if (!existing) {
-            console.log(`HotelAvailability with id=${availability.id} not found for hotelId=${hotelId}`);
+            console.warn(
+              `⚠️ HotelAvailability with id=${availability.id} not found for hotelId=${hotelId}`,
+            );
           }
 
-          // 2️⃣ Удаляем все старые даты (чистим полностью перед обновлением)
-          await tx.hotelAvailabilityDate.deleteMany({
+          // 2️⃣ Удаляем старые даты комиссий перед обновлением
+          await tx.hotelAvailabilityDateCommission.deleteMany({
             where: { hotelAvailabilityId: availability.id },
           });
 
-          // 3️⃣ Обновляем основные поля
+          // 3️⃣ Обновляем основные данные HotelAvailability
           await tx.hotelAvailability.update({
             where: { id: availability.id },
             data: {
@@ -97,37 +103,48 @@ export class HotelAvailabilityService {
             },
           });
 
-          // 4️⃣ Создаём новые даты (bulk insert)
-          if (availability.dates && availability.dates.length > 0) {
-            const dateData = availability.dates.map((d) => ({
-              hotelAvailabilityId: availability.id,
-              date: new Date(d.date),
-              calendarId: d.calendarId,
-              startDate: new Date(),
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            }));
+          // // 4️⃣ Создаём новые записи HotelAvailabilityDateCommission
+          if (
+            availability.hotelAvailabilityDateCommissions &&
+            availability.hotelAvailabilityDateCommissions.length > 0
+          ) {
+            const dateData = availability.hotelAvailabilityDateCommissions.map(
+              (d) => ({
+                hotelAvailabilityId: availability.id,
+                date: new Date(d.date),
+                calendarId: d.calendarId,
+                startDate: new Date(),
+                endDate: null,
+                // 💰 значения комиссий по умолчанию — если в DTO не переданы
+                roomFee: commissionDate?.roomFee ?? 0,
+                foodFee: commissionDate?.foodFee ?? 0,
+                additionalFee: commissionDate?.additionalFee ?? 0,
+                serviceFee: commissionDate?.serviceFee ?? 0,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              }),
+            );
 
-            await tx.hotelAvailabilityDate.createMany({
+            await tx.hotelAvailabilityDateCommission.createMany({
               data: dateData,
-              skipDuplicates: true, // защита от повторных id/date
+              skipDuplicates: true,
             });
           }
         }
       });
 
-      // 5️⃣ После транзакции — возвращаем актуальные данные
+      // 5️⃣ После транзакции возвращаем обновлённые данные
       const updated = await this.prisma.hotelAvailability.findMany({
         where: { hotelId },
         include: {
-          dates: true,
+          hotelAvailabilityDateCommissions: true,
         },
         orderBy: { id: 'asc' },
       });
 
       return updated;
     } catch (error) {
-      console.error('❌ Error updating hotel availability with dates:', error);
+      console.log(error);
       throw error;
     }
   }

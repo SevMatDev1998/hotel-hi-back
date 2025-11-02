@@ -28,8 +28,28 @@ export class HotelAvailabilityDateDto {
 
   @IsString()
   calendarId: string;
-}
 
+  // 💰 Комиссии
+  @ApiProperty({ example: 100.0, required: false })
+  @IsOptional()
+  @IsNumber()
+  roomFee?: number;
+
+  @ApiProperty({ example: 50.0, required: false })
+  @IsOptional()
+  @IsNumber()
+  foodFee?: number;
+
+  @ApiProperty({ example: 20.0, required: false })
+  @IsOptional()
+  @IsNumber()
+  additionalFee?: number;
+
+  @ApiProperty({ example: 30.0, required: false })
+  @IsOptional()
+  @IsNumber()
+  serviceFee?: number;
+}
 export class UpdateHotelAvailabilityWithDatesDto {
   @ApiProperty({
     description: 'Уникальный идентификатор availability',
@@ -93,7 +113,7 @@ export class UpdateHotelAvailabilityWithDatesDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => HotelAvailabilityDateDto)
-  dates: HotelAvailabilityDateDto[];
+  hotelAvailabilityDateCommissions: HotelAvailabilityDateDto[];
 
   @ApiProperty({
     description: 'Дата создания записи',
@@ -112,6 +132,30 @@ export class UpdateHotelAvailabilityWithDatesDto {
   updatedAt?: string;
 }
 
+export class CommissionDateDto {
+
+  // 💰 Комиссии отеля
+  @ApiProperty({ example: 100.0, required: false, description: 'Стоимость комнаты' })
+  @IsOptional()
+  @IsNumber()
+  roomFee?: number;
+
+  @ApiProperty({ example: 50.0, required: false, description: 'Плата за еду' })
+  @IsOptional()
+  @IsNumber()
+  foodFee?: number;
+
+  @ApiProperty({ example: 20.0, required: false, description: 'Дополнительная плата' })
+  @IsOptional()
+  @IsNumber()
+  additionalFee?: number;
+
+  @ApiProperty({ example: 30.0, required: false, description: 'Сервисный сбор' })
+  @IsOptional()
+  @IsNumber()
+  serviceFee?: number;
+
+}
 export class UpdateHotelAvailabilityListDto {
   @ApiProperty({
     description: 'Список availabilities с датами',
@@ -121,4 +165,14 @@ export class UpdateHotelAvailabilityListDto {
   @ValidateNested({ each: true })
   @Type(() => UpdateHotelAvailabilityWithDatesDto)
   availabilities: UpdateHotelAvailabilityWithDatesDto[];
+
+  @ApiProperty({
+    description: 'Комиссии, применяемые к выбранным датам (если заданы вручную)',
+    type: () => CommissionDateDto,
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CommissionDateDto)
+  commissionDate?: CommissionDateDto;
 }
