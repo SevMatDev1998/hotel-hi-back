@@ -247,6 +247,7 @@ model Partner {
   orders                        Order[]
   emailStatuses                 EmailStatus[]
   priceNotificationSchedules    PriceNotificationSchedule[]
+  partnerCommissions            PartnerCommission[]
 
   @@map("Partners")
 }
@@ -770,6 +771,11 @@ model HotelAvailability {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
+
+  dates               HotelAvailabilityDate[]
+  partnerCommissions  PartnerCommission[]
+
+
   hotel Hotel @relation(fields: [hotelId], references: [id])
   priceNotificationSchedules PriceNotificationSchedule[]
   hotelAgeAssignments        HotelAgeAssignment[]
@@ -909,3 +915,79 @@ model SystemStateSetting {
   @@unique([key])
   @@map("SystemStateSettings")
 }
+
+
+model HotelAvailabilityDate {
+  id                  Int                @id @default(autoincrement())
+  hotelAvailabilityId Int
+  date                DateTime
+  calendarId          String             @db.VarChar(256)
+
+  startDate           DateTime?           @default(now())
+  endDate             DateTime?
+ 
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  hotelAvailability   HotelAvailability  @relation(fields: [hotelAvailabilityId], references: [id])
+  hotelCommissions    HotelAvailabilityCommission[]
+  partnerCommissions  PartnerCommission[]
+
+
+  @@index([hotelAvailabilityId])
+  @@index([date])
+  @@index([hotelAvailabilityId, date])
+  @@map("HotelAvailabilityDates")
+}
+
+
+model HotelAvailabilityCommission {
+  id                      Int                   @id @default(autoincrement())
+  hotelAvailabilityDateId Int
+  roomFee                 Decimal               @db.Decimal(18, 2)
+  foodFee                 Decimal               @db.Decimal(18, 2)
+  additionalFee           Decimal               @db.Decimal(18, 2)
+  serviceFee              Decimal               @db.Decimal(18, 2)
+
+
+
+  startDate               DateTime              @default(now())
+  endDate                 DateTime?
+  
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+
+  hotelAvailabilityDate   HotelAvailabilityDate @relation(fields: [hotelAvailabilityDateId], references: [id])
+
+  @@index([hotelAvailabilityDateId])
+  @@map("HotelAvailabilityCommissions")
+}
+
+
+model PartnerCommission {
+  id                      Int                   @id @default(autoincrement())
+  partnerId               Int
+  hotelAvailabilityId     Int?
+  hotelAvailabilityDateId Int?
+  roomFee                 Decimal               @db.Decimal(18, 2)
+  foodFee                 Decimal               @db.Decimal(18, 2)
+  additionalFee           Decimal               @db.Decimal(18, 2)
+  serviceFee              Decimal               @db.Decimal(18, 2)
+  isDefault               Boolean               @default(false)
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  deletedAt               DateTime?
+
+  partner                 Partner               @relation(fields: [partnerId], references: [id])
+  hotelAvailability       HotelAvailability?    @relation(fields: [hotelAvailabilityId], references: [id])
+  hotelAvailabilityDate   HotelAvailabilityDate? @relation(fields: [hotelAvailabilityDateId], references: [id])
+
+
+  @@index([partnerId])
+  @@index([hotelAvailabilityId])
+  @@index([hotelAvailabilityDateId])
+  @@index([partnerId, hotelAvailabilityId])
+  @@index([partnerId, hotelAvailabilityDateId])
+  @@map("PartnerCommissions")
+}
+
