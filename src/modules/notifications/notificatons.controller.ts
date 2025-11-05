@@ -10,3 +10,7 @@ export class NotificationsController {
     return this.notificationsService.findAll(hotelId);
   }
 }
+
+
+// notofied nshanakum a generacnum enq link 
+// vori mej
