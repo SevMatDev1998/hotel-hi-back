@@ -47,6 +47,24 @@ export class HotelAdditionalServiceService {
     tx: Prisma.TransactionClient,
     dtos: CreateHotelAdditionalServiceDto[],
   ) {
+    // Если массив пустой, ничего не делаем
+    if (dtos.length === 0) {
+      return [];
+    }
+
+    // Получаем hotelAvailabilityId и hotelRoomId из первого элемента
+    const hotelAvailabilityId = dtos[0].hotelAvailabilityId;
+    const hotelRoomId = dtos[0].hotelRoomId;
+
+    // Сначала удаляем все существующие записи для этого availability и room
+    await tx.hotelAdditionalService.deleteMany({
+      where: {
+        hotelAvailabilityId: hotelAvailabilityId,
+        hotelRoomId: hotelRoomId,
+      },
+    });
+
+    // Затем создаем новые записи
     return Promise.all(dtos.map((dto) => this.createWithTransaction(tx, dto)));
   }
 }

@@ -97,9 +97,9 @@ export class RoomPricePolicyService {
           `Created ${createdFoodPrices.length} food price records`,
         );
 
-        // Создаем room price используя сервис
+        // Создаем или обновляем room price используя сервис
         const createdRoomPrice =
-          await this.hotelRoomPriceService.createWithTransaction(tx, {
+          await this.hotelRoomPriceService.createOrUpdate(tx, {
             hotelRoomId: dto.roomPrice.hotelRoomId,
             hotelAvailabilityId: dto.roomPrice.hotelAvailabilityId,
             price: dto.roomPrice.price,
@@ -109,9 +109,9 @@ export class RoomPricePolicyService {
           `Created room price record for room ID: ${dto.roomPrice.hotelRoomId}`,
         );
 
-        // Создаем arrival/departure services используя сервис
-        const arrivalDepartureServiceDtos = dto.arrivalDepartureServices.map(
-          (service) => {
+        // Объединяем arrival/departure и other services для одновременной обработки
+        const allServiceDtos = [
+          ...dto.arrivalDepartureServices.map((service) => {
             const hotelServiceId = serviceMap.get(service.systemServiceId);
             if (!hotelServiceId) {
               throw new Error(
@@ -129,55 +129,54 @@ export class RoomPricePolicyService {
               notConstantValue: service.notConstantValue,
               serviceName: service.serviceName,
             };
-          },
-        );
+          }),
+          ...dto.otherServices.map((service) => {
+            const hotelServiceId = serviceMap.get(service.systemServiceId);
+            if (!hotelServiceId) {
+              throw new Error(
+                `Hotel service not found for system service ID ${service.systemServiceId}`,
+              );
+            }
+            return {
+              hotelServiceId,
+              hotelAvailabilityId: service.hotelAvailabilityId,
+              hotelRoomId: service.hotelRoomId,
+              isTimeLimited: service.isTimeLimited,
+              startTime: undefined,
+              percentage: undefined,
+              price: service.price !== null ? service.price : undefined,
+              notConstantValue: service.notConstantValue,
+              serviceName: service.serviceName,
+            };
+          }),
+        ];
 
-        const createdArrivalDepartureServices =
+        // Создаем все additional services за один раз
+        const createdAdditionalServices =
           await this.hotelAdditionalServiceService.createMany(
             tx,
-            arrivalDepartureServiceDtos,
+            allServiceDtos,
           );
 
         this.logger.log(
-          `Created ${createdArrivalDepartureServices.length} arrival/departure service records`,
+          `Created ${createdAdditionalServices.length} additional service records`,
         );
 
-        // Создаем other services используя сервис
-        const otherServiceDtos = dto.otherServices.map((service) => {
-          const hotelServiceId = serviceMap.get(service.systemServiceId);
-          if (!hotelServiceId) {
-            throw new Error(
-              `Hotel service not found for system service ID ${service.systemServiceId}`,
-            );
-          }
-          return {
-            hotelServiceId,
-            hotelAvailabilityId: service.hotelAvailabilityId,
-            hotelRoomId: service.hotelRoomId,
-            isTimeLimited: service.isTimeLimited,
-            startTime: undefined,
-            percentage: undefined,
-            price: service.price !== null ? service.price : undefined,
-            notConstantValue: service.notConstantValue,
-            serviceName: service.serviceName,
-          };
-        });
-
-        const createdOtherServices =
-          await this.hotelAdditionalServiceService.createMany(
-            tx,
-            otherServiceDtos,
-          );
-
-        this.logger.log(
-          `Created ${createdOtherServices.length} other service records`,
+        // Разделяем обратно для возврата результата
+        const arrivalDepartureCount = dto.arrivalDepartureServices.length;
+        const arrivalDepartureServices = createdAdditionalServices.slice(
+          0,
+          arrivalDepartureCount,
+        );
+        const otherServices = createdAdditionalServices.slice(
+          arrivalDepartureCount,
         );
 
         return {
           foodPrices: createdFoodPrices,
           roomPrice: createdRoomPrice,
-          arrivalDepartureServices: createdArrivalDepartureServices,
-          otherServices: createdOtherServices,
+          arrivalDepartureServices: arrivalDepartureServices,
+          otherServices: otherServices,
         };
       });
 

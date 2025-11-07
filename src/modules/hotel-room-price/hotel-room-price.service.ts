@@ -34,4 +34,28 @@ export class HotelRoomPriceService {
       },
     });
   }
+
+  async createOrUpdate(
+    tx: Prisma.TransactionClient,
+    createHotelRoomPriceDto: CreateHotelRoomPriceDto,
+  ) {
+    // Сначала удаляем существующую запись
+    await tx.hotelRoomPrice.deleteMany({
+      where: {
+        hotelRoomId: createHotelRoomPriceDto.hotelRoomId,
+        hotelAvailabilityId: createHotelRoomPriceDto.hotelAvailabilityId,
+      },
+    });
+
+    // Создаем новую запись
+    return tx.hotelRoomPrice.create({
+      data: {
+        hotelRoomId: createHotelRoomPriceDto.hotelRoomId,
+        hotelAvailabilityId: createHotelRoomPriceDto.hotelAvailabilityId,
+        price: new Decimal(createHotelRoomPriceDto.price),
+        dateFrom: new Date(),
+        dateTo: new Date(),
+      },
+    });
+  }
 }
