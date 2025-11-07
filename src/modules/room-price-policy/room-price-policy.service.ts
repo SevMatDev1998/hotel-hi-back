@@ -1,13 +1,22 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateRoomPricePolicyDto } from './dto';
-import { Decimal } from '@prisma/client/runtime/library';
+import { HotelFoodPriceService } from '../hotel-food-price/hotel-food-price.service';
+import { HotelRoomPriceService } from '../hotel-room-price/hotel-room-price.service';
+import { HotelAdditionalServiceService } from '../hotel-additional-service/hotel-additional-service.service';
+import { HotelServiceService } from '../hotel-service/hotel-service.service';
 
 @Injectable()
 export class RoomPricePolicyService {
   private readonly logger = new Logger(RoomPricePolicyService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly hotelFoodPriceService: HotelFoodPriceService,
+    private readonly hotelRoomPriceService: HotelRoomPriceService,
+    private readonly hotelAdditionalServiceService: HotelAdditionalServiceService,
+    private readonly hotelServiceService: HotelServiceService,
+  ) {}
 
   async createRoomPricePolicy(dto: CreateRoomPricePolicyDto) {
     this.logger.log(
@@ -68,94 +77,97 @@ export class RoomPricePolicyService {
           });
         }
 
-        const createdFoodPrices = await Promise.all(
-          dto.foodPrices.map((foodPrice) =>
-            tx.hotelFoodPrice.create({
-              data: {
-                hotelAvailabilityId: foodPrice.hotelAvailabilityId,
-                hotelFoodId: foodPrice.hotelFoodId,
-                hotelAgeAssignmentId: foodPrice.includedInPrice
-                  ? null
-                  : foodPrice.hotelAgeAssignmentId,
-                price: new Decimal(foodPrice.price),
-                includedInPrice: foodPrice.includedInPrice,
-              },
-            }),
-          ),
+        // Создаем food prices используя сервис
+        const foodPriceDtos = dto.foodPrices.map((foodPrice) => ({
+          hotelAvailabilityId: foodPrice.hotelAvailabilityId,
+          hotelFoodId: foodPrice.hotelFoodId,
+          hotelAgeAssignmentId: foodPrice.includedInPrice
+            ? undefined
+            : foodPrice.hotelAgeAssignmentId,
+          price: foodPrice.price,
+          includedInPrice: foodPrice.includedInPrice,
+        }));
+
+        const createdFoodPrices = await this.hotelFoodPriceService.createMany(
+          tx,
+          foodPriceDtos,
         );
 
         this.logger.log(
           `Created ${createdFoodPrices.length} food price records`,
         );
 
-        const createdRoomPrice = await tx.hotelRoomPrice.create({
-          data: {
+        // Создаем room price используя сервис
+        const createdRoomPrice =
+          await this.hotelRoomPriceService.createWithTransaction(tx, {
             hotelRoomId: dto.roomPrice.hotelRoomId,
             hotelAvailabilityId: dto.roomPrice.hotelAvailabilityId,
-            price: new Decimal(dto.roomPrice.price),
-            dateFrom: new Date(),
-            dateTo: new Date(),
-          },
-        });
+            price: dto.roomPrice.price,
+          });
 
         this.logger.log(
           `Created room price record for room ID: ${dto.roomPrice.hotelRoomId}`,
         );
 
-        const createdArrivalDepartureServices = await Promise.all(
-          dto.arrivalDepartureServices.map((service) => {
+        // Создаем arrival/departure services используя сервис
+        const arrivalDepartureServiceDtos = dto.arrivalDepartureServices.map(
+          (service) => {
             const hotelServiceId = serviceMap.get(service.systemServiceId);
             if (!hotelServiceId) {
               throw new Error(
                 `Hotel service not found for system service ID ${service.systemServiceId}`,
               );
             }
-            return tx.hotelAdditionalService.create({
-              data: {
-                hotelServiceId: hotelServiceId,
-                hotelAvailabilityId: service.hotelAvailabilityId,
-                hotelRoomId: service.hotelRoomId || null,
-                isTimeLimited: service.isTimeLimited,
-                startTime: service.startTime
-                  ? new Date(service.startTime)
-                  : null,
-                percentage: service.percentage || null,
-                price: service.price ? new Decimal(service.price) : null,
-                notConstantValue: service.notConstantValue || false,
-                serviceName: service.serviceName,
-              },
-            });
-          }),
+            return {
+              hotelServiceId,
+              hotelAvailabilityId: service.hotelAvailabilityId,
+              hotelRoomId: service.hotelRoomId,
+              isTimeLimited: service.isTimeLimited,
+              startTime: service.startTime,
+              percentage: service.percentage,
+              price: service.price,
+              notConstantValue: service.notConstantValue,
+              serviceName: service.serviceName,
+            };
+          },
         );
+
+        const createdArrivalDepartureServices =
+          await this.hotelAdditionalServiceService.createMany(
+            tx,
+            arrivalDepartureServiceDtos,
+          );
 
         this.logger.log(
           `Created ${createdArrivalDepartureServices.length} arrival/departure service records`,
         );
 
-        const createdOtherServices = await Promise.all(
-          dto.otherServices.map((service) => {
-            const hotelServiceId = serviceMap.get(service.systemServiceId);
-            if (!hotelServiceId) {
-              throw new Error(
-                `Hotel service not found for system service ID ${service.systemServiceId}`,
-              );
-            }
-            return tx.hotelAdditionalService.create({
-              data: {
-                hotelServiceId: hotelServiceId,
-                hotelAvailabilityId: service.hotelAvailabilityId,
-                hotelRoomId: service.hotelRoomId || null,
-                isTimeLimited: service.isTimeLimited,
-                startTime: null,
-                percentage: null,
-                price:
-                  service.price !== null ? new Decimal(service.price) : null,
-                notConstantValue: service.notConstantValue,
-                serviceName: service.serviceName,
-              },
-            });
-          }),
-        );
+        // Создаем other services используя сервис
+        const otherServiceDtos = dto.otherServices.map((service) => {
+          const hotelServiceId = serviceMap.get(service.systemServiceId);
+          if (!hotelServiceId) {
+            throw new Error(
+              `Hotel service not found for system service ID ${service.systemServiceId}`,
+            );
+          }
+          return {
+            hotelServiceId,
+            hotelAvailabilityId: service.hotelAvailabilityId,
+            hotelRoomId: service.hotelRoomId,
+            isTimeLimited: service.isTimeLimited,
+            startTime: undefined,
+            percentage: undefined,
+            price: service.price !== null ? service.price : undefined,
+            notConstantValue: service.notConstantValue,
+            serviceName: service.serviceName,
+          };
+        });
+
+        const createdOtherServices =
+          await this.hotelAdditionalServiceService.createMany(
+            tx,
+            otherServiceDtos,
+          );
 
         this.logger.log(
           `Created ${createdOtherServices.length} other service records`,
@@ -196,6 +208,122 @@ export class RoomPricePolicyService {
       );
       throw new BadRequestException(
         `Failed to create price policy: ${errorMessage}`,
+      );
+    }
+  }
+
+  async getRoomPricePolicy(hotelAvailabilityId: number, hotelRoomId: number) {
+    this.logger.log(
+      `Getting price policy for availability ID: ${hotelAvailabilityId}, room ID: ${hotelRoomId}`,
+    );
+
+    try {
+      // Проверяем существование availability и room
+      const hotelAvailability =
+        await this.prisma.hotelAvailability.findUnique({
+          where: { id: hotelAvailabilityId },
+        });
+
+      if (!hotelAvailability) {
+        throw new BadRequestException(
+          `Hotel availability with id ${hotelAvailabilityId} not found`,
+        );
+      }
+
+      const hotelRoom = await this.prisma.hotelRoom.findUnique({
+        where: { id: hotelRoomId },
+      });
+
+      if (!hotelRoom) {
+        throw new BadRequestException(
+          `Hotel room with id ${hotelRoomId} not found`,
+        );
+      }
+
+      // Получаем food prices
+      const foodPrices = await this.prisma.hotelFoodPrice.findMany({
+        where: {
+          hotelAvailabilityId: hotelAvailabilityId,
+        },
+      });
+
+      // Получаем room price
+      const roomPrice = await this.prisma.hotelRoomPrice.findFirst({
+        where: {
+          hotelRoomId: hotelRoomId,
+          hotelAvailabilityId: hotelAvailabilityId,
+        },
+      });
+
+      // Получаем все additional services для этой комнаты и availability
+      const allAdditionalServices =
+        await this.prisma.hotelAdditionalService.findMany({
+          where: {
+            hotelAvailabilityId: hotelAvailabilityId,
+            hotelRoomId: hotelRoomId,
+          },
+          include: {
+            hotelService: {
+              include: {
+                service: true,
+              },
+            },
+          },
+        });
+
+      // Разделяем на arrival/departure и other services
+      const arrivalDepartureServices = allAdditionalServices
+        .filter((s) => s.isTimeLimited && s.percentage !== null)
+        .map((s) => ({
+          id: s.id,
+          systemServiceId: s.hotelService.serviceId,
+          hotelAvailabilityId: s.hotelAvailabilityId,
+          hotelRoomId: s.hotelRoomId,
+          isTimeLimited: s.isTimeLimited,
+          startTime: s.startTime,
+          percentage: s.percentage,
+          serviceName: s.serviceName,
+          price: s.price,
+          notConstantValue: s.notConstantValue,
+          createdAt: s.createdAt,
+          updatedAt: s.updatedAt,
+        }));
+
+      const otherServices = allAdditionalServices
+        .filter((s) => !s.isTimeLimited || s.percentage === null)
+        .map((s) => ({
+          id: s.id,
+          systemServiceId: s.hotelService.serviceId,
+          hotelAvailabilityId: s.hotelAvailabilityId,
+          hotelRoomId: s.hotelRoomId,
+          price: s.price,
+          notConstantValue: s.notConstantValue,
+          serviceName: s.serviceName,
+          isTimeLimited: s.isTimeLimited,
+          createdAt: s.createdAt,
+          updatedAt: s.updatedAt,
+        }));
+
+      return {
+        success: true,
+        data: {
+          hotelAvailabilityId,
+          hotelRoomId,
+          foodPrices,
+          roomPrice,
+          arrivalDepartureServices,
+          otherServices,
+        },
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(
+        `Failed to get price policy: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw new BadRequestException(
+        `Failed to get price policy: ${errorMessage}`,
       );
     }
   }

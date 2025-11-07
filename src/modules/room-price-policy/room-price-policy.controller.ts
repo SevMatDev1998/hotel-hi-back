@@ -1,7 +1,10 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
+  Param,
+  ParseIntPipe,
   HttpStatus,
   HttpCode,
   UsePipes,
@@ -58,5 +61,67 @@ export class RoomPricePolicyController {
   })
   async createRoomPricePolicy(@Body() dto: CreateRoomPricePolicyDto) {
     return this.roomPricePolicyService.createRoomPricePolicy(dto);
+  }
+
+  @Get(':hotelAvailabilityId/:roomId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get room price policy',
+    description:
+      'Retrieves the complete price policy for a hotel room including food prices, room prices, and additional services',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Price policy retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        data: {
+          hotelAvailabilityId: 1,
+          hotelRoomId: 1,
+          foodPrices: [
+            {
+              id: 1,
+              hotelAvailabilityId: 1,
+              hotelFoodId: 6,
+              hotelAgeAssignmentId: null,
+              price: 0,
+              includedInPrice: true,
+              createdAt: '2025-11-07T10:00:00Z',
+              updatedAt: '2025-11-07T10:00:00Z',
+            },
+          ],
+          roomPrice: {
+            id: 1,
+            hotelRoomId: 1,
+            hotelAvailabilityId: 1,
+            price: 50000,
+            createdAt: '2025-11-07T10:00:00Z',
+            updatedAt: '2025-11-07T10:00:00Z',
+          },
+          arrivalDepartureServices: [],
+          otherServices: [],
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    schema: {
+      example: {
+        success: false,
+        message: 'Hotel availability with id 1 not found',
+      },
+    },
+  })
+  async getRoomPricePolicy(
+    @Param('hotelAvailabilityId', ParseIntPipe) hotelAvailabilityId: number,
+    @Param('roomId', ParseIntPipe) roomId: number,
+  ) {
+    return this.roomPricePolicyService.getRoomPricePolicy(
+      hotelAvailabilityId,
+      roomId,
+    );
   }
 }
