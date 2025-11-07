@@ -37,6 +37,7 @@ import { HotelFoodPriceModule } from './modules/hotel-food-price/hotel-food-pric
 import { HotelAgeAssignmentModule } from './modules/hotel-age-assignment/hotel-age-assignment.module';
 import { HotelAvailabilityDateCommissionModule } from './modules/hotel-availability-date-commission/hotel-availability-date-commission.module';
 import { NotificationsModule } from './modules/notifications/notificatons.module';
+import { RoomPricePolicyModule } from './modules/room-price-policy/room-price-policy.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { NotificationsModule } from './modules/notifications/notificatons.module
     HotelFoodPriceModule,
     HotelAgeAssignmentModule,
     NotificationsModule,
+    RoomPricePolicyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -41,6 +41,7 @@ const hotel_food_price_module_1 = require("./modules/hotel-food-price/hotel-food
 const hotel_age_assignment_module_1 = require("./modules/hotel-age-assignment/hotel-age-assignment.module");
 const hotel_availability_date_commission_module_1 = require("./modules/hotel-availability-date-commission/hotel-availability-date-commission.module");
 const notificatons_module_1 = require("./modules/notifications/notificatons.module");
+const room_price_policy_module_1 = require("./modules/room-price-policy/room-price-policy.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -80,6 +81,7 @@ exports.AppModule = AppModule = __decorate([
             hotel_food_price_module_1.HotelFoodPriceModule,
             hotel_age_assignment_module_1.HotelAgeAssignmentModule,
             notificatons_module_1.NotificationsModule,
+            room_price_policy_module_1.RoomPricePolicyModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

@@ -1,0 +1,63 @@
+{
+  "hotelAvailabilityId": 1,
+  "foodPrices": [
+    {
+      "hotelAvailabilityId": 1,
+      "hotelFoodId": 6,
+      "price": 0,
+      "includedInPrice": true
+    },
+    {
+      "hotelAvailabilityId": 1,
+      "hotelFoodId": 12,
+      "hotelAgeAssignmentId": 4,
+      "price": 1500,
+      "includedInPrice": false
+    }
+  ],
+  "roomPrice": {
+    "hotelRoomId": 1,
+    "hotelAvailabilityId": 1,
+    "price": 50000
+  },
+  "arrivalDepartureServices": [
+    {
+      "systemServiceId": 40,
+      "hotelAvailabilityId": 1,
+      "hotelRoomId": 1,
+      "isTimeLimited": true,
+      "startTime": "2025-11-07T21:35:00.000Z",
+      "percentage": 44,
+      "serviceName": "Arrival"
+    },
+    {
+      "systemServiceId": 41,
+      "hotelAvailabilityId": 1,
+      "hotelRoomId": 1,
+      "isTimeLimited": true,
+      "startTime": "2025-11-07T22:36:00.000Z",
+      "percentage": 33,
+      "serviceName": "Departure"
+    }
+  ],
+  "otherServices": [
+    {
+      "systemServiceId": 42,
+      "hotelAvailabilityId": 1,
+      "hotelRoomId": 1,
+      "price": 2000,
+      "notConstantValue": false,
+      "serviceName": "Food delivery",
+      "isTimeLimited": false
+    },
+    {
+      "systemServiceId": 43,
+      "hotelAvailabilityId": 1,
+      "hotelRoomId": 1,
+      "price": 1500,
+      "notConstantValue": true,
+      "serviceName": "Provision of a crib",
+      "isTimeLimited": false
+    }
+  ]
+}
