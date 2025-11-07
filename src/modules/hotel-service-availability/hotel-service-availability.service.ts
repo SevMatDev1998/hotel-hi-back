@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { HotelServiceService } from '../hotel-service/hotel-service.service';
-import { CreateHotelServiceAvailabilityDto } from './dto';
-import { HotelServiceAvailability } from '@prisma/client';
+import { AvailabilityGroupDto, CreateHotelServiceAvailabilityDto } from './dto';
 
 @Injectable()
 export class HotelServiceAvailabilityService {
@@ -26,48 +25,96 @@ export class HotelServiceAvailabilityService {
       throw new Error(`HotelService with ID ${hotelServiceId} not found.`);
     }
 
-    // Delete existing room parts for this hotel room
+    // 2. Delete old records
     await this.prisma.hotelServiceAvailability.deleteMany({
-      where: { hotelServiceId: hotelServiceId },
+      where: { hotelServiceId },
     });
 
-    // 2. Create all availabilities
-    const createdAvailabilities = await Promise.all(
-      availabilities.map((availability) =>
-        this.prisma.hotelServiceAvailability.create({
-          data: {
-            hotelServiceId: hotelServiceId,
-            isPaid: availability.isPaid ?? false,
-            startMonth: new Date(availability.startMonth),
-            endMonth: new Date(availability.endMonth),
-            hourlyAvailabilityTypeId: availability.hourlyAvailabilityTypeId,
-            startHour: availability.startHour
-              ? new Date(availability.startHour)
+    // 3. Flatten and create new
+    const recordsToCreate = availabilities
+      .filter((g) => g.isActive)
+      .flatMap((g) =>
+        g.periods.map((period) => ({
+          hotelServiceId,
+          isPaid: g.isPaid ?? false,
+          startMonth: new Date(period.startMonth),
+          endMonth: new Date(period.endMonth),
+          hourlyAvailabilityTypeId: period.hourlyAvailabilityTypeId,
+          startHour:
+            period.hourlyAvailabilityTypeId === 'Hours'
+              ? period.startHour
+                ? new Date(`1970-01-01T${period.startHour}:00`)
+                : null
               : null,
-            endHour: availability.endHour
-              ? new Date(availability.endHour)
+          endHour:
+            period.hourlyAvailabilityTypeId === 'Hours'
+              ? period.endHour
+                ? new Date(`1970-01-01T${period.endHour}:00`)
+                : null
               : null,
-          },
-        }),
-      ),
-    );
+        })),
+      );
+
+    const createdAvailabilities =
+      await this.prisma.hotelServiceAvailability.createMany({
+        data: recordsToCreate,
+      });
 
     return {
       hotelService,
-      availabilities: createdAvailabilities,
+      created: createdAvailabilities.count,
     };
   }
 
   async findByhotelServiceId(
     hotelServiceId: number,
-  ): Promise<HotelServiceAvailability | null> {
-    const test = await this.prisma.hotelServiceAvailability.findFirst({
-      where: {
-        hotelServiceId,
-      },
+  ): Promise<{ availabilities: AvailabilityGroupDto[] }> {
+    const rows = await this.prisma.hotelServiceAvailability.findMany({
+      where: { hotelServiceId },
+      orderBy: { startMonth: 'asc' },
     });
-    console.log(test, hotelServiceId);
 
-    return test;
+    if (!rows.length) {
+      return { availabilities: [] };
+    }
+
+    const grouped: AvailabilityGroupDto[] = [
+      {
+        isPaid: true,
+        isActive: rows.some((r) => r.isPaid === true),
+        periods: rows
+          .filter((r) => r.isPaid === true)
+          .map((r) => ({
+            startMonth: r.startMonth.toISOString().slice(0, 10),
+            endMonth: r.endMonth.toISOString().slice(0, 10),
+            hourlyAvailabilityTypeId: r.hourlyAvailabilityTypeId,
+            startHour: r.startHour
+              ? r.startHour.toISOString().slice(11, 16)
+              : undefined,
+            endHour: r.endHour
+              ? r.endHour.toISOString().slice(11, 16)
+              : undefined,
+          })),
+      },
+      {
+        isPaid: false,
+        isActive: rows.some((r) => r.isPaid === false),
+        periods: rows
+          .filter((r) => r.isPaid === false)
+          .map((r) => ({
+            startMonth: r.startMonth.toISOString().slice(0, 10),
+            endMonth: r.endMonth.toISOString().slice(0, 10),
+            hourlyAvailabilityTypeId: r.hourlyAvailabilityTypeId,
+            startHour: r.startHour
+              ? r.startHour.toISOString().slice(11, 16)
+              : undefined,
+            endHour: r.endHour
+              ? r.endHour.toISOString().slice(11, 16)
+              : undefined,
+          })),
+      },
+    ];
+
+    return { availabilities: grouped };
   }
 }

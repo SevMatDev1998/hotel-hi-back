@@ -41,10 +41,15 @@ export class HotelServiceService {
   }
 
   async deleteHotelService(hotelServiceId: number): Promise<HotelService> {
-    return await this.prisma.hotelService.delete({
-      where: {
-        id: hotelServiceId,
-      },
+    return await this.prisma.$transaction(async (tx) => {
+      await tx.hotelServiceAvailability.deleteMany({
+        where: { hotelServiceId },
+      });
+
+      return await tx.hotelService.delete({
+        where: { id: hotelServiceId },
+      });
     });
   }
+
 }

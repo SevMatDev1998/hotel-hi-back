@@ -7,19 +7,17 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { HotelServiceAvailabilityService } from './hotel-service-availability.service';
-import { CreateHotelServiceAvailabilityDto } from './dto';
-import { HotelServiceAvailability } from '@prisma/client';
+import { AvailabilityGroupDto, CreateHotelServiceAvailabilityDto } from './dto';
 
 @Controller('hotel-service-availability')
 export class HotelServiceAvailabilityController {
   constructor(
     private readonly hotelServiceAvailabilityService: HotelServiceAvailabilityService,
-  ) {}
-
+  ) { }
   @Get('/:hotelServiceId')
   async findByhotelServiceId(
     @Param('hotelServiceId') hotelServiceId: number,
-  ): Promise<HotelServiceAvailability | null> {
+  ): Promise<{ availabilities: AvailabilityGroupDto[] }> {
     return this.hotelServiceAvailabilityService.findByhotelServiceId(
       hotelServiceId,
     );
