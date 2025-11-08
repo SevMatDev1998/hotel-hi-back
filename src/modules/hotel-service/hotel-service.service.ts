@@ -4,12 +4,18 @@ import { CompletenessStatus, HotelService } from '@prisma/client';
 
 @Injectable()
 export class HotelServiceService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
-  async findByHotelId(hotelId: number): Promise<HotelService[]> {
+  async findByHotelId(
+    hotelId: number,
+    serviceTypeId: number,
+  ): Promise<HotelService[]> {
     return await this.prisma.hotelService.findMany({
       where: {
         hotelId,
+        service: {
+          systemServiceTypeId: serviceTypeId ?? undefined,
+        },
       },
       include: {
         service: {
@@ -24,7 +30,6 @@ export class HotelServiceService {
       },
     });
   }
-
 
   async createHotelService(
     hotelId: number,
@@ -51,5 +56,4 @@ export class HotelServiceService {
       });
     });
   }
-
 }

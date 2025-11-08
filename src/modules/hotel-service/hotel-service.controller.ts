@@ -3,11 +3,14 @@ import { HotelServiceService } from './hotel-service.service';
 
 @Controller('hotel-services')
 export class HotelServiceController {
-  constructor(private readonly hotelServiceService: HotelServiceService) { }
+  constructor(private readonly hotelServiceService: HotelServiceService) {}
 
   @Get('/hotels/:hotelId')
-  async findByHotelId(@Param('hotelId') hotelId: number): Promise<any[]> {
-    return this.hotelServiceService.findByHotelId(hotelId);
+  async findByHotelId(
+    @Param('hotelId') hotelId: number,
+    @Query('serviceTypeId') serviceTypeId: number,
+  ): Promise<any[]> {
+    return this.hotelServiceService.findByHotelId(hotelId, serviceTypeId);
   }
 
   @Post('/hotels')
@@ -24,5 +27,4 @@ export class HotelServiceController {
   ): Promise<any> {
     return this.hotelServiceService.deleteHotelService(hotelServiceId);
   }
-
 }
