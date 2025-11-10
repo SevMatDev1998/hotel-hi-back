@@ -6,6 +6,7 @@ import {
   Param,
   Get,
   Put,
+  Delete,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HotelAvailabilityService } from './hotel-availability.service';
@@ -18,7 +19,7 @@ import { UpdateHotelAvailabilityListDto } from './dto/update-hotel-availability-
 export class HotelAvailabilityController {
   constructor(
     private readonly hotelAvailabilityService: HotelAvailabilityService,
-  ) {}
+  ) { }
 
   @Post('/create/:hotelId')
   @ApiOperation({ summary: 'Create hotel availability' })
@@ -77,4 +78,29 @@ export class HotelAvailabilityController {
       updateDto,
     );
   }
+
+  @Delete('/date/:calendarId')
+  @ApiOperation({ summary: 'Delete a specific date from availability' })
+  @ApiResponse({
+    status: 200,
+    description: 'Date has been successfully deleted.',
+  })
+  async deleteDate(
+    @Param('calendarId') calendarId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.hotelAvailabilityService.deleteDate(calendarId);
+  }
+
+  @Delete('/dates/batch')
+  @ApiOperation({ summary: 'Delete multiple dates by calendarIds' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dates have been successfully deleted.',
+  })
+  async deleteDatesBatch(
+    @Body() dto: { calendarIds: string[] },
+  ): Promise<{ success: boolean; message: string; count: number }> {
+    return this.hotelAvailabilityService.deleteDatesBatch(dto.calendarIds);
+  }
 }
+

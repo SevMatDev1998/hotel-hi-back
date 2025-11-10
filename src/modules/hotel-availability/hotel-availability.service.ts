@@ -61,79 +61,111 @@ export class HotelAvailabilityService {
     hotelId: number,
     dto: UpdateHotelAvailabilityListDto,
   ): Promise<HotelAvailability[]> {
-    const { availabilities, commissionDate } = dto;
+    const { availability, commissionDate } = dto; // ← ОДИН объект
 
-    if (!availabilities || availabilities.length === 0) {
-      console.log('⚠️ No availability data provided for update.');
-      //
-      // throw new NotFoundException('No availability data provided.');
+    if (!availability || !availability.id) {
+      // throw new BadRequestException('Availability data is required');
+      console.log(1234567);
     }
-
-
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        for (const availability of availabilities) {
-          // 1️⃣ Проверяем, существует ли запись availability
-          const existing = await tx.hotelAvailability.findFirst({
-            where: { id: availability.id, hotelId },
-          });
-
-          if (!existing) {
-            console.warn(
-              `⚠️ HotelAvailability with id=${availability.id} not found for hotelId=${hotelId}`,
-            );
-          }
-
-          // 2️⃣ Удаляем старые даты комиссий перед обновлением
-          await tx.hotelAvailabilityDateCommission.deleteMany({
+        // 1️⃣ Получаем существующие даты из БД для этого availability
+        const existingDates = await tx.hotelAvailabilityDateCommission.findMany(
+          {
             where: { hotelAvailabilityId: availability.id },
-          });
+          },
+        );
 
-          // 3️⃣ Обновляем основные данные HotelAvailability
-          await tx.hotelAvailability.update({
-            where: { id: availability.id },
-            data: {
-              title: availability.title,
-              color: availability.color,
-              checkInTime: new Date(availability.checkInTime),
-              checkoutTime: new Date(availability.checkoutTime),
-              confirmed: availability.confirmed ?? false,
-              updatedAt: new Date(),
+        const existingCalendarIds = existingDates.map((d) => d.calendarId);
+        const newCalendarIds =
+          availability.hotelAvailabilityDateCommissions.map(
+            (d) => d.calendarId,
+          );
+
+        // 2️⃣ Что удалить (были в БД, но больше нет в новом списке)
+        const toDelete = existingCalendarIds.filter(
+          (id) => !newCalendarIds.includes(id),
+        );
+
+        // 3️⃣ Что обновить (есть и в БД и в новом списке)
+        const toUpdate = newCalendarIds.filter((id) =>
+          existingCalendarIds.includes(id),
+        );
+
+        // 4️⃣ Что создать (новые, которых не было в БД)
+        const toCreate = newCalendarIds.filter(
+          (id) => !existingCalendarIds.includes(id),
+        );
+
+        // 🗑️ УДАЛЯЕМ старые даты
+        if (toDelete.length > 0) {
+          await tx.hotelAvailabilityDateCommission.deleteMany({
+            where: {
+              hotelAvailabilityId: availability.id,
+              calendarId: { in: toDelete },
             },
           });
+        }
 
-          // // 4️⃣ Создаём новые записи HotelAvailabilityDateCommission
-          if (
-            availability.hotelAvailabilityDateCommissions &&
-            availability.hotelAvailabilityDateCommissions.length > 0
-          ) {
-            const dateData = availability.hotelAvailabilityDateCommissions.map(
-              (d) => ({
+        // ✏️ ОБНОВЛЯЕМ существующие даты (новые комиссии)
+        if (toUpdate.length > 0 && commissionDate) {
+          for (const calendarId of toUpdate) {
+            await tx.hotelAvailabilityDateCommission.updateMany({
+              where: {
                 hotelAvailabilityId: availability.id,
-                date: new Date(d.date),
-                calendarId: d.calendarId,
-                startDate: new Date(),
-                endDate: null,
-                // 💰 значения комиссий по умолчанию — если в DTO не переданы
-                roomFee: commissionDate?.roomFee ?? 0,
-                foodFee: commissionDate?.foodFee ?? 0,
-                additionalFee: commissionDate?.additionalFee ?? 0,
-                serviceFee: commissionDate?.serviceFee ?? 0,
-                createdAt: new Date(),
+                calendarId: calendarId,
+              },
+              data: {
+                roomFee: commissionDate.roomFee ?? 0,
+                foodFee: commissionDate.foodFee ?? 0,
+                additionalFee: commissionDate.additionalFee ?? 0,
+                serviceFee: commissionDate.serviceFee ?? 0,
                 updatedAt: new Date(),
-              }),
-            );
-
-            await tx.hotelAvailabilityDateCommission.createMany({
-              data: dateData,
-              skipDuplicates: true,
+              },
             });
           }
         }
+
+        // ➕ СОЗДАЕМ новые даты
+        if (toCreate.length > 0) {
+          const newDates = availability.hotelAvailabilityDateCommissions
+            .filter((d) => toCreate.includes(d.calendarId))
+            .map((d) => ({
+              hotelAvailabilityId: availability.id,
+              date: new Date(d.date),
+              calendarId: d.calendarId,
+              roomFee: commissionDate?.roomFee ?? 0,
+              foodFee: commissionDate?.foodFee ?? 0,
+              additionalFee: commissionDate?.additionalFee ?? 0,
+              serviceFee: commissionDate?.serviceFee ?? 0,
+              startDate: new Date(),
+              endDate: null,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }));
+
+          await tx.hotelAvailabilityDateCommission.createMany({
+            data: newDates,
+            skipDuplicates: true,
+          });
+        }
+
+        // 🔄 Обновляем основные данные availability (если нужно)
+        await tx.hotelAvailability.update({
+          where: { id: availability.id },
+          data: {
+            title: availability.title,
+            color: availability.color,
+            checkInTime: new Date(availability.checkInTime),
+            checkoutTime: new Date(availability.checkoutTime),
+            confirmed: availability.confirmed ?? false,
+            updatedAt: new Date(),
+          },
+        });
       });
 
-      // 5️⃣ После транзакции возвращаем обновлённые данные
+      // 5️⃣ Возвращаем ВСЕ availability для этого отеля (обновленные)
       const updated = await this.prisma.hotelAvailability.findMany({
         where: { hotelId },
         include: {
@@ -144,14 +176,48 @@ export class HotelAvailabilityService {
 
       return updated;
     } catch (error) {
-      console.log(error);
+      console.error('Error updating hotel availability with dates:', error);
       throw error;
     }
   }
 
-  async findDetailsByHotelId(hotelId: number): Promise<void> {
-    const foods = await this.prisma.hotelFood.findMany({
-      where: { hotelId },
-    });
+  async deleteDate(
+    calendarId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      await this.prisma.hotelAvailabilityDateCommission.deleteMany({
+        where: { calendarId },
+      });
+
+      return {
+        success: true,
+        message: `Date with calendarId ${calendarId} deleted successfully`,
+      };
+    } catch (error) {
+      console.error('Error deleting date:', error);
+      throw error;
+    }
+  }
+
+  async deleteDatesBatch(
+    calendarIds: string[],
+  ): Promise<{ success: boolean; message: string; count: number }> {
+    try {
+      const result =
+        await this.prisma.hotelAvailabilityDateCommission.deleteMany({
+          where: {
+            calendarId: { in: calendarIds },
+          },
+        });
+
+      return {
+        success: true,
+        message: `${result.count} dates deleted successfully`,
+        count: result.count,
+      };
+    } catch (error) {
+      console.error('Error deleting dates batch:', error);
+      throw error;
+    }
   }
 }

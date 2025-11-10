@@ -158,16 +158,16 @@ export class CommissionDateDto {
 }
 export class UpdateHotelAvailabilityListDto {
   @ApiProperty({
-    description: 'Список availabilities с датами',
-    type: [UpdateHotelAvailabilityWithDatesDto],
+    description: 'Availability с датами (ОДИН объект, не массив)',
+    type: UpdateHotelAvailabilityWithDatesDto,
   })
-  @IsArray()
-  @ValidateNested({ each: true })
+  @IsNotEmpty()
+  @ValidateNested()
   @Type(() => UpdateHotelAvailabilityWithDatesDto)
-  availabilities: UpdateHotelAvailabilityWithDatesDto[];
+  availability: UpdateHotelAvailabilityWithDatesDto;  // ← ИЗМЕНЕНО с availabilities[] на availability
 
   @ApiProperty({
-    description: 'Комиссии, применяемые к выбранным датам (если заданы вручную)',
+    description: 'Комиссии, применяемые к выбранным датам',
     type: () => CommissionDateDto,
     required: false,
   })
