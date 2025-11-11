@@ -98,6 +98,17 @@ export class HotelAvailabilityService {
           (id) => !existingCalendarIds.includes(id),
         );
 
+        // 🔥 ВАЖНО: Удаляем новые calendarIds из ВСЕХ других availability этого отеля
+        if (newCalendarIds.length > 0) {
+          await tx.hotelAvailabilityDateCommission.deleteMany({
+            where: {
+              calendarId: { in: newCalendarIds },
+              hotelAvailabilityId: { not: availability.id },
+              hotelAvailability: { hotelId },
+            },
+          });
+        }
+
         // 🗑️ УДАЛЯЕМ старые даты
         if (toDelete.length > 0) {
           await tx.hotelAvailabilityDateCommission.deleteMany({
