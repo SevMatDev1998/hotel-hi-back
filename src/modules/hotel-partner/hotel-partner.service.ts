@@ -97,4 +97,13 @@ export class HotelPartnerService {
 
     return hotelPartner;
   }
+
+  async findByPartnerId(partnerId: number) {
+    const partner = await this.prisma.partner.findFirst({
+      where: {
+        id: partnerId,
+      },
+    });
+    return partner;
+  }
 }
