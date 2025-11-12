@@ -9,7 +9,7 @@ import {
 import { LegalEntityType } from '@prisma/client';
 import { Transform } from 'class-transformer';
 
-export class CreatePartnerDto {
+export class PartnerDto {
   @IsEmail()
   email: string;
 

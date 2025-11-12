@@ -19,7 +19,7 @@ import { UpdateHotelAvailabilityListDto } from './dto/update-hotel-availability-
 export class HotelAvailabilityController {
   constructor(
     private readonly hotelAvailabilityService: HotelAvailabilityService,
-  ) { }
+  ) {}
 
   @Post('/create/:hotelId')
   @ApiOperation({ summary: 'Create hotel availability' })
@@ -103,4 +103,3 @@ export class HotelAvailabilityController {
     return this.hotelAvailabilityService.deleteDatesBatch(dto.calendarIds);
   }
 }
-

@@ -40,6 +40,7 @@ import { NotificationsModule } from './modules/notifications/notificatons.module
 import { RoomPricePolicyModule } from './modules/room-price-policy/room-price-policy.module';
 import { HotelRoomPriceModule } from './modules/hotel-room-price/hotel-room-price.module';
 import { HotelAdditionalServiceModule } from './modules/hotel-additional-service/hotel-additional-service.module';
+import { GuestsModule } from './modules/guests/guests.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { HotelAdditionalServiceModule } from './modules/hotel-additional-service
     RoomPricePolicyModule,
     HotelRoomPriceModule,
     HotelAdditionalServiceModule,
+    GuestsModule
   ],
   controllers: [AppController],
   providers: [AppService],

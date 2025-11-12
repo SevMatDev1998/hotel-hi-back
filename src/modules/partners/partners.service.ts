@@ -11,7 +11,6 @@ export class PartnersService {
     return this.prisma.partner.create({
       data: {
         ...createPartnerDto,
-        countryId: parseInt(createPartnerDto.countryId),
         status: PartnerStatus.Pending,
       },
     });
