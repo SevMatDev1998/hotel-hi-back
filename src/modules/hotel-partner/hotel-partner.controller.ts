@@ -16,7 +16,7 @@ export class HotelPartnerController {
   constructor(
     private readonly hotelPartnerService: HotelPartnerService,
     private readonly partnersService: PartnersService,
-  ) {} 
+  ) {}
 
   @Get('/hotels/:hotelId')
   async findAllByHotelId(

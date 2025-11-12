@@ -70,7 +70,31 @@ export class HotelPartnerService {
   }
 
   async create(hotelId: number, createPartnerDto: CreatePartnerDto) {
-    const partner = await this.partnersService.create(createPartnerDto);
+    // Check if partner with this TIN already exists
+    let partner = await this.findByTinNumber(createPartnerDto.tin);
+    // If partner doesn't exist, create a new one
+    if (!partner) {
+      partner = await this.partnersService.create(createPartnerDto);
+    }
+
+    // Check if this hotel-partner relationship already exists
+    const existingRelation = await this.prisma.hotelPartner.findUnique({
+      where: {
+        hotelId_partnerId: {
+          hotelId,
+          partnerId: partner.id,
+        },
+      },
+      include: {
+        partner: true,
+        hotel: true,
+      },
+    });
+
+    // If relationship already exists, return it
+    if (existingRelation) {
+      return existingRelation;
+    }
 
     const hotelPartner = await this.prisma.hotelPartner.create({
       data: {
