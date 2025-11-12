@@ -16,7 +16,7 @@ export class HotelPartnerController {
   constructor(
     private readonly hotelPartnerService: HotelPartnerService,
     private readonly partnersService: PartnersService,
-  ) {}
+  ) {} 
 
   @Get('/hotels/:hotelId')
   async findAllByHotelId(
@@ -30,6 +30,11 @@ export class HotelPartnerController {
   @Get('/partners/:partnerId')
   async findByParnterId(@Param('partnerId', ParseIntPipe) partnerId: number) {
     return this.hotelPartnerService.findByPartnerId(partnerId);
+  }
+
+  @Get('/tin/:tinNumber')
+  async findByTinNumber(@Param('tinNumber') tinNumber: string) {
+    return this.hotelPartnerService.findByTinNumber(tinNumber);
   }
 
   @Post(':hotelId')

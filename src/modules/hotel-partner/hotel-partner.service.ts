@@ -106,4 +106,13 @@ export class HotelPartnerService {
     });
     return partner;
   }
+
+  async findByTinNumber(tinNumber: string) {
+    const partner = await this.prisma.partner.findFirst({
+      where: {
+        tin: tinNumber,
+      },
+    });
+    return partner;
+  }
 }
