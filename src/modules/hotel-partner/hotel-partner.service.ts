@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PartnersService } from '../partners/partners.service';
 import { CreatePartnerDto } from '../partners/dto/create-partner.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class HotelPartnerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly partnersService: PartnersService,
+    private readonly emailService: EmailService,
   ) {}
 
   async findAllByHotelId(
@@ -70,14 +72,29 @@ export class HotelPartnerService {
   async create(hotelId: number, createPartnerDto: CreatePartnerDto) {
     const partner = await this.partnersService.create(createPartnerDto);
 
-    return this.prisma.hotelPartner.create({
+    const hotelPartner = await this.prisma.hotelPartner.create({
       data: {
         hotelId,
         partnerId: partner.id,
       },
       include: {
         partner: true,
+        hotel: true,
       },
     });
+
+    // Send partnership invitation email (non-blocking)
+    this.emailService
+      .sendPartnershipInvitation(
+        partner.email,
+        partner.name,
+        hotelPartner.hotel.name,
+        partner.id,
+      )
+      .catch((error) => {
+        console.error('Failed to send partnership invitation email:', error);
+      });
+
+    return hotelPartner;
   }
 }
