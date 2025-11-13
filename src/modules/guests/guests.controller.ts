@@ -8,16 +8,19 @@ import {
 } from '@nestjs/common';
 import { GuestsService } from './guests.service';
 import { PartnerDto } from './dto/partner.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('guests')
 export class GuestsController {
-  constructor(private readonly guestsService: GuestsService) { }
+  constructor(private readonly guestsService: GuestsService) {}
 
+  @Public()
   @Get('partners/:id')
   getPartnerById(@Param('id', ParseIntPipe) id: number) {
     return this.guestsService.getPartnerById(id);
   }
 
+  @Public()
   @Post('partners/:id')
   async create(
     @Param('id', ParseIntPipe) id: number,
