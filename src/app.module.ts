@@ -80,7 +80,7 @@ import { GuestsModule } from './modules/guests/guests.module';
     RoomPricePolicyModule,
     HotelRoomPriceModule,
     HotelAdditionalServiceModule,
-    GuestsModule
+    GuestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

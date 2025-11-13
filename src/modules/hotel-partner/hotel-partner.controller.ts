@@ -6,9 +6,12 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Patch,
+  Put,
 } from '@nestjs/common';
 import { PartnersService } from '../partners/partners.service';
 import { CreatePartnerDto } from '../partners/dto/create-partner.dto';
+import { UpdatePartnerDto } from '../partners/dto/update-partner.dto';
 import { HotelPartnerService } from './hotel-partner.service';
 
 @Controller('hotel-partners')
@@ -43,5 +46,13 @@ export class HotelPartnerController {
     @Body() createPartnerDto: CreatePartnerDto,
   ) {
     return this.hotelPartnerService.create(hotelId, createPartnerDto);
+  }
+
+  @Put(':partnerId')
+  async update(
+    @Param('partnerId', ParseIntPipe) partnerId: number,
+    @Body() updatePartnerDto: UpdatePartnerDto,
+  ) {
+    return this.hotelPartnerService.update(partnerId, updatePartnerDto);
   }
 }

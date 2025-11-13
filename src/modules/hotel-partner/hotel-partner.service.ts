@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PartnersService } from '../partners/partners.service';
 import { CreatePartnerDto } from '../partners/dto/create-partner.dto';
+import { UpdatePartnerDto } from '../partners/dto/update-partner.dto';
 import { EmailService } from '../email/email.service';
 
 @Injectable()
@@ -136,6 +137,16 @@ export class HotelPartnerService {
       where: {
         tin: tinNumber,
       },
+    });
+    return partner;
+  }
+
+  async update(partnerId: number, updatePartnerDto: UpdatePartnerDto) {
+    const partner = await this.prisma.partner.update({
+      where: {
+        id: partnerId,
+      },
+      data: updatePartnerDto,
     });
     return partner;
   }
