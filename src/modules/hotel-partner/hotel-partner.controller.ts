@@ -6,7 +6,6 @@ import {
   Param,
   ParseIntPipe,
   Query,
-  Patch,
   Put,
 } from '@nestjs/common';
 import { PartnersService } from '../partners/partners.service';

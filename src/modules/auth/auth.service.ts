@@ -103,6 +103,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Check if email is confirmed
+    if (!user.emailConfirmed) {
+      throw new UnauthorizedException(
+        'Please confirm your email before logging in',
+      );
+    }
+
     // Get user's hotel
     const hotel = await this.hotelService.findByUserId(user.id);
     if (!hotel) {
