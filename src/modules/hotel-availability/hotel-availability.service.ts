@@ -48,6 +48,89 @@ export class HotelAvailabilityService {
     });
   }
 
+  async findDetailById(availabilityId: number) {
+    const availability = await this.prisma.hotelAvailability.findUnique({
+      where: { id: availabilityId },
+      include: {
+        // hotel: {
+        //   include: {
+        //     currency: true,
+        //   },
+        // },
+        hotelRoomPrices: {
+          include: {
+            hotelRoom: {
+              include: {
+                roomClass: true,
+                roomView: true,
+                hotelRoomParts: {
+                  include: {
+                    roomPart: true,
+                    hotelRoomPartBeds: {
+                      include: {
+                        roomBedType: true,
+                        roomBedSize: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        hotelFoodPrices: {
+          include: {
+            hotelFood: {
+              include: {
+                hotelFoodCuisines: {
+                  include: {
+                    cuisine: true,
+                  },
+                },
+                hotelFoodOfferTypes: {
+                  include: {
+                    offerType: true,
+                  },
+                },
+              },
+            },
+            hotelAgeAssignment: true,
+          },
+        },
+        hotelServicePrices: {
+          include: {
+            hotelService: {
+              include: {
+                service: {
+                  include: {
+                    systemServiceType: {
+                      include: {
+                        systemServiceGroup: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        hotelAdditionalServices: {
+          include: {
+            hotelService: {
+              include: {
+                service: true,
+              },
+            },
+            hotelRoom: true,
+          },
+        },
+        hotelAgeAssignments: true,
+      },
+    });
+
+    return availability;
+  }
+
   async findByHotelIdWithDates(hotelId: number): Promise<HotelAvailability[]> {
     return this.prisma.hotelAvailability.findMany({
       where: { hotelId },

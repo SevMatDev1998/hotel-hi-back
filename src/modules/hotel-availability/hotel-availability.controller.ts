@@ -50,6 +50,21 @@ export class HotelAvailabilityController {
     return this.hotelAvailabilityService.findByHotelId(hotelId);
   }
 
+  @Get('/detail/:availabilityId')
+  @ApiOperation({
+    summary:
+      'Get hotel availability detail by availability ID with all related data',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Hotel availability detail retrieved successfully.',
+  })
+  findDetailById(
+    @Param('availabilityId', ParseIntPipe) availabilityId: number,
+  ) {
+    return this.hotelAvailabilityService.findDetailById(availabilityId);
+  }
+
   @Get('/dates/:hotelId')
   @ApiOperation({ summary: 'Get hotel availability by hotel ID' })
   @ApiResponse({
