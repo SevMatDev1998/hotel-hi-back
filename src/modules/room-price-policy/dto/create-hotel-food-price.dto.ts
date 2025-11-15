@@ -17,6 +17,10 @@ export class CreateHotelFoodPriceDto {
   @IsPositive()
   hotelAvailabilityId: number;
 
+  @IsInt()
+  @IsPositive()
+  hotelRoomId: number;
+
   @ApiProperty({
     description: 'Hotel food ID',
     example: 6,

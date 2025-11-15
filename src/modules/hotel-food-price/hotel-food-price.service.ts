@@ -17,6 +17,7 @@ export class HotelFoodPriceService {
         hotelAvailabilityId: createHotelFoodPriceDto.hotelAvailabilityId,
         hotelAgeAssignmentId: createHotelFoodPriceDto.hotelAgeAssignmentId,
         hotelFoodId: createHotelFoodPriceDto.hotelFoodId,
+        hotelRoomId: createHotelFoodPriceDto.hotelRoomId ?? null,
       },
     });
 
@@ -48,11 +49,18 @@ export class HotelFoodPriceService {
 
     // Получаем hotelAvailabilityId из первого элемента (все должны иметь одинаковый)
     const hotelAvailabilityId = dtos[0].hotelAvailabilityId;
+    const hotelRoomId = dtos[0].hotelRoomId;
 
+    
+    console.log(444,hotelAvailabilityId,hotelRoomId);
+    
     // Сначала удаляем все существующие записи для этого hotelAvailabilityId
     await tx.hotelFoodPrice.deleteMany({
       where: {
-        hotelAvailabilityId: hotelAvailabilityId,
+        AND: [
+          { hotelAvailabilityId: hotelAvailabilityId },
+          { hotelRoomId: hotelRoomId ?? null },
+        ],
       },
     });
 

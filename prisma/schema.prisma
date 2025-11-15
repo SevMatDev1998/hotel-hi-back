@@ -437,6 +437,7 @@ model HotelRoom {
   hotelRoomParts    HotelRoomPart[]
   hotelRoomNumbers  HotelRoomNumber[]
   hotelRoomPrices   HotelRoomPrice[]
+  hotelFoodPrices   HotelFoodPrice[]
   orderHotelRooms   OrderHotelRoom[]
 
   @@map("HotelRooms")
@@ -747,14 +748,16 @@ model HotelFoodPrice {
   hotelAvailabilityId  Int
   hotelAgeAssignmentId Int?
   hotelFoodId          Int
+  hotelRoomId          Int?
   price                Decimal  @db.Decimal(18, 2)
   includedInPrice      Boolean?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
-
+ 
   hotelAvailability HotelAvailability @relation(fields: [hotelAvailabilityId], references: [id])
   hotelAgeAssignment HotelAgeAssignment? @relation(fields: [hotelAgeAssignmentId], references: [id])
   hotelFood          HotelFood          @relation(fields: [hotelFoodId], references: [id])
+  hotelRoom          HotelRoom?         @relation(fields: [hotelRoomId], references: [id])
 
   @@map("HotelFoodPrices")
 }

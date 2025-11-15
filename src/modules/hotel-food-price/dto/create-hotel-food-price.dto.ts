@@ -9,6 +9,9 @@ export class CreateHotelFoodPriceDto {
   hotelAgeAssignmentId?: number;
 
   @IsInt()
+  hotelRoomId: number;
+
+  @IsInt()
   hotelFoodId: number;
 
   @IsDecimal()

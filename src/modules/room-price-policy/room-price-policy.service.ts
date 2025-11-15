@@ -16,7 +16,7 @@ export class RoomPricePolicyService {
     private readonly hotelRoomPriceService: HotelRoomPriceService,
     private readonly hotelAdditionalServiceService: HotelAdditionalServiceService,
     private readonly hotelServiceService: HotelServiceService,
-  ) {}
+  ) { }
 
   async createRoomPricePolicy(dto: CreateRoomPricePolicyDto) {
     this.logger.log(
@@ -81,6 +81,7 @@ export class RoomPricePolicyService {
         const foodPriceDtos = dto.foodPrices.map((foodPrice) => ({
           hotelAvailabilityId: foodPrice.hotelAvailabilityId,
           hotelFoodId: foodPrice.hotelFoodId,
+          hotelRoomId: foodPrice.hotelRoomId,
           hotelAgeAssignmentId: foodPrice.includedInPrice
             ? undefined
             : foodPrice.hotelAgeAssignmentId,
@@ -243,6 +244,7 @@ export class RoomPricePolicyService {
       const foodPrices = await this.prisma.hotelFoodPrice.findMany({
         where: {
           hotelAvailabilityId: hotelAvailabilityId,
+          hotelRoomId: hotelRoomId,
         },
       });
 
