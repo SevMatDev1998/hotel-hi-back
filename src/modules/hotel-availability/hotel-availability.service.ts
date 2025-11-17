@@ -161,25 +161,35 @@ export class HotelAvailabilityService {
         );
 
         const existingCalendarIds = existingDates.map((d) => d.calendarId);
-        const newCalendarIds =
+        const newCalendarIdsClone =
           availability.hotelAvailabilityDateCommissions.map(
             (d) => d.calendarId,
           );
+        const newCalendarIds = availability.hotelAvailabilityDateCommissions
+          .filter((d) => !d.serviceFee)
+          .map((d) => d.calendarId);
+
+        // const toDeleteIds = availability.hotelAvailabilityDateCommissions.map(
+        //   (d) => d.calendarId,
+        // );
 
         // 2️⃣ Что удалить (были в БД, но больше нет в новом списке)
         const toDelete = existingCalendarIds.filter(
-          (id) => !newCalendarIds.includes(id),
+          (id) => !newCalendarIdsClone.includes(id),
         );
 
-        // 3️⃣ Что обновить (есть и в БД и в новом списке)
+        // // 3️⃣ Что обновить (есть и в БД и в новом списке)
         const toUpdate = newCalendarIds.filter((id) =>
           existingCalendarIds.includes(id),
         );
+
 
         // 4️⃣ Что создать (новые, которых не было в БД)
         const toCreate = newCalendarIds.filter(
           (id) => !existingCalendarIds.includes(id),
         );
+
+        // console.log('toCreate', toCreate);
 
         // 🔥 ВАЖНО: Удаляем новые calendarIds из ВСЕХ других availability этого отеля
         if (newCalendarIds.length > 0) {

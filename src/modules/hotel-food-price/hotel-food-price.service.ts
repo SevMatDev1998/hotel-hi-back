@@ -7,7 +7,6 @@ import { Prisma } from '@prisma/client';
 export class HotelFoodPriceService {
   constructor(private readonly prisma: PrismaService) {}
 
-
   async createWithTransaction(
     tx: Prisma.TransactionClient,
     createHotelFoodPriceDto: CreateHotelFoodPriceDto,
@@ -51,9 +50,6 @@ export class HotelFoodPriceService {
     const hotelAvailabilityId = dtos[0].hotelAvailabilityId;
     const hotelRoomId = dtos[0].hotelRoomId;
 
-    
-    console.log(444,hotelAvailabilityId,hotelRoomId);
-    
     // Сначала удаляем все существующие записи для этого hotelAvailabilityId
     await tx.hotelFoodPrice.deleteMany({
       where: {
