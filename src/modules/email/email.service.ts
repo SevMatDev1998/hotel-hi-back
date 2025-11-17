@@ -182,7 +182,7 @@ export class EmailService {
       'FRONTEND_URL',
       'http://localhost:5173',
     );
-    const resetUrl = `${frontendUrl}/auth/reset-password?token=${token}`;
+    const resetUrl = `${frontendUrl}/new-password/${token}`;
 
     const html = `
       <!DOCTYPE html>

@@ -15,6 +15,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import { EmailService } from '../email/email.service';
 import * as crypto from 'crypto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
@@ -294,5 +295,71 @@ export class AuthService {
     } catch {
       return { valid: false };
     }
+  }
+
+  // ============ Password Reset Methods ============
+
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const user = await this.userService.findByEmail(email);
+    if (!user || !user.email) {
+      throw new BadRequestException('Email not found');
+    }
+
+    // Generate JWT token with short expiry (1h) for password reset
+    const resetToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        email: user.email,
+        purpose: 'password-reset',
+      },
+      {
+        secret:
+          process.env.JWT_PASSWORD_RESET_SECRET ||
+          process.env.JWT_ACCESS_SECRET,
+        expiresIn: '1h',
+      },
+    );
+
+    // Send email (non-blocking but awaited to surface errors if any)
+    await this.emailService.sendPasswordReset(user.email, resetToken);
+
+    return { message: 'Reset email sent' };
+  }
+
+  async setNewPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    let payload: { sub: number; email?: string; purpose?: string };
+    try {
+      payload = await this.jwtService.verifyAsync(token, {
+        secret:
+          process.env.JWT_PASSWORD_RESET_SECRET ||
+          process.env.JWT_ACCESS_SECRET,
+      });
+    } catch {
+      throw new BadRequestException('Invalid or expired token');
+    }
+
+    if (payload.purpose !== 'password-reset' || !payload.email) {
+      throw new BadRequestException('Invalid token context');
+    }
+
+    const user = await this.userService.findById(payload.sub);
+    if (
+      !user ||
+      !user.email ||
+      user.email.toLowerCase() !== payload.email.toLowerCase()
+    ) {
+      throw new BadRequestException('Invalid token user');
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: hashed },
+    });
+
+    return { message: 'Password updated successfully' };
   }
 }

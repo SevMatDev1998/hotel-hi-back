@@ -11,6 +11,8 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import { ValidateTokenDto } from './dto/validate-token.dto';
 import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
+import { SetNewPasswordDto } from './dto/set-new-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -113,5 +115,37 @@ export class AuthController {
     @Body() validateTokenDto: ValidateTokenDto,
   ): Promise<{ valid: boolean; email?: string; userId?: number }> {
     return this.authService.validateToken(validateTokenDto.token);
+  }
+
+  @Post('reset-password')
+  @Public()
+  @ApiOperation({ summary: 'Initiate password reset (sends email with token)' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Reset email sent' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Email not found',
+  })
+  async resetPassword(
+    @Body() dto: ResetPasswordDto,
+  ): Promise<{ message: string }> {
+    return this.authService.requestPasswordReset(dto.email);
+  }
+
+  @Post('set-new-password/:token')
+  @Public()
+  @ApiOperation({ summary: 'Set new password using reset token' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid or expired token',
+  })
+  async setNewPassword(
+    @Param('token') token: string,
+    @Body() dto: SetNewPasswordDto,
+  ): Promise<{ message: string }> {
+    return this.authService.setNewPassword(token, dto.newPassword);
   }
 }
