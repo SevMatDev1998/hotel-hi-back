@@ -360,4 +360,105 @@ export class EmailService {
       text,
     });
   }
+
+  async sendPartnerCommissionNotification(
+    partnerEmail: string,
+    partnerName: string,
+    hotelName: string,
+    hotelId: number,
+    partnerId: number,
+  ): Promise<boolean> {
+    const frontendUrl = this.configService.get<string>(
+      'FRONTEND_URL',
+      'http://localhost:3000',
+    );
+    const commissionUrl = `${frontendUrl}/guest/partner-commision?hotelId=${hotelId}&partnerId=${partnerId}`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #FF9800; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .button { 
+              display: inline-block; 
+              padding: 12px 24px; 
+              background-color: #FF9800; 
+              color: white; 
+              text-decoration: none; 
+              border-radius: 4px;
+              margin: 20px 0;
+            }
+            .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+            .info-box {
+              background-color: #fff3e0;
+              padding: 15px;
+              border-left: 4px solid #FF9800;
+              margin: 20px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Commission Notification</h1>
+            </div>
+            <div class="content">
+              <h2>Hello, ${partnerName}!</h2>
+              <p>You have received a commission notification from <strong>${hotelName}</strong>.</p>
+              
+              <div class="info-box">
+                <p><strong>Hotel:</strong> ${hotelName}</p>
+                <p>Please review the commission details and confirm your acceptance.</p>
+              </div>
+
+              <p>Click the button below to view and manage commissions:</p>
+              
+              <div style="text-align: center;">
+                <a href="${commissionUrl}" class="button">View Commissions</a>
+              </div>
+              
+              <p>Or copy and paste this link into your browser:</p>
+              <p style="word-break: break-all; color: #FF9800;">${commissionUrl}</p>
+              
+              <p>If you have any questions, please contact the hotel directly.</p>
+            </div>
+            <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} Hotel Hivi. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const text = `
+      Commission Notification
+      
+      Hello, ${partnerName}!
+      
+      You have received a commission notification from ${hotelName}.
+      
+      Hotel: ${hotelName}
+      
+      Please review the commission details and confirm your acceptance.
+      
+      Click the link below to view and manage commissions:
+      
+      ${commissionUrl}
+      
+      If you have any questions, please contact the hotel directly.
+      
+      © ${new Date().getFullYear()} Hotel Hivi. All rights reserved.
+    `;
+
+    return this.sendEmail({
+      to: partnerEmail,
+      subject: `Commission Notification from ${hotelName} - Hotel Hivi`,
+      html,
+      text,
+    });
+  }
 }

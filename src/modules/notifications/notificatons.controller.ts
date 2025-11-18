@@ -34,4 +34,15 @@ export class NotificationsController {
       body.availabilityIds,
     );
   }
+
+  @Post('send-notification/:hotelId/:partnerId')
+  sendNotification(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
+    @Param('partnerId', ParseIntPipe) partnerId: number,
+  ) {
+    return this.notificationsService.sendPartnerNotification(
+      hotelId,
+      partnerId,
+    );
+  }
 }

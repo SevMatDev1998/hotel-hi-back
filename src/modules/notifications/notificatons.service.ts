@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PartnerCommission } from '@prisma/client';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async findAll(hotelId: number) {
     return this.prisma.partner.findMany({
@@ -80,19 +85,19 @@ export class NotificationsService {
       });
   }
 
-  async savePartnerCommissions(partnerId: number, availabilityIds: number[]) {
-    const results: any[] = [];
+  async savePartnerCommissions(
+    partnerId: number,
+    availabilityIds: number[],
+  ): Promise<PartnerCommission[]> {
+    const results: PartnerCommission[] = [];
 
     for (const availabilityId of availabilityIds) {
-      // Get hotel availability date commissions
       const dateCommissions =
         await this.prisma.hotelAvailabilityDateCommission.findMany({
           where: { hotelAvailabilityId: availabilityId },
         });
 
-      // Create partner commissions from hotel date commissions
       for (const dateCommission of dateCommissions) {
-        // Check if partner commission already exists
         const existing = await this.prisma.partnerCommission.findFirst({
           where: {
             partnerId,
@@ -118,6 +123,48 @@ export class NotificationsService {
       }
     }
 
+    if (results.length > 0) {
+      await this.prisma.partner.update({
+        where: { id: partnerId },
+        data: { isPartnerCommissionAccept: true },
+      });
+    }
+
     return results;
+  }
+
+  async sendPartnerNotification(
+    hotelId: number,
+    partnerId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    const hotel = await this.prisma.hotel.findUnique({
+      where: { id: hotelId },
+    });
+
+    if (!hotel) {
+      return { success: false, message: 'Hotel not found' };
+    }
+
+    const partner = await this.prisma.partner.findUnique({
+      where: { id: partnerId },
+    });
+
+    if (!partner) {
+      return { success: false, message: 'Partner not found' };
+    }
+
+    const emailSent = await this.emailService.sendPartnerCommissionNotification(
+      partner.email,
+      partner.name,
+      hotel.name,
+      hotelId,
+      partnerId,
+    );
+
+    if (!emailSent) {
+      return { success: false, message: 'Failed to send notification email' };
+    }
+
+    return { success: true, message: 'Notification sent successfully' };
   }
 }
