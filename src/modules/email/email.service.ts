@@ -372,7 +372,7 @@ export class EmailService {
       'FRONTEND_URL',
       'http://localhost:3000',
     );
-    const commissionUrl = `${frontendUrl}/guest/partner-commision?hotelId=${hotelId}&partnerId=${partnerId}`;
+    const commissionUrl = `${frontendUrl}/guest/offer-prices?hotelId=${hotelId}&partnerId=${partnerId}`;
 
     const html = `
       <!DOCTYPE html>

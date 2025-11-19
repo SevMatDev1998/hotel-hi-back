@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma, Partner, PartnerStatus } from '@prisma/client';
+import {
+  Prisma,
+  Partner,
+  PartnerStatus,
+  HotelAvailability,
+} from '@prisma/client';
 import { PartnerDto } from './dto/partner.dto';
 
 @Injectable()
@@ -24,6 +29,38 @@ export class GuestsService {
       data: {
         ...updateData,
         status: PartnerStatus.Approved,
+      },
+    });
+  }
+
+  async getHotelAvailabilityWithDatesByPartnerid(
+    hotelId: number,
+    partnerId: number,
+  ): Promise<HotelAvailability[]> {
+    const isPartnerAcisPartnerCommissionAccept =
+      await this.prisma.partner.findFirst({
+        where: {
+          id: partnerId,
+          status: PartnerStatus.Approved,
+        },
+      });
+
+    if (isPartnerAcisPartnerCommissionAccept) {
+
+      return await this.prisma.hotelAvailability.findMany({
+        where: { hotelId },
+        include: {
+          partnerCommissions: {
+            where: { partnerId },
+          },
+        },
+      });
+    }
+
+    return this.prisma.hotelAvailability.findMany({
+      where: { hotelId },
+      include: {
+        hotelAvailabilityDateCommissions: true,
       },
     });
   }

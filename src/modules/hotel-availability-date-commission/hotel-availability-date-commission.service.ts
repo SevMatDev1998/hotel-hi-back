@@ -4,8 +4,7 @@ import { UpdateHotelAvailabilityDateCommissionsDto } from './dto';
 
 @Injectable()
 export class HotelAvailabilityDateCommissionService {
-  constructor(private readonly prisma: PrismaService) { }
-
+  constructor(private readonly prisma: PrismaService) {}
 
   async updateByHotelAvailabilityId(
     hotelAvailabilityId: number,
@@ -24,16 +23,17 @@ export class HotelAvailabilityDateCommissionService {
 
     try {
       // Update all date commissions for this availability with the new fee values
-      const result = await this.prisma.hotelAvailabilityDateCommission.updateMany({
-        where: { hotelAvailabilityId },
-        data: {
-          roomFee: dto.roomFee,
-          foodFee: dto.foodFee,
-          additionalFee: dto.additionalFee,
-          serviceFee: dto.serviceFee,
-          updatedAt: new Date(),
-        },
-      });
+      const result =
+        await this.prisma.hotelAvailabilityDateCommission.updateMany({
+          where: { hotelAvailabilityId },
+          data: {
+            roomFee: dto.roomFee,
+            foodFee: dto.foodFee,
+            additionalFee: dto.additionalFee,
+            serviceFee: dto.serviceFee,
+            updatedAt: new Date(),
+          },
+        });
 
       return {
         message: 'Date commissions updated successfully',
@@ -45,16 +45,14 @@ export class HotelAvailabilityDateCommissionService {
     }
   }
 
-  /**
-   * Delete all date commissions by hotelAvailabilityId
-   * @param hotelAvailabilityId - The ID of the hotel availability
-   */
   async deleteByHotelAvailabilityId(
     hotelAvailabilityId: number,
   ): Promise<{ message: string; deleted: number }> {
-    const result = await this.prisma.hotelAvailabilityDateCommission.deleteMany({
-      where: { hotelAvailabilityId },
-    });
+    const result = await this.prisma.hotelAvailabilityDateCommission.deleteMany(
+      {
+        where: { hotelAvailabilityId },
+      },
+    );
 
     return {
       message: 'Date commissions deleted successfully',
