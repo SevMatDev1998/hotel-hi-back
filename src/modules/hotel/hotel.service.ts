@@ -57,11 +57,35 @@ export class HotelService {
   }
 
   async updateNavigationStep(id: number, stepNumber: number): Promise<number> {
-    const hotel = await this.prisma.hotel.update({
-      where: { id },
-      data: { navigationAccessStep: stepNumber },
-    });
-    return hotel.navigationAccessStep as number;
+    try {
+      const hotel = await this.prisma.hotel.update({
+        where: {
+          id,
+          navigationAccessStep: {
+            lt: stepNumber,
+          },
+        },
+        data: { navigationAccessStep: stepNumber },
+      });
+      return hotel.navigationAccessStep as number;
+    } catch (error: unknown) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'P2025'
+      ) {
+        const currentHotel = await this.prisma.hotel.findUnique({
+          where: { id },
+          select: { navigationAccessStep: true },
+        });
+        if (!currentHotel) {
+          throw new NotFoundException(`Hotel with ID ${id} not found`);
+        }
+        return currentHotel.navigationAccessStep as number;
+      }
+      throw error;
+    }
   }
 
   async findByUserId(userId: number): Promise<PrismaHotel | null> {

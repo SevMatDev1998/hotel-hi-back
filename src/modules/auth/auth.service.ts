@@ -159,9 +159,11 @@ export class AuthService {
     hotelId: number,
     stepNumber: number,
   ): Promise<{ navigationAccessStep: number; message: string }> {
-    const updatedStep =
-      await this.hotelService.updateNavigationStep(hotelId, stepNumber);
-
+    
+    const updatedStep = await this.hotelService.updateNavigationStep(
+      hotelId,
+      stepNumber,
+    );
     return {
       navigationAccessStep: updatedStep,
       message: 'Navigation step updated successfully',
