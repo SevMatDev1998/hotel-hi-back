@@ -1,12 +1,15 @@
-import { IsString, IsOptional, IsNumber,  } from 'class-validator';
+import { IsString, IsOptional, IsNumber } from 'class-validator';
+import { Hotel as PrismaHotel } from '@prisma/client';
 
-export class GetHotelLegalInfoDto {
-  registerCountryId: number | null;
-  registerCity: string | null;
-  tinNumber: string;
-  director: string;
-  legalPerson: string | null;
-}
+export type GetHotelLegalInfoDto = Pick<
+  PrismaHotel,
+  | 'legalPerson'
+  | 'registerCountryId'
+  | 'registerCity'
+  | 'tinNumber'
+  | 'director'
+  | 'priceSendEmail'
+>;
 
 export class UpdateHotelLegalInfoDto {
   @IsOptional()

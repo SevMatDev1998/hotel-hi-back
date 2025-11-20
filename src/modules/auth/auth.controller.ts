@@ -1,4 +1,12 @@
-import { Controller, Post, Body, HttpStatus, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  Get,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -13,11 +21,12 @@ import { ValidateTokenDto } from './dto/validate-token.dto';
 import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
 import { SetNewPasswordDto } from './dto/set-new-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdateNavigationStepDto } from './dto/update-navigation-step.dto';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   @Public()
@@ -59,6 +68,31 @@ export class AuthController {
   @Get('me')
   me(@User('userId') userId: number) {
     return this.authService.me(userId);
+  }
+
+  @Get('/navigation-access-step/:hotelId')
+  getNavigationAccessStep(@Param('hotelId') hotelId: number) {
+    return this.authService.getNavigationAccessStep(hotelId);
+  }
+
+  @Patch('/navigation-access-step/:hotelId')
+  @ApiOperation({ summary: 'Update hotel navigation access step' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Navigation step updated successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid step number or hotel not found',
+  })
+  updateNavigationAccessStep(
+    @Param('hotelId') hotelId: number,
+    @Body() updateDto: UpdateNavigationStepDto,
+  ) {
+    return this.authService.updateNavigationAccessStep(
+      hotelId,
+      updateDto.stepNumber,
+    );
   }
 
   @Post('refresh')

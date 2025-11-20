@@ -180,32 +180,33 @@ model Language {
 model Hotel {
   id                   Int      @id @default(autoincrement())
   name                 String   @db.VarChar(256)
-  contactPerson        String   @db.VarChar(256)
-  phoneCode            Int
-  phoneNumber          String   @db.VarChar(32)
+  contactPerson        String?   @db.VarChar(256)
+  phoneCode            Int?
+  phoneNumber          String?   @db.VarChar(32)
   logoUrl              String?  @db.VarChar(256)
   websiteUrl           String?  @db.VarChar(64)
   countryId            Int
-  state                String   @db.VarChar(256)
-  city                 String   @db.VarChar(256)
+  state                String?   @db.VarChar(256)
+  city                 String?   @db.VarChar(256)
   registerCountryId    Int?
   registerState        String?  @db.VarChar(256)
   registerCity         String?  @db.VarChar(256)
-  tinNumber            String   @db.VarChar(64)
-  director             String   @db.VarChar(64)
-  bankName             String   @db.VarChar(64)
-  bankAccountNumber    String   @db.VarChar(64)
-  bankPhoneCode        Int
-  bankPhoneNumber      String   @db.VarChar(32)
-  isActive             Boolean  @default(true)
+  tinNumber            String?   @db.VarChar(64)
+  director             String?   @db.VarChar(64)
+  bankName             String?   @db.VarChar(64)
+  bankAccountNumber    String?   @db.VarChar(64)
+  bankPhoneCode        Int?
+  bankPhoneNumber      String?   @db.VarChar(32)
+  isActive             Boolean?  @default(true)
   currencyId           Int
   extractUrl           String?  @db.VarChar(512)
-  bookingIntegration   Boolean  @default(false)
+  bookingIntegration   Boolean?  @default(false)
   legalPerson          String?  @db.VarChar(256)
   priceSendEmail       String?   @db.VarChar(256)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   deletedAt            DateTime?
+  navigationAccessStep Int      @default(1)
 
   country               Country                     @relation("HotelCountry", fields: [countryId], references: [id])
   registerCountry       Country?                    @relation("RegisterCountry", fields: [registerCountryId], references: [id])

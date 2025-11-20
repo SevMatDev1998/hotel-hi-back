@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Hotel } from './entities/hotel.entity';
+import { Hotel as PrismaHotel } from '@prisma/client';
+
 import {
   GetHotelBaseInfoDto,
   UpdateHotelBaseInfoDto,
@@ -12,33 +13,19 @@ import {
 
 @Injectable()
 export class HotelService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async createHotel(
     name: string,
     userId: number,
     countryId: number = 1,
     currencyId: number = 1,
-  ): Promise<Hotel> {
+  ): Promise<PrismaHotel> {
     const hotel = await this.prisma.hotel.create({
       data: {
         name,
-        contactPerson: 'Hotel Owner', // Default value
-        phoneCode: 374, // Default to Armenia
-        phoneNumber: '00000000', // Placeholder
         countryId,
-        state: 'Not specified', // Default value
-        city: 'Not specified', // Default value
-        tinNumber: '00000000', // Placeholder
-        director: 'Hotel Director', // Default value
-        bankName: 'Not specified', // Default value
-        bankAccountNumber: '00000000', // Placeholder
-        bankPhoneCode: 374, // Default
-        bankPhoneNumber: '00000000', // Placeholder
         currencyId,
-        priceSendEmail: 'noreply@hotel.com', // Valid email placeholder
-        isActive: false,
-        bookingIntegration: false,
       },
     });
 
@@ -53,13 +40,31 @@ export class HotelService {
     return hotel;
   }
 
-  async findById(id: number): Promise<Hotel | null> {
+  async findById(id: number): Promise<PrismaHotel | null> {
     return this.prisma.hotel.findUnique({
       where: { id },
     });
   }
 
-  async findByUserId(userId: number): Promise<Hotel | null> {
+  async findNavigationStep(id: number): Promise<number> {
+    const hotel = await this.prisma.hotel.findUnique({
+      where: { id },
+    });
+    if (hotel) {
+      return hotel.navigationAccessStep as number;
+    }
+    return 0;
+  }
+
+  async updateNavigationStep(id: number, stepNumber: number): Promise<number> {
+    const hotel = await this.prisma.hotel.update({
+      where: { id },
+      data: { navigationAccessStep: stepNumber },
+    });
+    return hotel.navigationAccessStep as number;
+  }
+
+  async findByUserId(userId: number): Promise<PrismaHotel | null> {
     const userHotel = await this.prisma.userHotel.findFirst({
       where: { userId },
       include: { hotel: true },
@@ -127,10 +132,23 @@ export class HotelService {
   }
 
   // Legal Information Methods
-  async getHotelLegalInfo(hotelId: number): Promise<GetHotelLegalInfoDto> {
+  async getHotelLegalInfo(
+    hotelId: number,
+  ): Promise<
+    Pick<
+      PrismaHotel,
+      | 'legalPerson'
+      | 'registerCountryId'
+      | 'registerCity'
+      | 'tinNumber'
+      | 'director'
+      | 'priceSendEmail'
+    >
+  > {
     const hotel = await this.prisma.hotel.findUnique({
       where: { id: hotelId },
       select: {
+        id: true,
         legalPerson: true,
         registerCountryId: true,
         registerCity: true,
@@ -165,13 +183,12 @@ export class HotelService {
       data: updateData,
       select: {
         id: true,
+        legalPerson: true,
         registerCountryId: true,
-        registerState: true,
         registerCity: true,
         tinNumber: true,
         director: true,
-        legalPerson: true,
-        extractUrl: true,
+        priceSendEmail: true,
       },
     });
 

@@ -4,10 +4,10 @@ import { IsString, IsOptional, IsNumber, IsNotEmpty } from 'class-validator';
 
 export class GetHotelBaseInfoDto {
   name: string;
-  contactPerson: string;
-  phoneCode: number;
-  phoneNumber: string;
-  countryId: number;
+  contactPerson: string | null;
+  phoneCode: number | null;
+  phoneNumber: string | null;
+  countryId: number | null;
   currencyId: number;
 }
 export class UpdateHotelBaseInfoDto {

@@ -1,32 +1,32 @@
 import { Hotel as PrismaHotel } from '@prisma/client';
 
-export class Hotel implements PrismaHotel {
-  id: number;
+export class Hotel implements Partial<PrismaHotel> {
+  id?: number;
   name: string;
-  contactPerson: string;
-  phoneCode: number;
-  phoneNumber: string;
-  logoUrl: string | null;
-  websiteUrl: string | null;
+  contactPerson?: string | null;
+  phoneCode?: number | null;
+  phoneNumber?: string | null;
+  logoUrl?: string | null;
+  websiteUrl?: string | null;
   countryId: number;
-  state: string;
-  city: string;
-  registerCountryId: number | null;
-  registerState: string | null;
-  registerCity: string | null;
-  tinNumber: string;
-  director: string;
-  bankName: string;
-  bankAccountNumber: string;
-  bankPhoneCode: number;
-  bankPhoneNumber: string;
-  isActive: boolean;
+  state?: string | null;
+  city?: string | null;
+  registerCountryId?: number | null;
+  registerState?: string | null;
+  registerCity?: string | null;
+  tinNumber?: string | null;
+  director?: string | null;
+  bankName?: string | null;
+  bankAccountNumber?: string | null;
+  bankPhoneCode?: number | null;
+  bankPhoneNumber?: string | null;
+  isActive?: boolean | null;
   currencyId: number;
-  extractUrl: string | null;
-  bookingIntegration: boolean;
-  legalPerson: string | null;
-  priceSendEmail: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
+  extractUrl?: string | null;
+  bookingIntegration?: boolean;
+  legalPerson?: string | null;
+  priceSendEmail?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+  deletedAt?: Date | null;
 }

@@ -146,6 +146,28 @@ export class AuthService {
     };
   }
 
+  async getNavigationAccessStep(
+    hotelId: number,
+  ): Promise<{ navigationAccessStep: number }> {
+    const navigationAccessStep =
+      await this.hotelService.findNavigationStep(hotelId);
+
+    return { navigationAccessStep };
+  }
+
+  async updateNavigationAccessStep(
+    hotelId: number,
+    stepNumber: number,
+  ): Promise<{ navigationAccessStep: number; message: string }> {
+    const updatedStep =
+      await this.hotelService.updateNavigationStep(hotelId, stepNumber);
+
+    return {
+      navigationAccessStep: updatedStep,
+      message: 'Navigation step updated successfully',
+    };
+  }
+
   async me(userId: number) {
     const user = await this.userService.findById(userId);
     const hotel = await this.hotelService.findByUserId(userId);
@@ -277,7 +299,11 @@ export class AuthService {
     token: string,
   ): Promise<{ valid: boolean; email?: string; userId?: number }> {
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const payload = await this.jwtService.verifyAsync<{
+        sub: number;
+        email?: string | undefined;
+        purpose?: string | undefined;
+      }>(token, {
         secret: process.env.JWT_ACCESS_SECRET,
       });
 
