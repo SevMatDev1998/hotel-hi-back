@@ -4,6 +4,7 @@ import { CreateHotelAvailabilityDto } from './dto/create-hotel-availability.dto'
 import { HotelAvailability } from '@prisma/client';
 import { HotelAgeAssignmentService } from '../hotel-age-assignment/hotel-age-assignment.service';
 import { UpdateHotelAvailabilityListDto } from './dto/update-hotel-availability-with-dates.dto';
+import { generateRandomColor } from '../../common/utils/color.util';
 
 @Injectable()
 export class HotelAvailabilityService {
@@ -23,7 +24,7 @@ export class HotelAvailabilityService {
       data: {
         hotelId,
         title,
-        color: '',
+        color: generateRandomColor(),
         // checkInTime: new Date(checkInTime),
         // checkoutTime: new Date(checkoutTime),
         checkInTime: new Date(),
