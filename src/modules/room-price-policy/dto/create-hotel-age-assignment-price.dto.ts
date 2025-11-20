@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsArray, ValidateNested, IsPositive, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsInt, IsNumber } from 'class-validator';
 
 export class CreateHotelAgeAssignmentPriceDto {
   @ApiProperty({ description: 'Hotel room ID', example: 1 })

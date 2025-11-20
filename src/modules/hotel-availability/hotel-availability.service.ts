@@ -126,6 +126,32 @@ export class HotelAvailabilityService {
           },
         },
         hotelAgeAssignments: true,
+        hotel: {
+          include: {
+            hotelRooms: {
+              include: {
+                roomClass: true,
+                roomView: true,
+                hotelRoomParts: {
+                  include: {
+                    roomPart: true,
+                    hotelRoomPartBeds: {
+                      include: {
+                        roomBedType: true,
+                        roomBedSize: true,
+                      },
+                    },
+                  },
+                },
+                hotelAgeAssignmentPrice: {
+                  include: {
+                    hotelAgeAssignment: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
