@@ -39,6 +39,7 @@ const partners_module_1 = require("./modules/partners/partners.module");
 const hotel_partner_module_1 = require("./modules/hotel-partner/hotel-partner.module");
 const hotel_food_price_module_1 = require("./modules/hotel-food-price/hotel-food-price.module");
 const hotel_age_assignment_module_1 = require("./modules/hotel-age-assignment/hotel-age-assignment.module");
+const hotel_age_assignment_price_module_1 = require("./modules/hotel-age-assignment-price/hotel-age-assignment-price.module");
 const hotel_availability_date_commission_module_1 = require("./modules/hotel-availability-date-commission/hotel-availability-date-commission.module");
 const notificatons_module_1 = require("./modules/notifications/notificatons.module");
 const room_price_policy_module_1 = require("./modules/room-price-policy/room-price-policy.module");
@@ -83,6 +84,7 @@ exports.AppModule = AppModule = __decorate([
             hotel_partner_module_1.HotelPartnerModule,
             hotel_food_price_module_1.HotelFoodPriceModule,
             hotel_age_assignment_module_1.HotelAgeAssignmentModule,
+            hotel_age_assignment_price_module_1.HotelAgeAssignmentPriceModule,
             notificatons_module_1.NotificationsModule,
             room_price_policy_module_1.RoomPricePolicyModule,
             hotel_room_price_module_1.HotelRoomPriceModule,

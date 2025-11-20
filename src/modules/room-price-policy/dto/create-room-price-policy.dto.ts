@@ -5,6 +5,7 @@ import { CreateHotelFoodPriceDto } from './create-hotel-food-price.dto';
 import { CreateHotelRoomPriceDto } from './create-hotel-room-price.dto';
 import { CreateHotelAdditionalServiceDto } from './create-hotel-additional-service.dto';
 import { CreateOtherServiceDto } from './create-other-service.dto';
+import { CreateHotelAgeAssignmentPriceDto } from './create-hotel-age-assignment-price.dto';
 
 export class CreateRoomPricePolicyDto {
   @ApiProperty({
@@ -49,4 +50,13 @@ export class CreateRoomPricePolicyDto {
   @ValidateNested({ each: true })
   @Type(() => CreateOtherServiceDto)
   otherServices: CreateOtherServiceDto[];
+
+  @ApiProperty({
+    description: 'Array of age assignment prices',
+    type: [CreateHotelAgeAssignmentPriceDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateHotelAgeAssignmentPriceDto)
+  hotelAgeAssignmentPrices: CreateHotelAgeAssignmentPriceDto[];
 }

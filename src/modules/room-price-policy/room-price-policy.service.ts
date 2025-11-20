@@ -5,6 +5,7 @@ import { HotelFoodPriceService } from '../hotel-food-price/hotel-food-price.serv
 import { HotelRoomPriceService } from '../hotel-room-price/hotel-room-price.service';
 import { HotelAdditionalServiceService } from '../hotel-additional-service/hotel-additional-service.service';
 import { HotelServiceService } from '../hotel-service/hotel-service.service';
+import { HotelAgeAssignmentPriceService } from '../hotel-age-assignment-price/hotel-age-assignment-price.service';
 
 @Injectable()
 export class RoomPricePolicyService {
@@ -16,7 +17,8 @@ export class RoomPricePolicyService {
     private readonly hotelRoomPriceService: HotelRoomPriceService,
     private readonly hotelAdditionalServiceService: HotelAdditionalServiceService,
     private readonly hotelServiceService: HotelServiceService,
-  ) { }
+    private readonly hotelAgeAssignmentPriceService: HotelAgeAssignmentPriceService,
+  ) {}
 
   async createRoomPricePolicy(dto: CreateRoomPricePolicyDto) {
     this.logger.log(
@@ -110,6 +112,16 @@ export class RoomPricePolicyService {
           `Created room price record for room ID: ${dto.roomPrice.hotelRoomId}`,
         );
 
+        const createdAgeAssignmentPrices =
+          await this.hotelAgeAssignmentPriceService.createMany(
+            tx,
+            dto.hotelAgeAssignmentPrices,
+          );
+
+        this.logger.log(
+          `Created ${createdAgeAssignmentPrices.length} age assignment price records`,
+        );
+
         // Объединяем arrival/departure и other services для одновременной обработки
         const allServiceDtos = [
           ...dto.arrivalDepartureServices.map((service) => {
@@ -176,6 +188,7 @@ export class RoomPricePolicyService {
         return {
           foodPrices: createdFoodPrices,
           roomPrice: createdRoomPrice,
+          ageAssignmentPrices: createdAgeAssignmentPrices,
           arrivalDepartureServices: arrivalDepartureServices,
           otherServices: otherServices,
         };
@@ -192,6 +205,7 @@ export class RoomPricePolicyService {
           hotelAvailabilityId: dto.hotelAvailabilityId,
           createdFoodPrices: result.foodPrices.length,
           createdRoomPrice: 1,
+          createdAgeAssignmentPrices: result.ageAssignmentPrices.length,
           createdAdditionalServices:
             result.arrivalDepartureServices.length +
             result.otherServices.length,
@@ -218,11 +232,9 @@ export class RoomPricePolicyService {
     );
 
     try {
-      // Проверяем существование availability и room
-      const hotelAvailability =
-        await this.prisma.hotelAvailability.findUnique({
-          where: { id: hotelAvailabilityId },
-        });
+      const hotelAvailability = await this.prisma.hotelAvailability.findUnique({
+        where: { id: hotelAvailabilityId },
+      });
 
       if (!hotelAvailability) {
         throw new BadRequestException(
@@ -255,6 +267,13 @@ export class RoomPricePolicyService {
           hotelAvailabilityId: hotelAvailabilityId,
         },
       });
+
+      const ageAssignmentPrices =
+        await this.prisma.hotelAgeAssignmentPrice.findMany({
+          where: {
+            hotelRoomId: hotelRoomId,
+          },
+        });
 
       // Получаем все additional services для этой комнаты и availability
       const allAdditionalServices =
@@ -312,6 +331,7 @@ export class RoomPricePolicyService {
           hotelRoomId,
           foodPrices,
           roomPrice,
+          ageAssignmentPrices,
           arrivalDepartureServices,
           otherServices,
         },
@@ -435,12 +455,34 @@ export class RoomPricePolicyService {
       errors.push('Percentage must be between 0 and 100');
     }
 
+    const hotelAgeAssignmentPriceAgeIds = dto.hotelAgeAssignmentPrices.map(
+      (p) => p.hotelAgeAssignmentId,
+    );
+
+    if (hotelAgeAssignmentPriceAgeIds.length > 0) {
+      const existingAgeAssignments =
+        await this.prisma.hotelAgeAssignment.findMany({
+          where: { id: { in: hotelAgeAssignmentPriceAgeIds } },
+        });
+
+      const missingAgeAssignmentIds = hotelAgeAssignmentPriceAgeIds.filter(
+        (id) => !existingAgeAssignments.find((a) => a.id === id),
+      );
+
+      if (missingAgeAssignmentIds.length > 0) {
+        errors.push(
+          `Hotel age assignments with ids [${missingAgeAssignmentIds.join(', ')}] not found for age assignment prices`,
+        );
+      }
+    }
+
     const invalidPrices = [
       ...dto.foodPrices.filter((fp) => fp.price < 0),
       ...dto.arrivalDepartureServices.filter(
         (s) => s.price !== undefined && s.price < 0,
       ),
       ...dto.otherServices.filter((s) => s.price !== null && s.price < 0),
+      ...dto.hotelAgeAssignmentPrices.filter((p) => p.price < 0),
     ];
 
     if (invalidPrices.length > 0) {

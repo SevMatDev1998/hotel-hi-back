@@ -6,6 +6,7 @@ import { HotelFoodPriceModule } from '../hotel-food-price/hotel-food-price.modul
 import { HotelRoomPriceModule } from '../hotel-room-price/hotel-room-price.module';
 import { HotelAdditionalServiceModule } from '../hotel-additional-service/hotel-additional-service.module';
 import { HotelServiceModule } from '../hotel-service/hotel-service.module';
+import { HotelAgeAssignmentPriceModule } from '../hotel-age-assignment-price/hotel-age-assignment-price.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { HotelServiceModule } from '../hotel-service/hotel-service.module';
     HotelRoomPriceModule,
     HotelAdditionalServiceModule,
     HotelServiceModule,
+    HotelAgeAssignmentPriceModule,
   ],
   controllers: [RoomPricePolicyController],
   providers: [RoomPricePolicyService],
