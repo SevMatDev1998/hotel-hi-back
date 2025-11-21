@@ -42,6 +42,7 @@ import { RoomPricePolicyModule } from './modules/room-price-policy/room-price-po
 import { HotelRoomPriceModule } from './modules/hotel-room-price/hotel-room-price.module';
 import { HotelAdditionalServiceModule } from './modules/hotel-additional-service/hotel-additional-service.module';
 import { GuestsModule } from './modules/guests/guests.module';
+import { HotelServicePriceModule } from './modules/hotel-service-price/hotel-service-price.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { GuestsModule } from './modules/guests/guests.module';
     RoomPricePolicyModule,
     HotelRoomPriceModule,
     HotelAdditionalServiceModule,
+    HotelServicePriceModule,
     GuestsModule,
   ],
   controllers: [AppController],

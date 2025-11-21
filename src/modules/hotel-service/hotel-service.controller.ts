@@ -27,4 +27,15 @@ export class HotelServiceController {
   ): Promise<any> {
     return this.hotelServiceService.deleteHotelService(hotelServiceId);
   }
+
+  @Get('/paid-grouped/:hotelId')
+  getPaidServicesGrouped(
+    @Param('hotelId') hotelId: number,
+    @Query('availabilityId') availabilityId: number,
+  ): Promise<unknown> {
+    return this.hotelServiceService.getPaidServicesGrouped(
+      hotelId,
+      availabilityId,
+    );
+  }
 }
