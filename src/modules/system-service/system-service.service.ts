@@ -33,13 +33,10 @@ export class SystemServiceService {
     return systemServices;
   }
 
-  // todo; need to find additional services
-  // i put just 6 
-
   async findAdditionalService(): Promise<SystemServiceDto[]> {
     const systemServices = await this.prisma.systemService.findMany({
       where: {
-        systemServiceTypeId: 6,
+        isAdditional: true,
       },
       orderBy: {
         name: 'asc',

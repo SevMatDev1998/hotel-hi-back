@@ -50,7 +50,6 @@ export class HotelFoodController {
     return this.hotelFoodService.findOne(id);
   }
 
-  //////////// Update and Delete Endpoints ////////////
   @Put(':hotelId')
   @ApiOperation({ summary: 'Update a hotel food service' })
   @ApiResponse({ status: 200, description: 'Hotel food service updated successfully.' })

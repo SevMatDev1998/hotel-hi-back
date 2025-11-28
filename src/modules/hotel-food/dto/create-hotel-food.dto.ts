@@ -19,6 +19,10 @@ export class CreateHotelFoodDto {
   @IsString()
   description?: string;
 
+  @IsOptional()
+  @IsString()
+  isFoodAvailable?: boolean;
+
   @ApiProperty({
     description: 'Type of food service',
     enum: FoodType,

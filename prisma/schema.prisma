@@ -588,7 +588,7 @@ model SystemService {
   name                String   @db.VarChar(256)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
-
+  isAdditional         Boolean  @default(false)
   // ✅ связь теперь только с типом
   systemServiceType SystemServiceType @relation(fields: [systemServiceTypeId], references: [id])
 
@@ -711,17 +711,18 @@ model FoodOfferType {
 }
 
 model HotelFood {
-  id            Int                @id @default(autoincrement())
-  hotelId       Int
-  name          String             @db.VarChar(256)
-  description   String?            @db.VarChar(1024)
-  foodType      FoodType
-  statusId      CompletenessStatus
-  startDate     String
-  endDate       String
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  deletedAt     DateTime?
+  id               Int                @id @default(autoincrement())
+  hotelId          Int
+  name             String             @db.VarChar(256)
+  description      String?            @db.VarChar(1024)
+  foodType         FoodType
+  statusId         CompletenessStatus
+  startDate        String
+  endDate          String
+  isFoodAvailable  Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deletedAt        DateTime?
 
   hotel Hotel @relation(fields: [hotelId], references: [id])
   

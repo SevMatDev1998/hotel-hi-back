@@ -15,7 +15,6 @@ export class HotelRoomPartBedsService {
     createHotelRoomPartBedsDto: CreateHotelRoomPartBedsDto,
   ): Promise<HotelRoomPartBed[]> {
     try {
-
       // Validate that the hotel room part exists
       const hotelRoomPart = await this.prisma.hotelRoomPart.findUnique({
         where: { id: createHotelRoomPartBedsDto.hotelRoomPartId },
@@ -81,24 +80,63 @@ export class HotelRoomPartBedsService {
         }),
       );
 
-      // Use transaction to create all beds
-      const createdBeds = await this.prisma.$transaction(
-        bedsToCreate.map((bedData) =>
-          this.prisma.hotelRoomPartBed.create({
-            data: bedData,
-            include: {
-              hotelRoomPart: {
-                include: {
-                  hotelRoom: true,
-                  roomPart: true,
+      // Use transaction to create all beds and update hotel room guest counts
+      const createdBeds = await this.prisma.$transaction(async (tx) => {
+        // Create all beds
+        const beds = await Promise.all(
+          bedsToCreate.map((bedData) =>
+            tx.hotelRoomPartBed.create({
+              data: bedData,
+              include: {
+                hotelRoomPart: {
+                  include: {
+                    hotelRoom: true,
+                    roomPart: true,
+                  },
                 },
+                roomBedSize: true,
+                roomBedType: true,
               },
-              roomBedSize: true,
-              roomBedType: true,
+            }),
+          ),
+        );
+
+        // Calculate guest counts from all beds in this hotel room
+        const allRoomBeds = await tx.hotelRoomPartBed.findMany({
+          where: {
+            hotelRoomPart: {
+              hotelRoomId: hotelRoomPart.hotelRoomId,
             },
-          }),
-        ),
-      );
+          },
+          include: {
+            roomBedType: true,
+          },
+        });
+
+        // Sum up personCount by bedType
+        let mainGuestQuantity = 0;
+        let additionalGuestQuantity = 0;
+
+        for (const bed of allRoomBeds) {
+          const personCount = bed.roomBedType.personCount;
+          if (bed.bedType === 'Main') {
+            mainGuestQuantity += personCount;
+          } else if (bed.bedType === 'Additional') {
+            additionalGuestQuantity += personCount;
+          }
+        }
+
+        // Update hotel room with calculated guest counts
+        await tx.hotelRoom.update({
+          where: { id: hotelRoomPart.hotelRoomId },
+          data: {
+            mainGuestQuantity,
+            additionalGuestQuantity,
+          },
+        });
+
+        return beds;
+      });
 
       return createdBeds;
     } catch (error) {

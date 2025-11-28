@@ -87,10 +87,26 @@ export async function seedServices() {
   // === 3️⃣ Create services (ТОЛЬКО systemServiceTypeId!) ===
   const services = [
     // ⭐ ARRIVAL & DEPARTURE - как в C# коде!
-    { name: 'Arrival', systemServiceTypeId: additionalType.id },
-    { name: 'Departure', systemServiceTypeId: additionalType.id },
-    { name: 'Food delivery', systemServiceTypeId: additionalType.id },
-    { name: 'Provision of a crib', systemServiceTypeId: additionalType.id },
+    {
+      name: 'Arrival',
+      systemServiceTypeId: additionalType.id,
+      isAdditional: true,
+    },
+    {
+      name: 'Departure',
+      systemServiceTypeId: additionalType.id,
+      isAdditional: true,
+    },
+    {
+      name: 'Food delivery',
+      systemServiceTypeId: additionalType.id,
+      isAdditional: true,
+    },
+    {
+      name: 'Provision of a crib',
+      systemServiceTypeId: additionalType.id,
+      isAdditional: true,
+    },
 
     // Parking and Transport
     { name: 'Free parking', systemServiceTypeId: freeType.id },

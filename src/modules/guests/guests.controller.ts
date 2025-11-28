@@ -36,11 +36,7 @@ export class GuestsController {
   @Get('hotelAvailability/dates')
   getHotelAvailabilityWithDatesByPartnerid(
     @Query('hotelId', ParseIntPipe) hotelId: number,
-    @Query('partnerId', ParseIntPipe) partnerId: number,
   ) {
-    return this.guestsService.getHotelAvailabilityWithDatesByPartnerid(
-      hotelId,
-      partnerId,
-    );
+    return this.guestsService.getHotelAvailabilityWithDatesByPartnerid(hotelId);
   }
 }

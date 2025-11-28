@@ -61,10 +61,26 @@ async function seedServices() {
     const freeType = types.find((t) => t.name === 'Free') || types[4];
     const paidType = types.find((t) => t.name === 'Paid') || types[5];
     const services = [
-        { name: 'Arrival', systemServiceTypeId: additionalType.id },
-        { name: 'Departure', systemServiceTypeId: additionalType.id },
-        { name: 'Food delivery', systemServiceTypeId: additionalType.id },
-        { name: 'Provision of a crib', systemServiceTypeId: additionalType.id },
+        {
+            name: 'Arrival',
+            systemServiceTypeId: additionalType.id,
+            isAdditional: true,
+        },
+        {
+            name: 'Departure',
+            systemServiceTypeId: additionalType.id,
+            isAdditional: true,
+        },
+        {
+            name: 'Food delivery',
+            systemServiceTypeId: additionalType.id,
+            isAdditional: true,
+        },
+        {
+            name: 'Provision of a crib',
+            systemServiceTypeId: additionalType.id,
+            isAdditional: true,
+        },
         { name: 'Free parking', systemServiceTypeId: freeType.id },
         { name: 'Paid parking', systemServiceTypeId: paidType.id },
         { name: 'Valet parking', systemServiceTypeId: premiumType.id },

@@ -146,6 +146,10 @@ export class HotelFoodService {
         where: { hotelFoodId: existingId },
       });
 
+      await this.prisma.hotelFoodPrice.deleteMany({
+        where: { hotelFoodId: existingId },
+      });
+
       // Удаляем саму запись
       await this.prisma.hotelFood.delete({
         where: { id: existingId },
@@ -205,6 +209,10 @@ export class HotelFoodService {
     });
 
     await this.prisma.hotelFoodOfferType.deleteMany({
+      where: { hotelFoodId: id },
+    });
+
+    await this.prisma.hotelFoodPrice.deleteMany({
       where: { hotelFoodId: id },
     });
 

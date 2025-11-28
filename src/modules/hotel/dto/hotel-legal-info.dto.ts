@@ -18,7 +18,7 @@ export class UpdateHotelLegalInfoDto {
 
   @IsOptional()
   @IsNumber()
-  registerCountryId?: number | null; // Prisma expects number | null
+  registerCountryId?: number | null;
 
   @IsOptional()
   @IsString()
@@ -38,5 +38,5 @@ export class UpdateHotelLegalInfoDto {
 
   @IsOptional()
   @IsString()
-  phoneNumber?: string; // ✅ Fix: match Prisma type (string or nullable string)
+  bankPhoneNumber?: string;
 }

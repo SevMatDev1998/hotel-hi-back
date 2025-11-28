@@ -35,28 +35,7 @@ export class GuestsService {
 
   async getHotelAvailabilityWithDatesByPartnerid(
     hotelId: number,
-    partnerId: number,
   ): Promise<HotelAvailability[]> {
-    const isPartnerAcisPartnerCommissionAccept =
-      await this.prisma.partner.findFirst({
-        where: {
-          id: partnerId,
-          status: PartnerStatus.Approved,
-        },
-      });
-
-    if (isPartnerAcisPartnerCommissionAccept) {
-
-      return await this.prisma.hotelAvailability.findMany({
-        where: { hotelId },
-        include: {
-          partnerCommissions: {
-            where: { partnerId },
-          },
-        },
-      });
-    }
-
     return this.prisma.hotelAvailability.findMany({
       where: { hotelId },
       include: {
