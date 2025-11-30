@@ -1,4 +1,4 @@
-import { IsNumber, IsArray, IsString, IsOptional } from 'class-validator';
+import { IsNumber, IsArray, IsString, IsOptional, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { FoodType } from '../../../common/enums';
 
@@ -20,7 +20,7 @@ export class CreateHotelFoodDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
+  @IsBoolean()
   isFoodAvailable?: boolean;
 
   @ApiProperty({

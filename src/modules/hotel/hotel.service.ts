@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 export class HotelService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createHotel(
     name: string,
@@ -51,7 +51,7 @@ export class HotelService {
       where: { id },
     });
     if (hotel) {
-      return hotel.navigationAccessStep as number;
+      return hotel.navigationAccessStep;
     }
     return 0;
   }
@@ -67,7 +67,7 @@ export class HotelService {
         },
         data: { navigationAccessStep: stepNumber },
       });
-      return hotel.navigationAccessStep as number;
+      return hotel.navigationAccessStep;
     } catch (error: unknown) {
       if (
         typeof error === 'object' &&
@@ -82,7 +82,7 @@ export class HotelService {
         if (!currentHotel) {
           throw new NotFoundException(`Hotel with ID ${id} not found`);
         }
-        return currentHotel.navigationAccessStep as number;
+        return currentHotel.navigationAccessStep;
       }
       throw error;
     }
@@ -179,6 +179,7 @@ export class HotelService {
         tinNumber: true,
         director: true,
         priceSendEmail: true,
+        bankPhoneNumber: true,
       },
     });
 
@@ -213,6 +214,7 @@ export class HotelService {
         tinNumber: true,
         director: true,
         priceSendEmail: true,
+        bankPhoneNumber: true,
       },
     });
 

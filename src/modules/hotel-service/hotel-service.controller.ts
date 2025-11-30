@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { HotelServiceService } from './hotel-service.service';
 
 @Controller('hotel-services')
@@ -37,5 +37,12 @@ export class HotelServiceController {
       hotelId,
       availabilityId,
     );
+  }
+
+  @Get('hotels/:hotelId/counts')
+  async getHotelServicesCounts(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
+  ) {
+    return this.hotelServiceService.getServicesCounts(hotelId);
   }
 }

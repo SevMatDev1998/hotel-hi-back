@@ -198,4 +198,46 @@ export class HotelServiceService {
       })),
     }));
   }
+
+  async getServicesCounts(hotelId: number) {
+    // Получаем все сервисы отеля с их availability
+    const hotelServices = await this.prisma.hotelService.findMany({
+      where: {
+        hotelId,
+        deletedAt: null,
+      },
+      include: {
+        hotelServiceAvailabilities: true,
+      },
+    });
+
+    let paidCount = 0;
+    let freeCount = 0;
+
+    // Проходим по каждому сервису и проверяем его availability
+    hotelServices.forEach((service) => {
+      // Если у сервиса есть хотя бы один availability
+      if (
+        service.hotelServiceAvailabilities &&
+        service.hotelServiceAvailabilities.length > 0
+      ) {
+        // Проверяем, есть ли хотя бы один платный availability
+        const hasPaid = service.hotelServiceAvailabilities.some(
+          (avail) => avail.isPaid === true,
+        );
+        // Проверяем, есть ли хотя бы один бесплатный availability
+        const hasFree = service.hotelServiceAvailabilities.some(
+          (avail) => avail.isPaid === false,
+        );
+
+        if (hasPaid) paidCount++;
+        if (hasFree) freeCount++;
+      }
+    });
+
+    return {
+      paidCount,
+      freeCount,
+    };
+  }
 }

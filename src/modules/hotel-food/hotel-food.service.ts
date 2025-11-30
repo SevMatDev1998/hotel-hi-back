@@ -107,6 +107,7 @@ export class HotelFoodService {
         hf.name,
         hf."startDate",
         hf."endDate",
+        hf."isFoodAvailable",
         hf."foodType" AS "foodType",
         ARRAY_AGG(DISTINCT hfc."cuisineId") AS "cuisineIds",
         ARRAY_AGG(DISTINCT hfot."offerTypeId") AS "foodOfferTypeIds"
@@ -124,6 +125,7 @@ export class HotelFoodService {
       description,
       foodType,
       startDate,
+      isFoodAvailable,
       endDate,
       cuisineIds,
       foodOfferTypeIds,
@@ -163,7 +165,7 @@ export class HotelFoodService {
         description: 'description!',
         // foodType: foodType as unknown as PrismaFoodType, // ✅ Конвертация
         foodType: foodType as unknown as PrismaFoodType, // ✅ Конвертация
-
+        isFoodAvailable,
         startDate: startDate!,
         endDate: endDate!,
         statusId: 'Draft', // Required field in schema

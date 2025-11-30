@@ -9,7 +9,7 @@ import { HotelRoomPart } from '@prisma/client';
 
 @Injectable()
 export class HotelRoomPartsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   // async createRoomParts(
   //   hotelRoomId: number,
@@ -104,11 +104,16 @@ export class HotelRoomPartsService {
       });
 
       if (!hotelRoom) {
-        throw new NotFoundException(`Hotel room with ID ${hotelRoomId} not found`);
+        throw new NotFoundException(
+          `Hotel room with ID ${hotelRoomId} not found`,
+        );
       }
 
       // Проверяем, что все указанные части существуют
-      const roomPartIds = createHotelRoomPartsDto.roomParts.map((rp) => rp.roomPartId);
+      const roomPartIds = createHotelRoomPartsDto.roomParts.map(
+        (rp) => rp.roomPartId,
+      );
+
       const existingRoomParts = await this.prisma.roomPart.findMany({
         where: { id: { in: roomPartIds } },
       });
@@ -121,48 +126,38 @@ export class HotelRoomPartsService {
         );
       }
 
-      // Находим уже существующие записи для данного hotelRoomId
-      const existingHotelRoomParts = await this.prisma.hotelRoomPart.findMany({
+      // Удаляем все существующие части для данного номера
+      // Сначала удаляем связанные кровати
+      const existingPartIds = await this.prisma.hotelRoomPart.findMany({
         where: { hotelRoomId },
+        select: { id: true },
       });
 
-      const partsToAdd: { hotelRoomId: number; roomPartId: number }[] = [];
+      if (existingPartIds.length > 0) {
+        await this.prisma.hotelRoomPartBed.deleteMany({
+          where: { hotelRoomPartId: { in: existingPartIds.map((p) => p.id) } },
+        });
 
-      // Для каждой части из DTO проверяем, сколько уже существует
-      for (const roomPartItem of createHotelRoomPartsDto.roomParts) {
-        const existingCount = existingHotelRoomParts.filter(
-          (p) => p.roomPartId === roomPartItem.roomPartId,
-        ).length;
-
-        const neededCount = roomPartItem.quantity;
-
-        // Если не хватает — добавляем недостающие
-        if (neededCount > existingCount) {
-          const toCreate = neededCount - existingCount;
-          for (let i = 0; i < toCreate; i++) {
-            partsToAdd.push({
-              hotelRoomId,
-              roomPartId: roomPartItem.roomPartId,
-            });
-          }
-        }
-
-        // Если их больше, чем нужно — можно удалить лишние (опционально)
-        // Если нужно только добавлять, этот блок можно убрать
-        // if (existingCount > neededCount) {
-        //   const toDelete = existingCount - neededCount;
-        //   const toRemove = existingHotelRoomParts
-        //     .filter((p) => p.roomPartId === roomPartItem.roomPartId)
-        //     .slice(0, toDelete);
-        //   await this.prisma.hotelRoomPart.deleteMany({
-        //     where: { id: { in: toRemove.map((r) => r.id) } },
-        //   });
-        // }
+        await this.prisma.hotelRoomPart.deleteMany({
+          where: { hotelRoomId },
+        });
       }
 
-      if (partsToAdd.length > 0) {
+      // Создаём новые записи на основе quantity
+      const partsToCreate: { hotelRoomId: number; roomPartId: number }[] = [];
+
+      for (const roomPartItem of createHotelRoomPartsDto.roomParts) {
+        for (let i = 0; i < roomPartItem.quantity; i++) {
+          partsToCreate.push({
+            hotelRoomId,
+            roomPartId: roomPartItem.roomPartId,
+          });
+        }
+      }
+
+      if (partsToCreate.length > 0) {
         await this.prisma.hotelRoomPart.createMany({
-          data: partsToAdd,
+          data: partsToCreate,
         });
       }
 
@@ -177,14 +172,15 @@ export class HotelRoomPartsService {
 
       return result;
     } catch (error) {
-      console.log('Error in createRoomParts:', error);
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException
       ) {
         throw error;
       }
-      throw new BadRequestException('Failed to create or update hotel room parts');
+      throw new BadRequestException(
+        'Failed to create or update hotel room parts',
+      );
     }
   }
 

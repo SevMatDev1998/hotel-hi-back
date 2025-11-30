@@ -128,7 +128,7 @@ export class HotelRoomService {
       where: {
         hotelId: hotelId,
       },
-      include: { roomView: true, roomClass: true },
+      include: { roomView: true, roomClass: true, hotelRoomParts: true },
       orderBy: {
         name: 'asc',
       },
