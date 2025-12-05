@@ -9,7 +9,6 @@ export class HotelAgeAssignmentService {
   async create(createHotelAgeAssignmentDto: HotelAgeAssignmentDto) {
     const {
       hotelAvailabilityId,
-      name,
       fromAge,
       toAge,
       bedType,
@@ -19,7 +18,7 @@ export class HotelAgeAssignmentService {
     return this.prisma.hotelAgeAssignment.create({
       data: {
         hotelAvailabilityId,
-        name,
+        name: '',
         fromAge,
         toAge,
         bedType,

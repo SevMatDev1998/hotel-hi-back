@@ -5,7 +5,6 @@ import {
   IsInt,
   IsNotEmpty,
   IsOptional,
-  IsString,
   Max,
   Min,
 } from 'class-validator';
@@ -16,19 +15,15 @@ export class HotelAgeAssignmentDto {
   hotelAvailabilityId: number;
 
   @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @IsNotEmpty()
   @IsInt()
   @Min(0)
-  @Max(150)
+  @Max(180)
   fromAge: number;
 
   @IsOptional()
   @IsInt()
   @Min(0)
-  @Max(150)
+  @Max(180)
   toAge?: number;
 
   @IsNotEmpty()
