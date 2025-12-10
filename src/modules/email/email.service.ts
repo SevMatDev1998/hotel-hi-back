@@ -367,6 +367,15 @@ export class EmailService {
     hotelName: string,
     hotelId: number,
     partnerId: number,
+    commissions?: Array<{
+      availabilityTitle: string;
+      availabilityColor: string;
+      dateRange: string;
+      roomFee: number;
+      foodFee: number;
+      additionalFee: number;
+      serviceFee: number;
+    }>,
   ): Promise<boolean> {
     const frontendUrl = this.configService.get<string>(
       'FRONTEND_URL',
@@ -374,13 +383,37 @@ export class EmailService {
     );
     const commissionUrl = `${frontendUrl}/guest/offer-prices?hotelId=${hotelId}&partnerId=${partnerId}`;
 
+    // Build commission table rows
+    const commissionRows =
+      commissions && commissions.length > 0
+        ? commissions
+            .map(
+              (comm) => `
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+              <td style="padding: 12px; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: ${comm.availabilityColor};"></span>
+                  <span>${comm.availabilityTitle}</span>
+                </div>
+              </td>
+              <td style="padding: 12px; text-align: center;">${comm.dateRange}</td>
+              <td style="padding: 12px; text-align: center;">${comm.roomFee}%</td>
+              <td style="padding: 12px; text-align: center;">${comm.foodFee}%</td>
+              <td style="padding: 12px; text-align: center;">${comm.additionalFee}%</td>
+              <td style="padding: 12px; text-align: center;">${comm.serviceFee}%</td>
+            </tr>
+          `,
+            )
+            .join('')
+        : '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #999;">No commission data available</td></tr>';
+
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
           <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .container { max-width: 800px; margin: 0 auto; padding: 20px; }
             .header { background-color: #FF9800; color: white; padding: 20px; text-align: center; }
             .content { padding: 20px; background-color: #f9f9f9; }
             .button { 
@@ -399,6 +432,20 @@ export class EmailService {
               border-left: 4px solid #FF9800;
               margin: 20px 0;
             }
+            .commission-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 20px 0;
+              background-color: white;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .commission-table th {
+              background-color: #FF9800;
+              color: white;
+              padding: 12px;
+              text-align: left;
+              font-weight: bold;
+            }
           </style>
         </head>
         <body>
@@ -412,19 +459,36 @@ export class EmailService {
               
               <div class="info-box">
                 <p><strong>Hotel:</strong> ${hotelName}</p>
-                <p>Please review the commission details and confirm your acceptance.</p>
+                <p>Please review the commission details below and confirm your acceptance.</p>
               </div>
 
-              <p>Click the button below to view and manage commissions:</p>
+              <h3 style="color: #FF9800; margin-top: 30px;">Commission Details:</h3>
+              <table class="commission-table">
+                <thead>
+                  <tr>
+                    <th>Price Offer</th>
+                    <th style="text-align: center;">Period</th>
+                    <th style="text-align: center;">Room</th>
+                    <th style="text-align: center;">Food</th>
+                    <th style="text-align: center;">Additional</th>
+                    <th style="text-align: center;">Service</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${commissionRows}
+                </tbody>
+              </table>
+
+              <p style="margin-top: 30px;">Click the button below to view and manage commissions in the system:</p>
               
               <div style="text-align: center;">
-                <a href="${commissionUrl}" class="button">View Commissions</a>
+                <a href="${commissionUrl}" class="button">View in System</a>
               </div>
               
-              <p>Or copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #FF9800;">${commissionUrl}</p>
+              <p style="font-size: 12px; color: #666;">Or copy and paste this link into your browser:</p>
+              <p style="word-break: break-all; color: #FF9800; font-size: 12px;">${commissionUrl}</p>
               
-              <p>If you have any questions, please contact the hotel directly.</p>
+              <p style="margin-top: 20px;">If you have any questions, please contact the hotel directly.</p>
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Hotel Hivi. All rights reserved.</p>
@@ -443,9 +507,19 @@ export class EmailService {
       
       Hotel: ${hotelName}
       
-      Please review the commission details and confirm your acceptance.
+      Commission Details:
+      ${
+        commissions && commissions.length > 0
+          ? commissions
+              .map(
+                (comm) =>
+                  `\n${comm.availabilityTitle} (${comm.dateRange}):\n  Room: ${comm.roomFee}% | Food: ${comm.foodFee}% | Additional: ${comm.additionalFee}% | Service: ${comm.serviceFee}%`,
+              )
+              .join('\n')
+          : 'No commission data available'
+      }
       
-      Click the link below to view and manage commissions:
+      Click the link below to view and manage commissions in the system:
       
       ${commissionUrl}
       

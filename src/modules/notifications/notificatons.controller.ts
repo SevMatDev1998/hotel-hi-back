@@ -45,4 +45,28 @@ export class NotificationsController {
       partnerId,
     );
   }
+
+  @Post('update-partner-commission')
+  async updatePartnerCommission(
+    @Body()
+    body: {
+      partnerId: number;
+      hotelAvailabilityId: number;
+      roomFee: number;
+      foodFee: number;
+      additionalFee: number;
+      serviceFee: number;
+    },
+  ) {
+    return await this.notificationsService.updatePartnerCommission(
+      body.partnerId,
+      body.hotelAvailabilityId,
+      {
+        roomFee: body.roomFee,
+        foodFee: body.foodFee,
+        additionalFee: body.additionalFee,
+        serviceFee: body.serviceFee,
+      },
+    );
+  }
 }
