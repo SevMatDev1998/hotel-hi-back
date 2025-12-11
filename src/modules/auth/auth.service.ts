@@ -4,6 +4,7 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { AuthErrorCode, AuthSuccessCode } from './enums/auth-error-codes.enum';
 import { UserService } from '../user/user.service';
 import { HotelService } from '../hotel/hotel.service';
 import { RegisterDto } from './dto/register.dto';
@@ -33,7 +34,7 @@ export class AuthService {
     // Check if user already exists
     const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException(AuthErrorCode.USER_ALREADY_EXISTS);
     }
 
     try {
@@ -78,11 +79,10 @@ export class AuthService {
         email: result.user.email!,
         hotelId: result.hotel.id,
         hotelName: result.hotel.name,
-        message:
-          'Registration successful. Please check your email to confirm your account.',
+        message: AuthSuccessCode.REGISTRATION_SUCCESS,
       };
     } catch {
-      throw new BadRequestException('Registration failed. Please try again.');
+      throw new BadRequestException(AuthErrorCode.REGISTRATION_FAILED);
     }
   }
 
@@ -92,7 +92,7 @@ export class AuthService {
     // Find user by email
     const user = await this.userService.findByEmail(email);
     if (!user || !user.passwordHash) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException(AuthErrorCode.INVALID_CREDENTIALS);
     }
 
     // Validate password
@@ -101,20 +101,18 @@ export class AuthService {
       user.passwordHash,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException(AuthErrorCode.INVALID_CREDENTIALS);
     }
 
     // Check if email is confirmed
     if (!user.emailConfirmed) {
-      throw new UnauthorizedException(
-        'Please confirm your email before logging in',
-      );
+      throw new UnauthorizedException(AuthErrorCode.EMAIL_NOT_CONFIRMED);
     }
 
     // Get user's hotel
     const hotel = await this.hotelService.findByUserId(user.id);
     if (!hotel) {
-      throw new BadRequestException('No hotel associated with this user');
+      throw new BadRequestException(AuthErrorCode.NO_HOTEL_ASSOCIATED);
     }
 
     // ======== Generate Tokens =========
@@ -159,14 +157,13 @@ export class AuthService {
     hotelId: number,
     stepNumber: number,
   ): Promise<{ navigationAccessStep: number; message: string }> {
-    
     const updatedStep = await this.hotelService.updateNavigationStep(
       hotelId,
       stepNumber,
     );
     return {
       navigationAccessStep: updatedStep,
-      message: 'Navigation step updated successfully',
+      message: AuthSuccessCode.NAVIGATION_STEP_UPDATED,
     };
   }
 
@@ -190,19 +187,19 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
       });
     } catch {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+      throw new UnauthorizedException(AuthErrorCode.INVALID_REFRESH_TOKEN);
     }
 
     // 2) Проверка, что пользователь существует
     const user = await this.userService.findById(payload.sub);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException(AuthErrorCode.USER_NOT_FOUND);
     }
 
     // 3) Проверка, что у пользователя есть отель (зеркалим твою логику login)
     const hotel = await this.hotelService.findByUserId(user.id);
     if (!hotel) {
-      throw new BadRequestException('No hotel associated with this user');
+      throw new BadRequestException(AuthErrorCode.NO_HOTEL_ASSOCIATED);
     }
 
     // 4) Выпуск новой пары токенов
@@ -242,7 +239,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('Invalid or expired confirmation token');
+      throw new BadRequestException(AuthErrorCode.INVALID_CONFIRMATION_TOKEN);
     }
 
     // Update user: confirm email and clear token
@@ -256,7 +253,7 @@ export class AuthService {
     });
 
     return {
-      message: 'Email confirmed successfully. You can now log in.',
+      message: AuthSuccessCode.EMAIL_CONFIRMED,
     };
   }
 
@@ -264,11 +261,11 @@ export class AuthService {
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException(AuthErrorCode.USER_NOT_FOUND);
     }
 
     if (user.emailConfirmed) {
-      throw new BadRequestException('Email is already confirmed');
+      throw new BadRequestException(AuthErrorCode.EMAIL_ALREADY_CONFIRMED);
     }
 
     // Generate new confirmation token
@@ -293,7 +290,7 @@ export class AuthService {
     );
 
     return {
-      message: 'Confirmation email sent. Please check your inbox.',
+      message: AuthSuccessCode.CONFIRMATION_EMAIL_SENT,
     };
   }
 
@@ -330,7 +327,7 @@ export class AuthService {
   async requestPasswordReset(email: string): Promise<{ message: string }> {
     const user = await this.userService.findByEmail(email);
     if (!user || !user.email) {
-      throw new BadRequestException('Email not found');
+      throw new BadRequestException(AuthErrorCode.EMAIL_NOT_FOUND);
     }
 
     // Generate JWT token with short expiry (1h) for password reset
@@ -351,7 +348,7 @@ export class AuthService {
     // Send email (non-blocking but awaited to surface errors if any)
     await this.emailService.sendPasswordReset(user.email, resetToken);
 
-    return { message: 'Reset email sent' };
+    return { message: AuthSuccessCode.RESET_EMAIL_SENT };
   }
 
   async setNewPassword(
@@ -366,11 +363,11 @@ export class AuthService {
           process.env.JWT_ACCESS_SECRET,
       });
     } catch {
-      throw new BadRequestException('Invalid or expired token');
+      throw new BadRequestException(AuthErrorCode.INVALID_RESET_TOKEN);
     }
 
     if (payload.purpose !== 'password-reset' || !payload.email) {
-      throw new BadRequestException('Invalid token context');
+      throw new BadRequestException(AuthErrorCode.INVALID_TOKEN_CONTEXT);
     }
 
     const user = await this.userService.findById(payload.sub);
@@ -379,7 +376,7 @@ export class AuthService {
       !user.email ||
       user.email.toLowerCase() !== payload.email.toLowerCase()
     ) {
-      throw new BadRequestException('Invalid token user');
+      throw new BadRequestException(AuthErrorCode.INVALID_TOKEN_USER);
     }
 
     const hashed = await bcrypt.hash(newPassword, 10);
@@ -388,6 +385,6 @@ export class AuthService {
       data: { passwordHash: hashed },
     });
 
-    return { message: 'Password updated successfully' };
+    return { message: AuthSuccessCode.PASSWORD_UPDATED };
   }
 }
