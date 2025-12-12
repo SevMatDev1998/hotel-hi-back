@@ -394,6 +394,7 @@ model OrderHotelService {
 model RoomClass {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(128)
+  description String? @db.VarChar(1024)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

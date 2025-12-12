@@ -9,21 +9,17 @@ async function seedRoomViews() {
         { name: 'Garden' },
         { name: 'Lake' },
         { name: 'Mountain' },
-        { name: 'Sea' },
-        { name: 'River' },
-        { name: 'City' },
-        { name: 'Courtyard' },
+        { name: 'Park' },
         { name: 'Pool' },
-        { name: 'Forest' },
-        { name: 'Parking' },
+        { name: 'Sea' },
+        { name: 'Castle' },
+        { name: 'City' },
+        { name: 'River' },
+        { name: 'Ocean' },
     ];
-    const existingRoomViews = await prisma.roomView.findMany();
-    if (existingRoomViews.length === 0) {
-        await prisma.roomView.createMany({
-            data: roomViews,
-            skipDuplicates: true,
-        });
-    }
+    await prisma.roomView.createMany({
+        data: roomViews,
+    });
     console.log('✅ Виды из номеров загружены!');
 }
 //# sourceMappingURL=room-views.seed.js.map

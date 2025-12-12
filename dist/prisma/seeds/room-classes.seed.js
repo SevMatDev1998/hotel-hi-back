@@ -25,11 +25,6 @@ async function seedRoomClasses() {
         { name: 'Camp' },
         { name: 'Tent' },
         { name: 'Chalet' },
-        { name: 'Affordable' },
-        { name: 'Capsule' },
-        { name: 'Cabana' },
-        { name: 'Boutique' },
-        { name: 'Micro' },
     ];
     const existingRoomClasses = await prisma.roomClass.findMany();
     if (existingRoomClasses.length === 0) {

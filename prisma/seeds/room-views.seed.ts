@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
 
 export async function seedRoomViews() {
@@ -9,23 +8,19 @@ export async function seedRoomViews() {
     { name: 'Garden' },
     { name: 'Lake' },
     { name: 'Mountain' },
-    { name: 'Sea' },
-    { name: 'River' },
-    { name: 'City' },
-    { name: 'Courtyard' },
+    { name: 'Park' },
     { name: 'Pool' },
-    { name: 'Forest' },
-    { name: 'Parking' },
+    { name: 'Sea' },
+    { name: 'Castle' },
+    { name: 'City' },
+    { name: 'River' },
+    { name: 'Ocean' },
   ];
 
-  // Создаем виды номеров
-  const existingRoomViews = await prisma.roomView.findMany();
-  if (existingRoomViews.length === 0) {
-    await prisma.roomView.createMany({
-      data: roomViews,
-      skipDuplicates: true,
-    });
-  }
+  // Создаём новые
+  await prisma.roomView.createMany({
+    data: roomViews,
+  });
 
   console.log('✅ Виды из номеров загружены!');
 }

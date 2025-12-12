@@ -6,17 +6,17 @@ const prisma = new client_1.PrismaClient();
 async function seedRoomParts() {
     console.log('🏠 Загружаем части номеров...');
     const roomParts = [
+        { name: 'Hallway' },
+        { name: 'LivingRoom' },
         { name: 'Bedroom' },
-        { name: 'Kitchen' },
-        { name: 'Living room' },
         { name: 'Bathroom' },
-        { name: 'Balcony' },
-        { name: 'Terrace' },
-        { name: 'Dining room' },
-        { name: 'Office' },
-        { name: 'Garage' },
-        { name: 'Closet' },
         { name: 'Toilet' },
+        { name: 'Kitchen' },
+        { name: 'Balcony' },
+        { name: 'FrenchBalcony' },
+        { name: 'Closet' },
+        { name: 'Office' },
+        { name: 'Terrace' },
     ];
     const existingRoomParts = await prisma.roomPart.findMany();
     if (existingRoomParts.length === 0) {
