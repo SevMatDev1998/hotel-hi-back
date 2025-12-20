@@ -10,8 +10,8 @@ interface PaidServiceItem {
   startMonth: Date;
   endMonth: Date;
   hourlyAvailabilityType: string;
-  startHour: Date | null;
-  endHour: Date | null;
+  startHour: string | null;
+  endHour: string | null;
   currentPrice: {
     id: number;
     price: string;

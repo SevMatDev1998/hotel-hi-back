@@ -43,13 +43,13 @@ export class HotelServiceAvailabilityService {
           startHour:
             period.hourlyAvailabilityTypeId === 'Hours'
               ? period.startHour
-                ? new Date(`1970-01-01T${period.startHour}:00`)
+                ? period.startHour
                 : null
               : null,
           endHour:
             period.hourlyAvailabilityTypeId === 'Hours'
               ? period.endHour
-                ? new Date(`1970-01-01T${period.endHour}:00`)
+                ? period.endHour
                 : null
               : null,
         })),
@@ -88,12 +88,8 @@ export class HotelServiceAvailabilityService {
             startMonth: r.startMonth.toISOString().slice(0, 10),
             endMonth: r.endMonth.toISOString().slice(0, 10),
             hourlyAvailabilityTypeId: r.hourlyAvailabilityTypeId,
-            startHour: r.startHour
-              ? r.startHour.toISOString().slice(11, 16)
-              : undefined,
-            endHour: r.endHour
-              ? r.endHour.toISOString().slice(11, 16)
-              : undefined,
+            startHour: r.startHour ? r.startHour : undefined,
+            endHour: r.endHour ? r.endHour : undefined,
           })),
       },
       {
@@ -105,12 +101,8 @@ export class HotelServiceAvailabilityService {
             startMonth: r.startMonth.toISOString().slice(0, 10),
             endMonth: r.endMonth.toISOString().slice(0, 10),
             hourlyAvailabilityTypeId: r.hourlyAvailabilityTypeId,
-            startHour: r.startHour
-              ? r.startHour.toISOString().slice(11, 16)
-              : undefined,
-            endHour: r.endHour
-              ? r.endHour.toISOString().slice(11, 16)
-              : undefined,
+            startHour: r.startHour ? r.startHour : undefined,
+            endHour: r.endHour ? r.endHour : undefined,
           })),
       },
     ];

@@ -649,8 +649,8 @@ model HotelServiceAvailability {
   startMonth                DateTime                        // Prisma doesn't have DateOnly; use DateTime
   endMonth                  DateTime
   hourlyAvailabilityTypeId  HotelServiceHourlyAvailabilityType
-  startHour                 DateTime?                       // TimeSpan → DateTime?
-  endHour                   DateTime?
+  startHour                 String?                       // TimeSpan → DateTime?
+  endHour                   String?
 
   createdAt                 DateTime                        @default(now())
   updatedAt                 DateTime                        @updatedAt
