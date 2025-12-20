@@ -77,6 +77,19 @@ export class HotelServiceService {
 
   async deleteHotelService(hotelServiceId: number): Promise<HotelService> {
     return await this.prisma.$transaction(async (tx) => {
+      // Удаляем связанные записи в правильном порядке
+      await tx.orderHotelService.deleteMany({
+        where: { hotelServiceId },
+      });
+
+      await tx.hotelAdditionalService.deleteMany({
+        where: { hotelServiceId },
+      });
+
+      await tx.hotelServicePrice.deleteMany({
+        where: { hotelServiceId },
+      });
+
       await tx.hotelServiceAvailability.deleteMany({
         where: { hotelServiceId },
       });

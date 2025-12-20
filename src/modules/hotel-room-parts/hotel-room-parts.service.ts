@@ -201,7 +201,12 @@ export class HotelRoomPartsService {
         where: { hotelRoomId },
         include: {
           roomPart: true,
-          hotelRoomPartBeds: true,
+          hotelRoomPartBeds: {
+            include: {
+              roomBedSize: true,
+              roomBedType: true,
+            },
+          },
         },
       });
     } catch (error) {
