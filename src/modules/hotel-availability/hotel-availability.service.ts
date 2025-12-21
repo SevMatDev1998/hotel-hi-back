@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateHotelAvailabilityDto } from './dto/create-hotel-availability.dto';
+import { UpdateHotelAvailabilityDto } from './dto/update-hotel-availability.dto';
 import { HotelAvailability } from '@prisma/client';
 import { HotelAgeAssignmentService } from '../hotel-age-assignment/hotel-age-assignment.service';
 import { UpdateHotelAvailabilityListDto } from './dto/update-hotel-availability-with-dates.dto';
@@ -25,10 +26,8 @@ export class HotelAvailabilityService {
         hotelId,
         title,
         color: generateRandomColor(),
-        // checkInTime: new Date(checkInTime),
-        // checkoutTime: new Date(checkoutTime),
-        checkInTime: new Date(),
-        checkoutTime: new Date(),
+        checkInTime,
+        checkoutTime,
       },
     });
     if (hotelAgeAssignments && hotelAgeAssignments.length > 0) {
@@ -39,6 +38,27 @@ export class HotelAvailabilityService {
         });
       }
     }
+
+    return hotelAvailability;
+  }
+
+  async update(
+    availabilityId: number,
+    updateHotelAvailabilityDto: UpdateHotelAvailabilityDto,
+  ): Promise<HotelAvailability> {
+    const { title, checkInTime, checkoutTime, hotelAgeAssignments } =
+      updateHotelAvailabilityDto;
+
+    // Update the hotel availability (only title, checkInTime, checkoutTime)
+    const hotelAvailability = await this.prisma.hotelAvailability.update({
+      where: { id: availabilityId },
+      data: {
+        title,
+        checkInTime,
+        checkoutTime,
+      },
+    });
+
 
     return hotelAvailability;
   }
@@ -210,7 +230,6 @@ export class HotelAvailabilityService {
           existingCalendarIds.includes(id),
         );
 
-
         // 4️⃣ Что создать (новые, которых не было в БД)
         const toCreate = newCalendarIds.filter(
           (id) => !existingCalendarIds.includes(id),
@@ -288,8 +307,8 @@ export class HotelAvailabilityService {
           data: {
             title: availability.title,
             color: availability.color,
-            checkInTime: new Date(availability.checkInTime),
-            checkoutTime: new Date(availability.checkoutTime),
+            checkInTime: availability.checkInTime,
+            checkoutTime: availability.checkoutTime,
             confirmed: availability.confirmed ?? false,
             updatedAt: new Date(),
           },

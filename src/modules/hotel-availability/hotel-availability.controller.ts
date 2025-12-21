@@ -11,6 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HotelAvailabilityService } from './hotel-availability.service';
 import { CreateHotelAvailabilityDto } from './dto/create-hotel-availability.dto';
+import { UpdateHotelAvailabilityDto } from './dto/update-hotel-availability.dto';
 import { HotelAvailability } from '@prisma/client';
 import { UpdateHotelAvailabilityListDto } from './dto/update-hotel-availability-with-dates.dto';
 
@@ -35,6 +36,23 @@ export class HotelAvailabilityController {
     return this.hotelAvailabilityService.create(
       createHotelAvailabilityDto,
       hotelId,
+    );
+  }
+
+  @Put('/:availabilityId')
+  @ApiOperation({ summary: 'Update hotel availability' })
+  @ApiResponse({
+    status: 200,
+    description: 'Hotel availability has been successfully updated.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async update(
+    @Param('availabilityId', ParseIntPipe) availabilityId: number,
+    @Body() updateHotelAvailabilityDto: UpdateHotelAvailabilityDto,
+  ): Promise<HotelAvailability> {
+    return this.hotelAvailabilityService.update(
+      availabilityId,
+      updateHotelAvailabilityDto,
     );
   }
 

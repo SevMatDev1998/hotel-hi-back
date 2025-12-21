@@ -198,7 +198,7 @@ export async function seedHotelDemo() {
         description: 'Continental breakfast with local specialties',
         foodType: 'Breakfast',
         statusId: 'Completed',
-        startDate: "12:34",
+        startDate: '12:34',
         endDate: '15:33',
       },
     });
@@ -226,8 +226,8 @@ export async function seedHotelDemo() {
     const hotelAvailability = await prisma.hotelAvailability.create({
       data: {
         hotelId: demoHotel.id,
-        checkInTime: new Date('2025-01-01'),
-        checkoutTime: new Date('2025-12-31'),
+        checkInTime: '01:00',
+        checkoutTime: '15:33',
         title: '',
         color: ''
       },
@@ -301,7 +301,7 @@ export async function seedHotelDemo() {
     console.log(`   - Блюдо: ${hotelFood.name}`);
     console.log(`   - Связанные кухни: ${cuisines.length}`);
     console.log(
-      `   - Доступность: ${hotelAvailability.checkInTime.toDateString()} - ${hotelAvailability.checkoutTime.toDateString()}`,
+      `   - Доступность: ${hotelAvailability.checkInTime} - ${hotelAvailability.checkoutTime}`,
     );
     console.log(`   - Цена комнаты: ${50000} AMD/ночь`);
     console.log(`   - Цена завтрака: ${5000} AMD/персона`);

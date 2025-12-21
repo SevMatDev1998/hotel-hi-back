@@ -788,8 +788,8 @@ model HotelAvailability {
 
   title          String   @db.VarChar(256)
   color          String   @db.VarChar(256)
-  checkInTime    DateTime
-  checkoutTime   DateTime
+  checkInTime    String
+  checkoutTime   String
   confirmed      Boolean  @default(false)
    
   createdAt DateTime @default(now())
