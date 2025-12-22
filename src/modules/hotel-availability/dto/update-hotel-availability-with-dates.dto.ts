@@ -87,7 +87,7 @@ export class UpdateHotelAvailabilityWithDatesDto {
     description: 'Дата начала действия availability',
     example: '2025-01-01T00:00:00.000Z',
   })
-  @IsDateString()
+  @IsString()
   @IsNotEmpty()
   checkInTime: string;
 
@@ -95,7 +95,7 @@ export class UpdateHotelAvailabilityWithDatesDto {
     description: 'Дата окончания действия availability',
     example: '2025-12-31T23:59:59.999Z',
   })
-  @IsDateString()
+  @IsString()
   @IsNotEmpty()
   checkoutTime: string;
 

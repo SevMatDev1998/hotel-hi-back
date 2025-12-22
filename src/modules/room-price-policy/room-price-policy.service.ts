@@ -503,4 +503,73 @@ export class RoomPricePolicyService {
 
     return hotelId;
   }
+
+  async toggleRoomPricePolicyStatus(
+    hotelAvailabilityId: number,
+    hotelRoomId: number,
+    isActive: boolean,
+  ) {
+    this.logger.log(
+      `Toggling price policy status for availability ID: ${hotelAvailabilityId}, room ID: ${hotelRoomId}, isActive: ${isActive}`,
+    );
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // Update HotelRoomPrice
+        await tx.hotelRoomPrice.updateMany({
+          where: {
+            hotelRoomId: hotelRoomId,
+            hotelAvailabilityId: hotelAvailabilityId,
+          },
+          data: {
+            isActive: isActive,
+            updatedAt: new Date(),
+          },
+        });
+
+        // Update HotelFoodPrice
+        await tx.hotelFoodPrice.updateMany({
+          where: {
+            hotelRoomId: hotelRoomId,
+            hotelAvailabilityId: hotelAvailabilityId,
+          },
+          data: {
+            isActive: isActive,
+            updatedAt: new Date(),
+          },
+        });
+
+        // Update HotelAdditionalService
+        await tx.hotelAdditionalService.updateMany({
+          where: {
+            hotelRoomId: hotelRoomId,
+            hotelAvailabilityId: hotelAvailabilityId,
+          },
+          data: {
+            isActive: isActive,
+            updatedAt: new Date(),
+          },
+        });
+
+        // Update HotelAgeAssignmentPrice
+        await tx.hotelAgeAssignmentPrice.updateMany({
+          where: {
+            hotelRoomId: hotelRoomId,
+          },
+          data: {
+            isActive: isActive,
+            updatedAt: new Date(),
+          },
+        });
+      });
+
+      return {
+        success: true,
+        message: `Price policy ${isActive ? 'activated' : 'deactivated'} successfully`,
+      };
+    } catch (error) {
+      this.logger.error('Error toggling price policy status:', error);
+      throw error;
+    }
+  }
 }

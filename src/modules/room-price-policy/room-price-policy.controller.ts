@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Put,
   Body,
   Param,
   ParseIntPipe,
@@ -123,6 +124,48 @@ export class RoomPricePolicyController {
     return this.roomPricePolicyService.getRoomPricePolicy(
       hotelAvailabilityId,
       roomId,
+    );
+  }
+
+  @Put(':hotelAvailabilityId/:roomId/deactivate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Deactivate room price policy',
+    description: 'Deactivates all price data for a room (sets isActive = false)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Price policy deactivated successfully',
+  })
+  async deactivateRoomPricePolicy(
+    @Param('hotelAvailabilityId', ParseIntPipe) hotelAvailabilityId: number,
+    @Param('roomId', ParseIntPipe) roomId: number,
+  ) {
+    return this.roomPricePolicyService.toggleRoomPricePolicyStatus(
+      hotelAvailabilityId,
+      roomId,
+      false,
+    );
+  }
+
+  @Put(':hotelAvailabilityId/:roomId/activate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Activate room price policy',
+    description: 'Activates all price data for a room (sets isActive = true)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Price policy activated successfully',
+  })
+  async activateRoomPricePolicy(
+    @Param('hotelAvailabilityId', ParseIntPipe) hotelAvailabilityId: number,
+    @Param('roomId', ParseIntPipe) roomId: number,
+  ) {
+    return this.roomPricePolicyService.toggleRoomPricePolicyStatus(
+      hotelAvailabilityId,
+      roomId,
+      true,
     );
   }
 }

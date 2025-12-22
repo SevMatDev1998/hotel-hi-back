@@ -530,6 +530,7 @@ model HotelRoomNumber {
     hotelRoomId          Int
     hotelAgeAssignmentId Int
     price                Decimal  @db.Decimal(18, 2)
+    isActive             Boolean  @default(true)
     createdAt            DateTime @default(now())
     updatedAt            DateTime @updatedAt
 
@@ -546,6 +547,7 @@ model HotelRoomPrice {
   price                Decimal  @db.Decimal(18, 2)
   dateFrom             DateTime
   dateTo               DateTime
+  isActive             Boolean  @default(true)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
@@ -632,6 +634,7 @@ model HotelAdditionalService {
   percentage          Float?
   notConstantValue    Boolean  @default(false)
   serviceName         String   @db.VarChar(256)
+  isActive            Boolean  @default(true)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -770,6 +773,7 @@ model HotelFoodPrice {
   hotelRoomId          Int?
   price                Decimal  @db.Decimal(18, 2)
   includedInPrice      Boolean?
+  isActive             Boolean  @default(true)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
  
