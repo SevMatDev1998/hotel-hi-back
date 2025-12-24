@@ -16,7 +16,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { HotelRoomPartBedsService } from './hotel-room-part-beds.service';
-import { CreateHotelRoomPartBedsDto } from './dto';
+import { CreateHotelRoomPartBedsDto, BatchUpdateHotelRoomPartBedsDto } from './dto';
 import { HotelRoomPartBed } from './entities';
 
 @ApiTags('Hotel Room Part Beds')
@@ -53,6 +53,35 @@ export class HotelRoomPartBedsController {
     @Body() createHotelRoomPartBedsDto: CreateHotelRoomPartBedsDto,
   ): Promise<HotelRoomPartBed[]> {
     return this.hotelRoomPartBedsService.create(createHotelRoomPartBedsDto);
+  }
+
+  @Put('/batch-edit')
+  @ApiOperation({
+    summary: 'Batch update bed configurations for multiple hotel room parts',
+    description:
+      'Updates bed configurations for multiple hotel room parts in a single request. This will replace any existing bed configurations for each room part.',
+  })
+  @ApiBody({
+    type: BatchUpdateHotelRoomPartBedsDto,
+    description: 'Batch bed configuration data',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Bed configurations updated successfully',
+    type: [HotelRoomPartBed],
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid input data',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Hotel room part, bed size, or bed type not found',
+  })
+  async batchUpdate(
+    @Body() batchUpdateDto: BatchUpdateHotelRoomPartBedsDto,
+  ): Promise<HotelRoomPartBed[]> {
+    return this.hotelRoomPartBedsService.batchUpdate(batchUpdateDto);
   }
 
   @Get('/:roomPartId')

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateHotelRoomPartBedsDto } from './dto';
+import { CreateHotelRoomPartBedsDto, BatchUpdateHotelRoomPartBedsDto } from './dto';
 import { HotelRoomPartBed } from '@prisma/client';
 
 @Injectable()
@@ -170,5 +170,31 @@ export class HotelRoomPartBedsService {
     await this.prisma.hotelRoomPartBed.deleteMany({
       where: { hotelRoomPartId },
     });
+  }
+
+  async batchUpdate(
+    batchUpdateDto: BatchUpdateHotelRoomPartBedsDto,
+  ): Promise<HotelRoomPartBed[]> {
+    try {
+      const allCreatedBeds: HotelRoomPartBed[] = [];
+
+      // Process each room part configuration
+      for (const roomPartBedConfig of batchUpdateDto.roomPartBeds) {
+        const createdBeds = await this.create(roomPartBedConfig);
+        allCreatedBeds.push(...createdBeds);
+      }
+
+      return allCreatedBeds;
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new BadRequestException(
+        'Failed to batch update hotel room part beds',
+      );
+    }
   }
 }

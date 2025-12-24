@@ -11,88 +11,6 @@ import { HotelRoomPart } from '@prisma/client';
 export class HotelRoomPartsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // async createRoomParts(
-  //   hotelRoomId: number,
-  //   createHotelRoomPartsDto: CreateHotelRoomPartsDto,
-  // ): Promise<HotelRoomPart[]> {
-  //   try {
-  //     // Validate that the hotel room exists
-  //     const hotelRoom = await this.prisma.hotelRoom.findUnique({
-  //       where: { id: hotelRoomId },
-  //     });
-
-  //     if (!hotelRoom) {
-  //       throw new NotFoundException(
-  //         `Hotel room with ID ${hotelRoomId} not found`,
-  //       );
-  //     }
-
-  //     // Validate that all room parts exist
-  //     const roomPartIds = createHotelRoomPartsDto.roomParts.map(
-  //       (rp) => rp.roomPartId,
-  //     );
-  //     const existingRoomParts = await this.prisma.roomPart.findMany({
-  //       where: { id: { in: roomPartIds } },
-  //     });
-
-  //     if (existingRoomParts.length !== roomPartIds.length) {
-  //       const foundIds = existingRoomParts.map((rp) => rp.id);
-  //       const missingIds = roomPartIds.filter((id) => !foundIds.includes(id));
-  //       throw new NotFoundException(
-  //         `Room part(s) with ID(s) ${missingIds.join(', ')} not found`,
-  //       );
-  //     }
-
-  //     // Delete existing room parts for this hotel room
-  //     await this.prisma.hotelRoomPart.deleteMany({
-  //       where: { hotelRoomId: hotelRoomId },
-  //     });
-
-  //     // Create individual records for each room part based on quantity
-  //     const roomPartsToCreate: Array<{
-  //       hotelRoomId: number;
-  //       roomPartId: number;
-  //     }> = [];
-
-  //     createHotelRoomPartsDto.roomParts.forEach((roomPartItem) => {
-  //       for (let i = 0; i < roomPartItem.quantity; i++) {
-  //         roomPartsToCreate.push({
-  //           hotelRoomId: hotelRoomId,
-  //           roomPartId: roomPartItem.roomPartId,
-  //         });
-  //       }
-  //     });
-
-  //     // Bulk create all room parts
-  //     await this.prisma.hotelRoomPart.createMany({
-  //       data: roomPartsToCreate,
-  //     });
-
-  //     // Return the created room parts with relations
-  //     const result = await this.prisma.hotelRoomPart.findMany({
-  //       where: { hotelRoomId: hotelRoomId },
-  //       include: {
-  //         roomPart: true,
-  //         hotelRoom: {
-  //           include: {
-  //             hotel: true,
-  //           },
-  //         },
-  //       },
-  //     });
-
-  //     return result;
-  //   } catch (error) {
-  //     console.log('Error in createRoomParts:', error);
-  //     if (
-  //       error instanceof NotFoundException ||
-  //       error instanceof BadRequestException
-  //     ) {
-  //       throw error;
-  //     }
-  //     throw new BadRequestException('Failed to create hotel room parts');
-  //   }
-  // }
   async createRoomParts(
     hotelRoomId: number,
     createHotelRoomPartsDto: CreateHotelRoomPartsDto,
@@ -126,35 +44,81 @@ export class HotelRoomPartsService {
         );
       }
 
-      // Удаляем все существующие части для данного номера
-      // Сначала удаляем связанные кровати
-      const existingPartIds = await this.prisma.hotelRoomPart.findMany({
+      // Получаем существующие части для данного номера
+      const existingHotelRoomParts = await this.prisma.hotelRoomPart.findMany({
         where: { hotelRoomId },
-        select: { id: true },
+        include: {
+          hotelRoomPartBeds: true,
+        },
       });
 
-      if (existingPartIds.length > 0) {
-        await this.prisma.hotelRoomPartBed.deleteMany({
-          where: { hotelRoomPartId: { in: existingPartIds.map((p) => p.id) } },
-        });
-
-        await this.prisma.hotelRoomPart.deleteMany({
-          where: { hotelRoomId },
-        });
+      // Создаём карту: roomPartId -> количество нужных частей
+      const desiredPartsMap = new Map<number, number>();
+      for (const rp of createHotelRoomPartsDto.roomParts) {
+        desiredPartsMap.set(rp.roomPartId, rp.quantity);
       }
 
-      // Создаём новые записи на основе quantity
+      // Создаём карту существующих: roomPartId -> массив HotelRoomPart
+      const existingPartsMap = new Map<number, typeof existingHotelRoomParts>();
+      for (const part of existingHotelRoomParts) {
+        const existing = existingPartsMap.get(part.roomPartId) || [];
+        existing.push(part);
+        existingPartsMap.set(part.roomPartId, existing);
+      }
+
+      // Определяем что удалить, что оставить, что добавить
+      const partsToDelete: number[] = [];
       const partsToCreate: { hotelRoomId: number; roomPartId: number }[] = [];
 
-      for (const roomPartItem of createHotelRoomPartsDto.roomParts) {
-        for (let i = 0; i < roomPartItem.quantity; i++) {
-          partsToCreate.push({
-            hotelRoomId,
-            roomPartId: roomPartItem.roomPartId,
+      // Проверяем каждый тип части
+      for (const [roomPartId, existingParts] of existingPartsMap) {
+        const desiredCount = desiredPartsMap.get(roomPartId) || 0;
+        const currentCount = existingParts.length;
+
+        if (desiredCount < currentCount) {
+          // Нужно удалить лишние (удаляем те, у которых НЕТ кроватей)
+          const sortedParts = [...existingParts].sort((a, b) => {
+            const aHasBeds = a.hotelRoomPartBeds && a.hotelRoomPartBeds.length > 0;
+            const bHasBeds = b.hotelRoomPartBeds && b.hotelRoomPartBeds.length > 0;
+            if (aHasBeds && !bHasBeds) return -1;
+            if (!aHasBeds && bHasBeds) return 1;
+            return 0;
           });
+          
+          const toDeleteCount = currentCount - desiredCount;
+          for (let i = 0; i < toDeleteCount; i++) {
+            partsToDelete.push(sortedParts[sortedParts.length - 1 - i].id);
+          }
+        } else if (desiredCount > currentCount) {
+          // Нужно добавить новые
+          const toAddCount = desiredCount - currentCount;
+          for (let i = 0; i < toAddCount; i++) {
+            partsToCreate.push({ hotelRoomId, roomPartId });
+          }
         }
       }
 
+      // Добавляем новые типы частей, которых еще нет
+      for (const [roomPartId, quantity] of desiredPartsMap) {
+        if (!existingPartsMap.has(roomPartId)) {
+          for (let i = 0; i < quantity; i++) {
+            partsToCreate.push({ hotelRoomId, roomPartId });
+          }
+        }
+      }
+
+      // Удаляем части, которые больше не нужны (вместе с кроватями)
+      if (partsToDelete.length > 0) {
+        await this.prisma.hotelRoomPartBed.deleteMany({
+          where: { hotelRoomPartId: { in: partsToDelete } },
+        });
+
+        await this.prisma.hotelRoomPart.deleteMany({
+          where: { id: { in: partsToDelete } },
+        });
+      }
+
+      // Создаём новые части
       if (partsToCreate.length > 0) {
         await this.prisma.hotelRoomPart.createMany({
           data: partsToCreate,
@@ -167,6 +131,12 @@ export class HotelRoomPartsService {
         include: {
           roomPart: true,
           hotelRoom: { include: { hotel: true } },
+          hotelRoomPartBeds: {
+            include: {
+              roomBedSize: true,
+              roomBedType: true,
+            },
+          },
         },
       });
 
@@ -186,7 +156,6 @@ export class HotelRoomPartsService {
 
   async getRoomPartsByHotelRoom(hotelRoomId: number): Promise<HotelRoomPart[]> {
     try {
-      console.log('hotelRoomId', hotelRoomId);
       const hotelRoom = await this.prisma.hotelRoom.findUnique({
         where: { id: hotelRoomId },
       });
