@@ -1,9 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { ServicePriceType } from '@prisma/client';
 import { HotelServicePriceService } from './hotel-service-price.service';
 
 interface CreateServicePriceDto {
   hotelServiceId: number;
   hotelAvailabilityId: number;
+  priceType: ServicePriceType; // HourlyRate | DailyRate | ByOrderRate
   price: number;
   dateFrom: string;
   dateTo: string;

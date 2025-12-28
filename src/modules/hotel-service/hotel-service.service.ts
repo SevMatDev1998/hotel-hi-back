@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CompletenessStatus, HotelService } from '@prisma/client';
+import { CompletenessStatus, HotelService, ServicePriceType } from '@prisma/client';
 
 interface PaidServiceItem {
   hotelServiceId: number;
@@ -14,6 +14,7 @@ interface PaidServiceItem {
   endHour: string | null;
   currentPrice: {
     id: number;
+    priceType: ServicePriceType;
     price: string;
     dateFrom: Date;
     dateTo: Date;
@@ -188,6 +189,7 @@ export class HotelServiceService {
             currentPrice: currentPrice
               ? {
                   id: currentPrice.id,
+                  priceType: currentPrice.priceType,
                   price: currentPrice.price.toString(),
                   dateFrom: currentPrice.dateFrom,
                   dateTo: currentPrice.dateTo,

@@ -98,6 +98,12 @@ enum ServicePayMethod {
   Day
 }
 
+enum ServicePriceType {
+  HourlyRate
+  DailyRate
+  ByOrderRate
+}
+
 enum ServiceTypeAvailabilityBy {
   Shared
   Room
@@ -664,14 +670,15 @@ model HotelServiceAvailability {
 }
 
 model HotelServicePrice {
-  id                   Int      @id @default(autoincrement())
+  id                   Int               @id @default(autoincrement())
   hotelServiceId       Int
-  hotelAvailabilityId  Int?     // Добавляем связь с HotelAvailability
-  price                Decimal  @db.Decimal(18, 2)
+  hotelAvailabilityId  Int?              // Добавляем связь с HotelAvailability
+  priceType            ServicePriceType
+  price                Decimal           @db.Decimal(18, 2)
   dateFrom             DateTime
   dateTo               DateTime
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
   hotelService      HotelService      @relation(fields: [hotelServiceId], references: [id])
   hotelAvailability HotelAvailability? @relation(fields: [hotelAvailabilityId], references: [id])

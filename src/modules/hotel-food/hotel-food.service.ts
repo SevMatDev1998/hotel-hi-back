@@ -114,7 +114,7 @@ export class HotelFoodService {
       FROM "HotelFoods" hf
       LEFT JOIN "HotelFoodCuisines" hfc ON hfc."hotelFoodId" = hf.id
       LEFT JOIN "HotelFoodOfferTypes" hfot ON hfot."hotelFoodId" = hf.id
-      WHERE hf."hotelId" = ${hotelId}
+      WHERE hf."hotelId" = ${hotelId} AND hf."isFoodAvailable" = true
       GROUP BY hf.id;
     `);
   }
