@@ -9,6 +9,7 @@ import {
   Delete,
   StreamableFile,
   Header,
+  Query,
 } from '@nestjs/common';
 import { Public } from '../auth/decorators/public.decorator';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -77,15 +78,20 @@ export class HotelAvailabilityController {
   @ApiResponse({ status: 404, description: 'Availability not found.' })
   async generatePdf(
     @Param('availabilityId', ParseIntPipe) availabilityId: number,
+    @Query('download') download?: string,
   ): Promise<StreamableFile> {
     const pdfBuffer =
       await this.hotelAvailabilityService.generateAvailabilityPdf(
         availabilityId,
       );
 
+    const disposition = download === 'true' 
+      ? `attachment; filename="availability-${availabilityId}.pdf"`
+      : `inline; filename="availability-${availabilityId}.pdf"`;
+
     return new StreamableFile(pdfBuffer, {
       type: 'application/pdf',
-      disposition: `inline; filename="availability-${availabilityId}.pdf"`,
+      disposition,
     });
   }
 
