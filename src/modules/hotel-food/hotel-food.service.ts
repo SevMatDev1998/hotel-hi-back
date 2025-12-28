@@ -100,7 +100,9 @@ export class HotelFoodService {
     return hotelFood;
   }
 
-  async findByHotel(hotelId: number) {
+  async findByHotel(hotelId: number, availableOnly: boolean = false) {
+    const availableFilter = availableOnly ? 'AND hf."isFoodAvailable" = true' : '';
+    
     return this.prisma.$queryRawUnsafe<any[]>(`
       SELECT 
         hf.id,
@@ -114,7 +116,7 @@ export class HotelFoodService {
       FROM "HotelFoods" hf
       LEFT JOIN "HotelFoodCuisines" hfc ON hfc."hotelFoodId" = hf.id
       LEFT JOIN "HotelFoodOfferTypes" hfot ON hfot."hotelFoodId" = hf.id
-      WHERE hf."hotelId" = ${hotelId} AND hf."isFoodAvailable" = true
+      WHERE hf."hotelId" = ${hotelId} ${availableFilter}
       GROUP BY hf.id;
     `);
   }

@@ -45,12 +45,16 @@ export class HotelFoodController {
 
   @Get('/hotel/:hotelId')
   @ApiOperation({ summary: 'Get all food services for a specific hotel' })
+  @ApiQuery({ name: 'availableOnly', required: false, type: Boolean })
   @ApiResponse({
     status: 200,
     description: 'Hotel food services retrieved successfully.',
   })
-  findByHotel(@Param('hotelId', ParseIntPipe) hotelId: number) {
-    return this.hotelFoodService.findByHotel(hotelId);
+  findByHotel(
+    @Param('hotelId', ParseIntPipe) hotelId: number,
+    @Query('availableOnly') availableOnly?: string,
+  ) {
+    return this.hotelFoodService.findByHotel(hotelId, availableOnly === 'true');
   }
 
   @Get(':id')
