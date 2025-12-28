@@ -6,6 +6,10 @@ import { HotelAvailability } from '@prisma/client';
 import { HotelAgeAssignmentService } from '../hotel-age-assignment/hotel-age-assignment.service';
 import { UpdateHotelAvailabilityListDto } from './dto/update-hotel-availability-with-dates.dto';
 import { generateRandomColor } from '../../common/utils/color.util';
+import * as puppeteer from 'puppeteer';
+import * as Handlebars from 'handlebars';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class HotelAvailabilityService {
@@ -369,5 +373,319 @@ export class HotelAvailabilityService {
       console.error('Error deleting dates batch:', error);
       throw error;
     }
+  }
+
+  async copyAvailability(
+    availabilityId: number,
+  ): Promise<HotelAvailability> {
+    try {
+      // 1️⃣ Получаем оригинальный availability со всеми связями
+      const original = await this.prisma.hotelAvailability.findUnique({
+        where: { id: availabilityId },
+        include: {
+          hotelAgeAssignments: true,
+          hotelRoomPrices: true,
+          hotelServicePrices: true,
+          hotelFoodPrices: true,
+          hotelAdditionalServices: true,
+        },
+      });
+
+      if (!original) {
+        throw new Error(
+          `Hotel availability with ID ${availabilityId} not found`,
+        );
+      }
+
+      // 2️⃣ Создаем копию в транзакции
+      return await this.prisma.$transaction(async (tx) => {
+        // Создаем новый availability с "(Copy)" в названии
+        const newAvailability = await tx.hotelAvailability.create({
+          data: {
+            hotelId: original.hotelId,
+            title: `${original.title} (Copy)`,
+            color: generateRandomColor(),
+            checkInTime: original.checkInTime,
+            checkoutTime: original.checkoutTime,
+            confirmed: false,
+          },
+        });
+
+        // 3️⃣ Копируем hotelAgeAssignments
+        if (original.hotelAgeAssignments.length > 0) {
+          await tx.hotelAgeAssignment.createMany({
+            data: original.hotelAgeAssignments.map((assignment) => ({
+              hotelAvailabilityId: newAvailability.id,
+              name: assignment.name,
+              fromAge: assignment.fromAge,
+              toAge: assignment.toAge,
+              bedType: assignment.bedType,
+              isAdditional: assignment.isAdditional,
+            })),
+          });
+        }
+
+        // 4️⃣ Копируем hotelRoomPrices
+        if (original.hotelRoomPrices.length > 0) {
+          await tx.hotelRoomPrice.createMany({
+            data: original.hotelRoomPrices.map((price) => ({
+              hotelAvailabilityId: newAvailability.id,
+              hotelRoomId: price.hotelRoomId,
+              price: price.price,
+              dateFrom: price.dateFrom,
+              dateTo: price.dateTo,
+              isActive: price.isActive,
+            })),
+          });
+        }
+
+        // 5️⃣ Копируем hotelServicePrices
+        if (original.hotelServicePrices.length > 0) {
+          await tx.hotelServicePrice.createMany({
+            data: original.hotelServicePrices.map((price) => ({
+              hotelAvailabilityId: newAvailability.id,
+              hotelServiceId: price.hotelServiceId,
+              priceType: price.priceType,
+              price: price.price,
+              dateFrom: price.dateFrom,
+              dateTo: price.dateTo,
+            })),
+          });
+        }
+
+        // 6️⃣ Копируем hotelFoodPrices
+        if (original.hotelFoodPrices.length > 0) {
+          await tx.hotelFoodPrice.createMany({
+            data: original.hotelFoodPrices.map((price) => ({
+              hotelAvailabilityId: newAvailability.id,
+              hotelAgeAssignmentId: price.hotelAgeAssignmentId,
+              hotelFoodId: price.hotelFoodId,
+              hotelRoomId: price.hotelRoomId,
+              price: price.price,
+              includedInPrice: price.includedInPrice,
+              isActive: price.isActive,
+            })),
+          });
+        }
+
+        // 7️⃣ Копируем hotelAdditionalServices
+        if (original.hotelAdditionalServices.length > 0) {
+          await tx.hotelAdditionalService.createMany({
+            data: original.hotelAdditionalServices.map((service) => ({
+              hotelAvailabilityId: newAvailability.id,
+              hotelServiceId: service.hotelServiceId,
+              hotelRoomId: service.hotelRoomId,
+              isTimeLimited: service.isTimeLimited,
+              price: service.price,
+              startTime: service.startTime,
+              percentage: service.percentage,
+              notConstantValue: service.notConstantValue,
+              serviceName: service.serviceName,
+              isActive: service.isActive,
+            })),
+          });
+        }
+
+        // 8️⃣ Возвращаем новый availability
+        return newAvailability;
+      });
+    } catch (error) {
+      console.error('Error copying hotel availability:', error);
+      throw error;
+    }
+  }
+
+  async generateAvailabilityPdf(availabilityId: number): Promise<Buffer> {
+    try {
+      // 1️⃣ Получаем данные availability с полной информацией
+      const availability = await this.findDetailById(availabilityId);
+
+      if (!availability) {
+        throw new Error(
+          `Hotel availability with ID ${availabilityId} not found`,
+        );
+      }
+
+      // 2️⃣ Подготавливаем данные для шаблона
+      const templateData = this.prepareTemplateData(availability);
+
+      // 3️⃣ Загружаем и компилируем Handlebars шаблон
+      // Используем путь относительно корня проекта (process.cwd())
+      const templatePath = path.join(
+        process.cwd(),
+        'src',
+        'modules',
+        'hotel-availability',
+        'templates',
+        'availability-pdf.hbs',
+      );
+      const templateSource = fs.readFileSync(templatePath, 'utf-8');
+      const template = Handlebars.compile(templateSource);
+      const html = template(templateData);
+
+      // 4️⃣ Генерируем PDF через Puppeteer
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px',
+        },
+      });
+
+      await browser.close();
+
+      return Buffer.from(pdfBuffer);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  }
+
+  private prepareTemplateData(availability: any) {
+    const formatTime = (date: string) => {
+      return new Date(date).toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    };
+
+    const formatDate = (date: string) => {
+      return new Date(date).toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      });
+    };
+
+    // Подготовка данных комнат
+    const rooms = availability.hotel?.hotelRooms?.map((room: any) => {
+      const roomPrice = availability.hotelRoomPrices?.find(
+        (rp: any) => rp.hotelRoomId === room.id,
+      );
+
+      const roomFoodPrices = availability.hotelFoodPrices
+        ?.filter((fp: any) => fp.hotelRoomId === room.id)
+        ?.map((fp: any) => ({
+          foodType: fp.hotelFood.foodType,
+          offerTypes:
+            fp.hotelFood.hotelFoodOfferTypes
+              ?.map((o: any) => o.offerType.name)
+              .join(', ') || '-',
+          cuisines:
+            fp.hotelFood.hotelFoodCuisines
+              ?.map((c: any) => c.cuisine.name)
+              .join(', ') || '-',
+          times: `${fp.hotelFood.startDate}-${fp.hotelFood.endDate}`,
+        }));
+
+      const roomAdditionalServices = availability.hotelAdditionalServices
+        ?.filter((as: any) => as.hotelRoomId === room.id)
+        ?.map((service: any) => ({
+          serviceName: service.serviceName,
+          serviceType: service.hotelService.service.name,
+          isTimeLimited: service.isTimeLimited,
+          startTime: service.startTime
+            ? formatTime(service.startTime)
+            : null,
+          price: service.price ? Number(service.price).toFixed(2) : null,
+          percentage: service.percentage,
+        }));
+
+      const beds = room.hotelRoomParts?.map((part: any) => ({
+        partName: part.roomPart.name,
+        bedDetails: part.hotelRoomPartBeds?.map((bed: any) => ({
+          quantity: bed.quantity,
+          bedType: bed.roomBedType.name,
+          bedSize: bed.roomBedSize.name,
+        })),
+      }));
+
+      const ageAssignmentPrices = room.hotelAgeAssignmentPrice?.map(
+        (aap: any) => ({
+          ageRange: `${aap.hotelAgeAssignment.fromAge}-${aap.hotelAgeAssignment.toAge}`,
+          price: Number(aap.price).toFixed(2),
+        }),
+      );
+
+      return {
+        name: room.name,
+        area: room.area,
+        roomClass: room.roomClass.name,
+        roomView: room.roomView?.name,
+        mainGuestQuantity: room.mainGuestQuantity,
+        additionalGuestQuantity: room.additionalGuestQuantity,
+        price: roomPrice ? Number(roomPrice.price).toFixed(2) : null,
+        beds,
+        ageAssignmentPrices,
+        foodPrices: roomFoodPrices,
+        additionalServices: roomAdditionalServices,
+      };
+    });
+
+    // Общие данные
+    const servicePrices = availability.hotelServicePrices?.map(
+      (sp: any) => ({
+        serviceName: sp.hotelService.service.name,
+        price: Number(sp.price).toFixed(2),
+        dateRange: `${formatDate(sp.dateFrom)} - ${formatDate(sp.dateTo)}`,
+      }),
+    );
+
+    const generalFoodPrices = availability.hotelFoodPrices
+      ?.filter((fp: any) => !fp.hotelRoomId)
+      ?.map((fp: any) => ({
+        foodType: fp.hotelFood.foodType,
+        offerTypes:
+          fp.hotelFood.hotelFoodOfferTypes
+            ?.map((o: any) => o.offerType.name)
+            .join(', ') || '-',
+        cuisines:
+          fp.hotelFood.hotelFoodCuisines
+            ?.map((c: any) => c.cuisine.name)
+            .join(', ') || '-',
+        times: `${fp.hotelFood.startDate}-${fp.hotelFood.endDate}`,
+      }));
+
+    const generalAdditionalServices = availability.hotelAdditionalServices
+      ?.filter((as: any) => !as.hotelRoomId)
+      ?.map((service: any) => ({
+        serviceName: service.serviceName,
+        serviceType: service.hotelService.service.name,
+        isTimeLimited: service.isTimeLimited,
+        startTime: service.startTime ? formatTime(service.startTime) : null,
+        price: service.price ? Number(service.price).toFixed(2) : null,
+        percentage: service.percentage,
+      }));
+
+    return {
+      title: availability.title,
+      dateRange: `${formatDate(availability.checkInTime)} - ${formatDate(availability.checkoutTime)}`,
+      infoText:
+        'Հյուրանոցի հիմնական արժեքները սահմանվում են սենյակների և ծառայությունների համար որոշակի ժամկետով։',
+      hotelName: availability.hotel?.name || 'Hotel',
+      checkInTime: formatTime(availability.checkInTime),
+      checkoutTime: formatTime(availability.checkoutTime),
+      rooms,
+      generalServices:
+        servicePrices?.length ||
+        generalFoodPrices?.length ||
+        generalAdditionalServices?.length,
+      servicePrices,
+      generalFoodPrices,
+      generalAdditionalServices,
+      createdDate: formatDate(new Date().toISOString()),
+      hotelAddress: availability.hotel?.address || '',
+    };
   }
 }
