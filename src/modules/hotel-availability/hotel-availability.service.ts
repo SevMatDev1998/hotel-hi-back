@@ -508,7 +508,7 @@ export class HotelAvailabilityService {
 
       // 2️⃣ Подготавливаем данные для шаблона
       const templateData = this.prepareTemplateData(availability);
-
+      
       // 3️⃣ Загружаем и компилируем Handlebars шаблон
       // Используем путь относительно корня проекта (process.cwd())
       const templatePath = path.join(
@@ -674,8 +674,8 @@ export class HotelAvailabilityService {
       infoText:
         'Հյուրանոցի հիմնական արժեքները սահմանվում են սենյակների և ծառայությունների համար որոշակի ժամկետով։',
       hotelName: availability.hotel?.name || 'Hotel',
-      checkInTime: formatTime(availability.checkInTime),
-      checkoutTime: formatTime(availability.checkoutTime),
+      checkInTime: availability.checkInTime,
+      checkoutTime:availability.checkoutTime,
       rooms,
       generalServices:
         servicePrices?.length ||

@@ -1,286 +1,160 @@
 <!DOCTYPE html>
 <html lang="hy">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{title}}</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      line-height: 1.4;
-      color: #333;
-      padding: 20px;
-    }
-    
-    .header {
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #e5e7eb;
-    }
-    
-    .header-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    
-    .header-title h1 {
-      font-size: 18px;
-      font-weight: bold;
-    }
-    
-    .download-btn {
-      background-color: #3b82f6;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 11px;
-      border: none;
-    }
-    
-    .date-range {
-      font-size: 13px;
-      color: #6b7280;
-      margin-top: 8px;
-    }
-    
-    .info-text {
-      background-color: #f3f4f6;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 11px;
-      line-height: 1.6;
-      color: #4b5563;
-    }
-    
-    .hotel-info {
-      background-color: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-    
-    .hotel-info h3 {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-    
-    .hotel-details {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    
-    .detail-label {
-      color: #6b7280;
-      font-size: 11px;
-    }
-    
-    .detail-value {
-      font-weight: 500;
-      font-size: 11px;
-    }
-    
-    .section {
-      margin-bottom: 25px;
-      page-break-inside: avoid;
-    }
-    
-    .section-title {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #e5e7eb;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 15px;
-      font-size: 10px;
-    }
-    
-    table th {
-      background-color: #f3f4f6;
-      padding: 8px;
-      text-align: left;
-      font-weight: 600;
-      border: 1px solid #e5e7eb;
-      font-size: 10px;
-    }
-    
-    table td {
-      padding: 8px;
-      border: 1px solid #e5e7eb;
-    }
-    
-    .room-section {
-      background-color: #f9fafb;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      page-break-inside: avoid;
-    }
-    
-    .room-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #e5e7eb;
-    }
-    
-    .room-name {
-      font-size: 14px;
-      font-weight: bold;
-    }
-    
-    .room-area {
-      font-size: 11px;
-      color: #6b7280;
-    }
-    
-    .room-info-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    
-    .room-info-item {
-      font-size: 10px;
-    }
-    
-    .room-info-label {
-      color: #6b7280;
-    }
-    
-    .room-info-value {
-      font-weight: 500;
-    }
-    
-    .room-price-box {
-      background-color: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 12px;
-      margin: 10px 0;
-    }
-    
-    .price-label {
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    
-    .price-value {
-      font-size: 20px;
-      font-weight: bold;
-      color: #3b82f6;
-    }
-    
-    .bed-section {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #e5e7eb;
-    }
-    
-    .bed-section h5 {
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    
-    .bed-item {
-      margin-left: 12px;
-      padding-left: 10px;
-      border-left: 2px solid #3b82f6;
-      margin-bottom: 8px;
-    }
-    
-    .bed-part-name {
-      font-size: 10px;
-      font-weight: 500;
-      color: #3b82f6;
-      margin-bottom: 4px;
-    }
-    
-    .bed-detail {
-      font-size: 9px;
-      color: #6b7280;
-      margin-left: 5px;
-    }
-    
-    .service-item {
-      padding: 10px;
-      border-left: 4px solid #f97316;
-      background-color: white;
-      margin-bottom: 10px;
-      border-radius: 4px;
-    }
-    
-    .service-name {
-      font-weight: 600;
-      font-size: 11px;
-      margin-bottom: 4px;
-    }
-    
-    .service-detail {
-      font-size: 9px;
-      color: #6b7280;
-    }
-    
-    .service-price {
-      font-size: 14px;
-      font-weight: bold;
-      color: #f97316;
-      margin-top: 6px;
-    }
-    
-    .footer {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 2px solid #e5e7eb;
-      font-size: 9px;
-      color: #6b7280;
-      text-align: center;
-    }
-    
-    @media print {
-      body {
-        padding: 15px;
-      }
-      
-      .room-section {
-        page-break-inside: avoid;
-      }
-      
-      .section {
-        page-break-inside: avoid;
-      }
-    }
-  </style>
 </head>
+
+<body
+  style="margin: 0; box-sizing: border-box; font-family: Arial, sans-serif; font-size: 10px; line-height: 1.4; color: #545454;">
+  <div style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; border-radius:10px">
+    <div>
+      <p>Ժամը մուտք</p>
+    </div>
+    <div>
+      <span>{{checkInTime}}</span>
+      <span>{{checkoutTime}}</span>
+    </div>
+  </div>
+
+  <div style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;">
+      <p>Ժամը մուտք</p>
+      <span>{{checkInTime}}</span>
+    </div>
+  </div>
+  <div style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;">
+      <p>Ժամը մուտք</p>
+      <span>{{checkoutTime}}</span>
+    </div>
+  </div>
+
+  {{#if rooms}}
+    <div style="margin-top: 25px; page-break-inside: avoid;">
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
+        <thead>
+          <tr>
+            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">senyakner</th>
+            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">makeres</th>
+            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">qanak</th>
+            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">himanakan</th>
+            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">havelyal</th>
+            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">ororoc</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each rooms}}
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{name}}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{area}}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{mainGuestQuantity}}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{additionalGuestQuantity}}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{additionalInfo}}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{beds}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  {{/if}}
+
+  {{#if generalServices}}
+  <div style="margin-bottom: 25px; page-break-inside: avoid;">
+    <h3
+      style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
+      Ընդհանուր տվյալներ</h3>
+
+    {{#if servicePrices}}
+    <h4 style="margin: 0 0 10px 0; font-size: 12px;">Ծառայությունների գներ</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
+      <thead>
+        <tr>
+          <th
+            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
+            Ծառայություն</th>
+          <th
+            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
+            Գին</th>
+          <th
+            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
+            Ժամանակահատված</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each servicePrices}}
+        <tr>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{serviceName}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{price}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{dateRange}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/if}}
+
+    {{#if generalFoodPrices}}
+    <h4 style="margin: 15px 0 10px; font-size: 12px;">Ընդհանուր սնունդ</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
+      <thead>
+        <tr>
+          <th
+            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
+            Տեսակ</th>
+          <th
+            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
+            Առաջարկի տեսակներ</th>
+          <th
+            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
+            Խոհանոց</th>
+          <th
+            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
+            Ժամեր</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each generalFoodPrices}}
+        <tr>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{foodType}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{offerTypes}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{cuisines}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{times}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/if}}
+
+    {{#if generalAdditionalServices}}
+    <h4 style="margin: 15px 0 10px; font-size: 12px;">Ընդհանուր լրացուցիչ ծառայություններ</h4>
+    {{#each generalAdditionalServices}}
+    <div
+      style="padding: 10px; border-left: 4px solid #f97316; background-color: white; margin-bottom: 10px; border-radius: 4px;">
+      <div style="font-weight: 600; font-size: 11px; margin-bottom: 4px;">{{serviceName}}</div>
+      <div style="font-size: 9px; color: #6b7280;">{{serviceType}}</div>
+      {{#if isTimeLimited}}
+      <div style="font-size: 9px; color: #6b7280;">Ժամանակային սահմանափակում: {{startTime}}</div>
+      {{/if}}
+      {{#if price}}
+      <div style="font-size: 14px; font-weight: bold; color: #f97316; margin-top: 6px;">{{price}}</div>
+      {{/if}}
+      {{#if percentage}}
+      <div style="font-size: 14px; font-weight: bold; color: #f97316; margin-top: 6px;">{{percentage}}%</div>
+      {{/if}}
+    </div>
+    {{/each}}
+    {{/if}}
+  </div>
+  {{/if}}
+
+  <div
+    style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb; font-size: 9px; color: #6b7280; text-align: center;">
+    Ստեղծված {{createdDate}} | {{hotelAddress}}
+  </div>
+</body>
+
+</html>
+
 <body>
   <div class="header">
     <div class="header-title">
@@ -288,13 +162,13 @@
     </div>
     <div class="date-range">{{dateRange}}</div>
   </div>
-  
+
   {{#if infoText}}
   <div class="info-text">
     {{infoText}}
   </div>
   {{/if}}
-  
+
   <div class="hotel-info">
     <h3>{{hotelName}}</h3>
     <div class="hotel-details">
@@ -308,7 +182,7 @@
       </div>
     </div>
   </div>
-  
+
   {{#if rooms}}
   {{#each rooms}}
   <div class="room-section">
@@ -316,7 +190,7 @@
       <span class="room-name">{{name}}</span>
       <span class="room-area">{{area}} քմ</span>
     </div>
-    
+
     <div class="room-info-grid">
       <div class="room-info-item">
         <span class="room-info-label">Սենյակի դաս: </span>
@@ -337,14 +211,14 @@
         <span class="room-info-value">{{additionalGuestQuantity}}</span>
       </div>
     </div>
-    
+
     {{#if price}}
     <div class="room-price-box">
       <div class="price-label">Սենյակի գին</div>
       <div class="price-value">{{price}}</div>
     </div>
     {{/if}}
-    
+
     {{#if beds}}
     <div class="bed-section">
       <h5>Սենյակի մասեր</h5>
@@ -358,7 +232,7 @@
       {{/each}}
     </div>
     {{/if}}
-    
+
     {{#if ageAssignmentPrices}}
     <div class="section">
       <table>
@@ -379,7 +253,7 @@
       </table>
     </div>
     {{/if}}
-    
+
     {{#if foodPrices}}
     <div class="section">
       <h4 style="font-size: 12px; margin-bottom: 10px;">Սնունդ</h4>
@@ -405,7 +279,7 @@
       </table>
     </div>
     {{/if}}
-    
+
     {{#if additionalServices}}
     <div class="section">
       <h4 style="font-size: 12px; margin-bottom: 10px;">Լրացուցիչ ծառայություններ</h4>
@@ -429,11 +303,11 @@
   </div>
   {{/each}}
   {{/if}}
-  
+
   {{#if generalServices}}
   <div class="section">
     <h3 class="section-title">Ընդհանուր տվյալներ</h3>
-    
+
     {{#if servicePrices}}
     <h4 style="font-size: 12px; margin-bottom: 10px;">Ծառայությունների գներ</h4>
     <table>
@@ -455,7 +329,7 @@
       </tbody>
     </table>
     {{/if}}
-    
+
     {{#if generalFoodPrices}}
     <h4 style="font-size: 12px; margin: 15px 0 10px;">Ընդհանուր սնունդ</h4>
     <table>
@@ -479,7 +353,7 @@
       </tbody>
     </table>
     {{/if}}
-    
+
     {{#if generalAdditionalServices}}
     <h4 style="font-size: 12px; margin: 15px 0 10px;">Ընդհանուր լրացուցիչ ծառայություններ</h4>
     {{#each generalAdditionalServices}}
@@ -500,9 +374,10 @@
     {{/if}}
   </div>
   {{/if}}
-  
+
   <div class="footer">
     Ստեղծված {{createdDate}} | {{hotelAddress}}
   </div>
 </body>
+
 </html>
