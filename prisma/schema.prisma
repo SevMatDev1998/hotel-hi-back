@@ -550,6 +550,7 @@ model HotelRoomPrice {
   id                   Int      @id @default(autoincrement())
   hotelRoomId          Int
   hotelAvailabilityId  Int?     // Добавляем связь с HotelAvailability
+  guestCount           Int      @default(1) // Количество гостей (1, 2, 3, 4, 5...)
   price                Decimal  @db.Decimal(18, 2)
   dateFrom             DateTime
   dateTo               DateTime
@@ -560,6 +561,7 @@ model HotelRoomPrice {
   hotelRoom         HotelRoom         @relation(fields: [hotelRoomId], references: [id])
   hotelAvailability HotelAvailability? @relation(fields: [hotelAvailabilityId], references: [id])
 
+  @@unique([hotelRoomId, hotelAvailabilityId, guestCount])
   @@map("HotelRoomPrices")
 }
 

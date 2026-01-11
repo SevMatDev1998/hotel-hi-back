@@ -6,6 +6,7 @@ import { HotelRoomPriceService } from '../hotel-room-price/hotel-room-price.serv
 import { HotelAdditionalServiceService } from '../hotel-additional-service/hotel-additional-service.service';
 import { HotelServiceService } from '../hotel-service/hotel-service.service';
 import { HotelAgeAssignmentPriceService } from '../hotel-age-assignment-price/hotel-age-assignment-price.service';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class RoomPricePolicyService {
@@ -100,16 +101,36 @@ export class RoomPricePolicyService {
           `Created ${createdFoodPrices.length} food price records`,
         );
 
-        // Создаем или обновляем room price используя сервис
-        const createdRoomPrice =
-          await this.hotelRoomPriceService.createOrUpdate(tx, {
-            hotelRoomId: dto.roomPrice.hotelRoomId,
-            hotelAvailabilityId: dto.roomPrice.hotelAvailabilityId,
-            price: dto.roomPrice.price,
-          });
+        // Сначала удаляем ВСЕ старые цены для этой комнаты
+        await tx.hotelRoomPrice.deleteMany({
+          where: {
+            hotelRoomId: dto.roomPrices[0]?.hotelRoomId,
+            hotelAvailabilityId: dto.hotelAvailabilityId,
+          },
+        });
 
         this.logger.log(
-          `Created room price record for room ID: ${dto.roomPrice.hotelRoomId}`,
+          `Deleted old room prices for room ID: ${dto.roomPrices[0]?.hotelRoomId}`,
+        );
+
+        // Создаем новые room prices
+        const createdRoomPrices = await Promise.all(
+          dto.roomPrices.map((roomPrice) =>
+            tx.hotelRoomPrice.create({
+              data: {
+                hotelRoomId: roomPrice.hotelRoomId,
+                hotelAvailabilityId: roomPrice.hotelAvailabilityId,
+                guestCount: roomPrice.guestCount,
+                price: new Decimal(roomPrice.price),
+                dateFrom: new Date(),
+                dateTo: new Date(),
+              },
+            }),
+          ),
+        );
+
+        this.logger.log(
+          `Created ${createdRoomPrices.length} room price records`,
         );
 
         const createdAgeAssignmentPrices =
@@ -187,7 +208,7 @@ export class RoomPricePolicyService {
 
         return {
           foodPrices: createdFoodPrices,
-          roomPrice: createdRoomPrice,
+          roomPrices: createdRoomPrices,
           ageAssignmentPrices: createdAgeAssignmentPrices,
           arrivalDepartureServices: arrivalDepartureServices,
           otherServices: otherServices,
@@ -204,7 +225,7 @@ export class RoomPricePolicyService {
         data: {
           hotelAvailabilityId: dto.hotelAvailabilityId,
           createdFoodPrices: result.foodPrices.length,
-          createdRoomPrice: 1,
+          createdRoomPrices: result.roomPrices.length,
           createdAgeAssignmentPrices: result.ageAssignmentPrices.length,
           createdAdditionalServices:
             result.arrivalDepartureServices.length +
@@ -260,11 +281,14 @@ export class RoomPricePolicyService {
         },
       });
 
-      // Получаем room price
-      const roomPrice = await this.prisma.hotelRoomPrice.findFirst({
+      // Получаем room prices
+      const roomPrices = await this.prisma.hotelRoomPrice.findMany({
         where: {
           hotelRoomId: hotelRoomId,
           hotelAvailabilityId: hotelAvailabilityId,
+        },
+        orderBy: {
+          guestCount: 'asc',
         },
       });
 
@@ -330,7 +354,7 @@ export class RoomPricePolicyService {
           hotelAvailabilityId,
           hotelRoomId,
           foodPrices,
-          roomPrice,
+          roomPrices,
           ageAssignmentPrices,
           arrivalDepartureServices,
           otherServices,
@@ -373,11 +397,11 @@ export class RoomPricePolicyService {
     const hotelId = hotelAvailability.hotelId;
 
     const hotelRoom = await this.prisma.hotelRoom.findUnique({
-      where: { id: dto.roomPrice.hotelRoomId },
+      where: { id: dto.roomPrices[0]?.hotelRoomId },
     });
 
     if (!hotelRoom) {
-      errors.push(`Hotel room with id ${dto.roomPrice.hotelRoomId} not found`);
+      errors.push(`Hotel room with id ${dto.roomPrices[0]?.hotelRoomId} not found`);
     }
 
     const hotelFoodIds = dto.foodPrices.map((fp) => fp.hotelFoodId);
@@ -489,8 +513,14 @@ export class RoomPricePolicyService {
       errors.push('Price must be greater than or equal to 0');
     }
 
-    if (dto.roomPrice.price < 0) {
+    const invalidRoomPrices = dto.roomPrices.filter((rp) => rp.price < 0);
+    if (invalidRoomPrices.length > 0) {
       errors.push('Room price must be greater than or equal to 0');
+    }
+
+    const invalidGuestCounts = dto.roomPrices.filter((rp) => rp.guestCount < 1);
+    if (invalidGuestCounts.length > 0) {
+      errors.push('Guest count must be greater than 0');
     }
 
     if (errors.length > 0) {

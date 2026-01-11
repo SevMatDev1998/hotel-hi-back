@@ -9,6 +9,10 @@ export class CreateHotelRoomPriceDto {
   @IsPositive()
   hotelAvailabilityId: number;
 
+  @IsInt()
+  @IsPositive()
+  guestCount: number;
+
   @IsNumber()
   @Min(0)
   price: number;

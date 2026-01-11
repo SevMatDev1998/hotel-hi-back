@@ -26,12 +26,13 @@ export class CreateRoomPricePolicyDto {
   foodPrices: CreateHotelFoodPriceDto[];
 
   @ApiProperty({
-    description: 'Room price configuration',
-    type: CreateHotelRoomPriceDto,
+    description: 'Array of room prices for different guest counts',
+    type: [CreateHotelRoomPriceDto],
   })
-  @ValidateNested()
+  @IsArray()
+  @ValidateNested({ each: true })
   @Type(() => CreateHotelRoomPriceDto)
-  roomPrice: CreateHotelRoomPriceDto;
+  roomPrices: CreateHotelRoomPriceDto[];
 
   @ApiProperty({
     description: 'Array of arrival/departure services',

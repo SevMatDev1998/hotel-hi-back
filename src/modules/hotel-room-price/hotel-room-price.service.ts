@@ -13,6 +13,7 @@ export class HotelRoomPriceService {
       data: {
         hotelRoomId: createHotelRoomPriceDto.hotelRoomId,
         hotelAvailabilityId: createHotelRoomPriceDto.hotelAvailabilityId,
+        guestCount: createHotelRoomPriceDto.guestCount,
         price: new Decimal(createHotelRoomPriceDto.price),
         dateFrom: new Date(),
         dateTo: new Date(),
@@ -28,6 +29,7 @@ export class HotelRoomPriceService {
       data: {
         hotelRoomId: createHotelRoomPriceDto.hotelRoomId,
         hotelAvailabilityId: createHotelRoomPriceDto.hotelAvailabilityId,
+        guestCount: createHotelRoomPriceDto.guestCount,
         price: new Decimal(createHotelRoomPriceDto.price),
         dateFrom: new Date(),
         dateTo: new Date(),
@@ -39,11 +41,12 @@ export class HotelRoomPriceService {
     tx: Prisma.TransactionClient,
     createHotelRoomPriceDto: CreateHotelRoomPriceDto,
   ) {
-    // Сначала удаляем существующую запись
+    // Сначала удаляем существующую запись для этого guestCount
     await tx.hotelRoomPrice.deleteMany({
       where: {
         hotelRoomId: createHotelRoomPriceDto.hotelRoomId,
         hotelAvailabilityId: createHotelRoomPriceDto.hotelAvailabilityId,
+        guestCount: createHotelRoomPriceDto.guestCount,
       },
     });
 
@@ -52,6 +55,7 @@ export class HotelRoomPriceService {
       data: {
         hotelRoomId: createHotelRoomPriceDto.hotelRoomId,
         hotelAvailabilityId: createHotelRoomPriceDto.hotelAvailabilityId,
+        guestCount: createHotelRoomPriceDto.guestCount,
         price: new Decimal(createHotelRoomPriceDto.price),
         dateFrom: new Date(),
         dateTo: new Date(),

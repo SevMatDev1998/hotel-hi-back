@@ -19,6 +19,14 @@ export class CreateHotelRoomPriceDto {
   hotelAvailabilityId: number;
 
   @ApiProperty({
+    description: 'Number of guests',
+    example: 1,
+  })
+  @IsInt()
+  @IsPositive()
+  guestCount: number;
+
+  @ApiProperty({
     description: 'Room price',
     example: 50000,
   })

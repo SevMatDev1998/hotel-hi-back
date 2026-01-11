@@ -584,9 +584,14 @@ export class HotelAvailabilityService {
 
     // Подготовка данных комнат
     const rooms = availability.hotel?.hotelRooms?.map((room: any) => {
-      const roomPrice = availability.hotelRoomPrices?.find(
-        (rp: any) => rp.hotelRoomId === room.id,
-      );
+      // Получаем ВСЕ цены для этой комнаты
+      const roomPrices = availability.hotelRoomPrices
+        ?.filter((rp: any) => rp.hotelRoomId === room.id)
+        ?.map((rp: any) => ({
+          guestCount: rp.guestCount,
+          price: Number(rp.price).toFixed(2),
+        }))
+        ?.sort((a: any, b: any) => a.guestCount - b.guestCount) || [];
 
       // Подготовка данных питания для комнаты с возрастными диапазонами
       const foodTypesMap = new Map();
@@ -666,7 +671,7 @@ export class HotelAvailabilityService {
         roomNumberQuantity: room.roomNumberQuantity,
         mainGuestQuantity: room.mainGuestQuantity,
         additionalGuestQuantity: room.additionalGuestQuantity,
-        price: roomPrice ? Number(roomPrice.price).toFixed(2) : null,
+        roomPrices, // Массив цен по количеству гостей
         beds,
         hasCradle,
         ageAssignmentPrices,
