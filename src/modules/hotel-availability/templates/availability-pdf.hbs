@@ -7,11 +7,13 @@
   <title>{{title}}</title>
 </head>
 
-<body
-  style="margin: 0; box-sizing: border-box; font-family: Arial, sans-serif; font-size: 10px; line-height: 1.4; color: #545454;">
-  <div style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; border-radius:10px">
+<div
+  style="box-sizing: border-box; font-family: Arial, sans-serif; font-size: 10px; line-height: 1.4; color: black; border: 1px solid black; border-radius: 10px; margin-bottom: 0px;">
+
+  <div
+    style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px;">
     <div>
-      <p>Ժամը մուտք</p>
+      <p>Գործունեության ժամկետը</p>
     </div>
     <div>
       <span>{{checkInTime}}</span>
@@ -19,189 +21,155 @@
     </div>
   </div>
 
-  <div style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;">
-      <p>Ժամը մուտք</p>
-      <span>{{checkInTime}}</span>
-    </div>
+  <div
+    style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+    <p>Մուտքի ժամ</p>
+    <span>{{checkInTime}}</span>
   </div>
-  <div style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;">
-      <p>Ժամը մուտք</p>
-      <span>{{checkoutTime}}</span>
-    </div>
+  <div
+    style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+    <p>Ելքի ժամ</p>
+    <span>{{checkoutTime}}</span>
   </div>
 
   {{#if rooms}}
-    <div style="margin-top: 25px; page-break-inside: avoid;">
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
-        <thead>
-          <tr>
-            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">senyakner</th>
-            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">makeres</th>
-            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">qanak</th>
-            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">himanakan</th>
-            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">havelyal</th>
-            <th style="padding: 8px; text-align: left; font-size: 10px; border: 1px solid #e5e7eb;">ororoc</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each rooms}}
-          <tr>
-            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{name}}</td>
-            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{area}}</td>
-            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{mainGuestQuantity}}</td>
-            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{additionalGuestQuantity}}</td>
-            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{additionalInfo}}</td>
-            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{beds}}</td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
+  <div style="margin-top: 25px; page-break-inside: avoid;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+      <thead>
+        <tr>
+          <th style="padding: 10px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">Սենյակներ</th>
+          <th
+            style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+            Մակերես</th>
+          <th
+            style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+            Քանակ</th>
+          <th
+            style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+            Հիմնական</th>
+          <th
+            style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+            Հավելյալ</th>
+          <th
+            style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+            Օրորոց</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each rooms}}
+        <tr>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{roomClass}},{{roomView}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{area}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{roomNumberQuantity}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{mainGuestQuantity}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{additionalGuestQuantity}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{#if hasCradle}}այո{{else}}ոչ{{/if}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <div
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;padding: 0px 10px ">
+      <p>Սենյակների ընդհանուր քանակ</p>
+      <span>{{10}}</span>
     </div>
+  </div>
+  <div
+    style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;padding: 0px 10px ">
+    <p>Հուրերի ընդհանուր քանակ հիմնական մահճակալներով</p>
+    <span>{{10}}</span>
+  </div>
   {{/if}}
 
-  {{#if generalServices}}
-  <div style="margin-bottom: 25px; page-break-inside: avoid;">
-    <h3
-      style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
-      Ընդհանուր տվյալներ</h3>
 
-    {{#if servicePrices}}
-    <h4 style="margin: 0 0 10px 0; font-size: 12px;">Ծառայությունների գներ</h4>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
-      <thead>
-        <tr>
-          <th
-            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
-            Ծառայություն</th>
-          <th
-            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
-            Գին</th>
-          <th
-            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
-            Ժամանակահատված</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each servicePrices}}
-        <tr>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{serviceName}}</td>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{price}}</td>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{dateRange}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
+  {{#if generalFoodPrices}}
+  <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+    <thead>
+      <tr>
+        <th
+          style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+          Սնունդ</th>
+        <th
+          style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+          Մատուցման եղանակը</th>
+        <th
+          style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+          Տեսակը</th>
+        <th
+          style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+          Ժամերը</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each generalFoodPrices}}
+      <tr>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">{{foodType}}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">{{offerTypes}}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">{{cuisines}}</td>
+        <td style="padding: 8px; border: 1px solid #e5e7eb;">{{times}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{/if}}
 
-    {{#if generalFoodPrices}}
-    <h4 style="margin: 15px 0 10px; font-size: 12px;">Ընդհանուր սնունդ</h4>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">
-      <thead>
-        <tr>
-          <th
-            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
-            Տեսակ</th>
-          <th
-            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
-            Առաջարկի տեսակներ</th>
-          <th
-            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
-            Խոհանոց</th>
-          <th
-            style="background-color: #f3f4f6; padding: 8px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; font-size: 10px;">
-            Ժամեր</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each generalFoodPrices}}
-        <tr>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{foodType}}</td>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{offerTypes}}</td>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{cuisines}}</td>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{times}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
+</div>
 
-    {{#if generalAdditionalServices}}
-    <h4 style="margin: 15px 0 10px; font-size: 12px;">Ընդհանուր լրացուցիչ ծառայություններ</h4>
-    {{#each generalAdditionalServices}}
+<div style="font-family: Arial, sans-serif; font-size: 10px; line-height: 1.4; margin-top: 0px;">
+  {{#if rooms}}
+  {{#each rooms}}
+  <div style="border: 1px solid black; border-radius: 10px; margin-bottom: 5px;">
+
     <div
-      style="padding: 10px; border-left: 4px solid #f97316; background-color: white; margin-bottom: 10px; border-radius: 4px;">
-      <div style="font-weight: 600; font-size: 11px; margin-bottom: 4px;">{{serviceName}}</div>
-      <div style="font-size: 9px; color: #6b7280;">{{serviceType}}</div>
-      {{#if isTimeLimited}}
-      <div style="font-size: 9px; color: #6b7280;">Ժամանակային սահմանափակում: {{startTime}}</div>
-      {{/if}}
-      {{#if price}}
-      <div style="font-size: 14px; font-weight: bold; color: #f97316; margin-top: 6px;">{{price}}</div>
-      {{/if}}
-      {{#if percentage}}
-      <div style="font-size: 14px; font-weight: bold; color: #f97316; margin-top: 6px;">{{percentage}}%</div>
-      {{/if}}
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px; font-size: 14px; font-weight: 700;  ">
+      <p>{{roomClass}}{{#if roomView}}, {{roomView}}{{/if}}</p>
+    </div>
+
+    <div
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+      <p>Սենյակների քանակ</p>
+      <span>{{roomNumberQuantity}}</span>
+    </div>
+    <div
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+      <p>Սենյակների մակերես</p>
+      <span>{{area}}</span>
+    </div>
+
+    {{#if beds}}
+    <div
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+      <p style="font-weight: 600;">Նկարագրություն</p>
+    </div>
+    {{#each beds}}
+    <div
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+      <p>{{partName}}</p>
+      <span>
+        {{#each bedDetails}}
+        {{quantity}}x {{bedType}} ({{bedSize}})
+        {{/each}}
+      </span>
     </div>
     {{/each}}
     {{/if}}
-  </div>
-  {{/if}}
 
-  <div
-    style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb; font-size: 9px; color: #6b7280; text-align: center;">
-    Ստեղծված {{createdDate}} | {{hotelAddress}}
-  </div>
-</body>
 
-</html>
-
-<body>
-  <div class="header">
-    <div class="header-title">
-      <h1>{{title}}</h1>
-    </div>
-    <div class="date-range">{{dateRange}}</div>
-  </div>
-
-  {{#if infoText}}
-  <div class="info-text">
-    {{infoText}}
-  </div>
-  {{/if}}
-
-  <div class="hotel-info">
-    <h3>{{hotelName}}</h3>
-    <div class="hotel-details">
-      <div class="detail-row">
-        <span class="detail-label">Ժամը մուտք</span>
-        <span class="detail-value">{{checkInTime}}</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Ժամը դուրս</span>
-        <span class="detail-value">{{checkoutTime}}</span>
-      </div>
-    </div>
-  </div>
-
-  {{#if rooms}}
-  {{#each rooms}}
-  <div class="room-section">
-    <div class="room-header">
-      <span class="room-name">{{name}}</span>
-      <span class="room-area">{{area}} քմ</span>
+    <div
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+      <p>Սենյակների արժեքը մեկ գիշերվա համար</p>
     </div>
 
-    <div class="room-info-grid">
-      <div class="room-info-item">
-        <span class="room-info-label">Սենյակի դաս: </span>
-        <span class="room-info-value">{{roomClass}}</span>
-      </div>
-      {{#if roomView}}
-      <div class="room-info-item">
-        <span class="room-info-label">Տեսարան: </span>
-        <span class="room-info-value">{{roomView}}</span>
-      </div>
-      {{/if}}
+    {{#if price}}
+    <div
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+      <p>1 անձի համար</p>
+      <span>{{price}}</span>
+    </div>
+    {{/if}}
+
+
+    {{!-- <div class="room-info-grid">
       <div class="room-info-item">
         <span class="room-info-label">Հիմնական հյուրեր: </span>
         <span class="room-info-value">{{mainGuestQuantity}}</span>
@@ -211,27 +179,9 @@
         <span class="room-info-value">{{additionalGuestQuantity}}</span>
       </div>
     </div>
+    --}}
 
-    {{#if price}}
-    <div class="room-price-box">
-      <div class="price-label">Սենյակի գին</div>
-      <div class="price-value">{{price}}</div>
-    </div>
-    {{/if}}
 
-    {{#if beds}}
-    <div class="bed-section">
-      <h5>Սենյակի մասեր</h5>
-      {{#each beds}}
-      <div class="bed-item">
-        <div class="bed-part-name">{{partName}}</div>
-        {{#each bedDetails}}
-        <div class="bed-detail">{{quantity}}x {{bedType}} ({{bedSize}})</div>
-        {{/each}}
-      </div>
-      {{/each}}
-    </div>
-    {{/if}}
 
     {{#if ageAssignmentPrices}}
     <div class="section">
@@ -256,23 +206,23 @@
 
     {{#if foodPrices}}
     <div class="section">
-      <h4 style="font-size: 12px; margin-bottom: 10px;">Սնունդ</h4>
-      <table>
+      <h4 style="font-size: 12px; margin-bottom: 10px;">Գիշերակացի մեջ չներառված սննդի արժեքը</h4>
+      <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
         <thead>
           <tr>
-            <th>Տեսակ</th>
-            <th>Առաջարկի տեսակներ</th>
-            <th>Խոհանոց</th>
-            <th>Ժամեր</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Ոսենքիխիթին տենսակները</th>
+            {{#each ageAssignments}}
+            <th style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{fromAge}}-{{toAge}}տարեկան</th>
+            {{/each}}
           </tr>
         </thead>
         <tbody>
           {{#each foodPrices}}
           <tr>
-            <td>{{foodType}}</td>
-            <td>{{offerTypes}}</td>
-            <td>{{cuisines}}</td>
-            <td>{{times}}</td>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{foodType}}</td>
+            {{#each prices}}
+            <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{this}}</td>
+            {{/each}}
           </tr>
           {{/each}}
         </tbody>
@@ -282,20 +232,18 @@
 
     {{#if additionalServices}}
     <div class="section">
-      <h4 style="font-size: 12px; margin-bottom: 10px;">Լրացուցիչ ծառայություններ</h4>
+      <h4 style="font-size: 12px; margin-bottom: 10px;">Այլ ծառայություններ</h4>
       {{#each additionalServices}}
-      <div class="service-item">
-        <div class="service-name">{{serviceName}}</div>
-        <div class="service-detail">{{serviceType}}</div>
-        {{#if isTimeLimited}}
-        <div class="service-detail">Ժամանակային սահմանափակում: {{startTime}}</div>
-        {{/if}}
-        {{#if price}}
-        <div class="service-price">{{price}}</div>
-        {{/if}}
-        {{#if percentage}}
-        <div class="service-price">{{percentage}}%</div>
-        {{/if}}
+      <div
+        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+        <p>{{serviceType}}</p>
+        <span>
+          {{#if price}}
+          {{price}}
+          {{else}}
+          Ոչ հաստատված արժեք
+          {{/if}}
+        </span>
       </div>
       {{/each}}
     </div>
@@ -304,80 +252,45 @@
   {{/each}}
   {{/if}}
 
-  {{#if generalServices}}
-  <div class="section">
-    <h3 class="section-title">Ընդհանուր տվյալներ</h3>
 
-    {{#if servicePrices}}
-    <h4 style="font-size: 12px; margin-bottom: 10px;">Ծառայությունների գներ</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Ծառայություն</th>
-          <th>Գին</th>
-          <th>Ժամանակահատված</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each servicePrices}}
-        <tr>
-          <td>{{serviceName}}</td>
-          <td>{{price}}</td>
-          <td>{{dateRange}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
+  <div style="border: 1px solid black; border-radius: 10px; margin-bottom: 10px;">
 
-    {{#if generalFoodPrices}}
-    <h4 style="font-size: 12px; margin: 15px 0 10px;">Ընդհանուր սնունդ</h4>
-    <table>
-      <thead>
-        <tr>
-          <th>Տեսակ</th>
-          <th>Առաջարկի տեսակներ</th>
-          <th>Խոհանոց</th>
-          <th>Ժամեր</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each generalFoodPrices}}
-        <tr>
-          <td>{{foodType}}</td>
-          <td>{{offerTypes}}</td>
-          <td>{{cuisines}}</td>
-          <td>{{times}}</td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{/if}}
 
-    {{#if generalAdditionalServices}}
-    <h4 style="font-size: 12px; margin: 15px 0 10px;">Ընդհանուր լրացուցիչ ծառայություններ</h4>
-    {{#each generalAdditionalServices}}
-    <div class="service-item">
-      <div class="service-name">{{serviceName}}</div>
-      <div class="service-detail">{{serviceType}}</div>
-      {{#if isTimeLimited}}
-      <div class="service-detail">Ժամանակային սահմանափակում: {{startTime}}</div>
+    {{#if generalServices}}
+    <div>
+      <h3>Ծառայություններ</h3>
+      <div
+        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+        <p>Գիշերակացի արժեքի մեջ ներառված ծառայություններ</p>
+      </div>
+
+
+      {{#if servicesHierarchy}}
+      {{#each servicesHierarchy}}
+      <div
+        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px; margin-top: 15px;">
+        <p style="font-weight: 700;">{{groupName}}</p>
+      </div>
+      {{#each types}}
+      <div
+        style="display: flex;align-items: center; justify-content: space-between; padding: 0px 10px 0px 20px; margin-top: 10px;">
+        <p style="font-weight: 600;">{{typeName}}</p>
+      </div>
+      {{#each services}}
+      <div style="display: flex;align-items: center; justify-content: space-between; padding: 0px 10px 0px 40px">
+        <p>{{serviceName}}</p>
+        <span>{{price}}</span>
+      </div>
+      {{/each}}
+      {{/each}}
+      <div style="border-bottom: 2px solid black; margin: 15px 10px;"></div>
+      {{/each}}
       {{/if}}
-      {{#if price}}
-      <div class="service-price">{{price}}</div>
-      {{/if}}
-      {{#if percentage}}
-      <div class="service-price">{{percentage}}%</div>
-      {{/if}}
+
     </div>
-    {{/each}}
     {{/if}}
-  </div>
-  {{/if}}
 
-  <div class="footer">
-    Ստեղծված {{createdDate}} | {{hotelAddress}}
   </div>
-</body>
+</div>
 
 </html>

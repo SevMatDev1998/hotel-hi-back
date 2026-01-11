@@ -174,6 +174,20 @@ export class HotelAvailabilityService {
                 },
               },
             },
+            hotelFoods: {
+              include: {
+                hotelFoodCuisines: {
+                  include: {
+                    cuisine: true,
+                  },
+                },
+                hotelFoodOfferTypes: {
+                  include: {
+                    offerType: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -508,7 +522,7 @@ export class HotelAvailabilityService {
 
       // 2️⃣ Подготавливаем данные для шаблона
       const templateData = this.prepareTemplateData(availability);
-      
+
       // 3️⃣ Загружаем и компилируем Handlebars шаблон
       // Используем путь относительно корня проекта (process.cwd())
       const templatePath = path.join(
@@ -574,20 +588,40 @@ export class HotelAvailabilityService {
         (rp: any) => rp.hotelRoomId === room.id,
       );
 
-      const roomFoodPrices = availability.hotelFoodPrices
+      // Подготовка данных питания для комнаты с возрастными диапазонами
+      const foodTypesMap = new Map();
+      
+      availability.hotelFoodPrices
         ?.filter((fp: any) => fp.hotelRoomId === room.id)
-        ?.map((fp: any) => ({
-          foodType: fp.hotelFood.foodType,
-          offerTypes:
-            fp.hotelFood.hotelFoodOfferTypes
-              ?.map((o: any) => o.offerType.name)
-              .join(', ') || '-',
-          cuisines:
-            fp.hotelFood.hotelFoodCuisines
-              ?.map((c: any) => c.cuisine.name)
-              .join(', ') || '-',
-          times: `${fp.hotelFood.startDate}-${fp.hotelFood.endDate}`,
-        }));
+        ?.forEach((fp: any) => {
+          const foodType = fp.hotelFood.foodType;
+          if (!foodTypesMap.has(foodType)) {
+            foodTypesMap.set(foodType, {
+              foodType,
+              prices: [],
+            });
+          }
+          foodTypesMap.get(foodType).prices.push({
+            ageAssignmentId: fp.hotelAgeAssignmentId,
+            price: fp.price ? Number(fp.price).toFixed(2) : '0.00',
+          });
+        });
+
+      const roomFoodPrices = Array.from(foodTypesMap.values()).map((food) => {
+        // Сортируем цены по порядку возрастных диапазонов
+        const sortedPrices = availability.hotelAgeAssignments
+          ?.map((age: any) => {
+            const priceObj = food.prices.find(
+              (p: any) => p.ageAssignmentId === age.id,
+            );
+            return priceObj ? priceObj.price : '0.00';
+          }) || [];
+
+        return {
+          foodType: food.foodType,
+          prices: sortedPrices,
+        };
+      });
 
       const roomAdditionalServices = availability.hotelAdditionalServices
         ?.filter((as: any) => as.hotelRoomId === room.id)
@@ -611,6 +645,12 @@ export class HotelAvailabilityService {
         })),
       }));
 
+      // Проверка наличия кроватки типа "cradle"
+      const hasCradle = room.hotelRoomParts?.some((part: any) =>
+        part.hotelRoomPartBeds?.some((bed: any) =>
+          bed.roomBedType.name.toLowerCase().includes('cradle')  )
+      ) || false;
+
       const ageAssignmentPrices = room.hotelAgeAssignmentPrice?.map(
         (aap: any) => ({
           ageRange: `${aap.hotelAgeAssignment.fromAge}-${aap.hotelAgeAssignment.toAge}`,
@@ -623,52 +663,65 @@ export class HotelAvailabilityService {
         area: room.area,
         roomClass: room.roomClass.name,
         roomView: room.roomView?.name,
+        roomNumberQuantity: room.roomNumberQuantity,
         mainGuestQuantity: room.mainGuestQuantity,
         additionalGuestQuantity: room.additionalGuestQuantity,
         price: roomPrice ? Number(roomPrice.price).toFixed(2) : null,
         beds,
+        hasCradle,
         ageAssignmentPrices,
+        ageAssignments: availability.hotelAgeAssignments?.map((age: any) => ({
+          fromAge: age.fromAge,
+          toAge: age.toAge,
+        })),
         foodPrices: roomFoodPrices,
         additionalServices: roomAdditionalServices,
       };
     });
 
-    // Общие данные
-    const servicePrices = availability.hotelServicePrices?.map(
-      (sp: any) => ({
-        serviceName: sp.hotelService.service.name,
-        price: Number(sp.price).toFixed(2),
-        dateRange: `${formatDate(sp.dateFrom)} - ${formatDate(sp.dateTo)}`,
-      }),
-    );
+    // Общие данные - группировка сервисов по иерархии
+    const servicesHierarchy = availability.hotelServicePrices?.reduce((acc: any[], sp: any) => {
+      const groupName = sp.hotelService.service.systemServiceType.systemServiceGroup.name;
+      const typeName = sp.hotelService.service.systemServiceType.name;
+      const serviceName = sp.hotelService.service.name;
+      const price = Number(sp.price).toFixed(2);
 
-    const generalFoodPrices = availability.hotelFoodPrices
-      ?.filter((fp: any) => !fp.hotelRoomId)
-      ?.map((fp: any) => ({
-        foodType: fp.hotelFood.foodType,
+      let group = acc.find((g: any) => g.groupName === groupName);
+      if (!group) {
+        group = { groupName, types: [] };
+        acc.push(group);
+      }
+
+      let type = group.types.find((t: any) => t.typeName === typeName);
+      if (!type) {
+        type = { typeName, services: [] };
+        group.types.push(type);
+      }
+
+      type.services.push({ serviceName, price });
+
+      return acc;
+    }, []);
+
+    const generalFoodPrices = availability.hotel?.hotelFoods
+      ?.filter((food: any) => food.isFoodAvailable)
+      ?.map((food: any) => ({
+        name: food.name,
+        description: food.description,
+        foodType: food.foodType,
         offerTypes:
-          fp.hotelFood.hotelFoodOfferTypes
+          food.hotelFoodOfferTypes
             ?.map((o: any) => o.offerType.name)
             .join(', ') || '-',
         cuisines:
-          fp.hotelFood.hotelFoodCuisines
+          food.hotelFoodCuisines
             ?.map((c: any) => c.cuisine.name)
             .join(', ') || '-',
-        times: `${fp.hotelFood.startDate}-${fp.hotelFood.endDate}`,
+        times: `${food.startDate}-${food.endDate}`,
+        isFoodAvailable: food.isFoodAvailable,
       }));
 
-    const generalAdditionalServices = availability.hotelAdditionalServices
-      ?.filter((as: any) => !as.hotelRoomId)
-      ?.map((service: any) => ({
-        serviceName: service.serviceName,
-        serviceType: service.hotelService.service.name,
-        isTimeLimited: service.isTimeLimited,
-        startTime: service.startTime ? formatTime(service.startTime) : null,
-        price: service.price ? Number(service.price).toFixed(2) : null,
-        percentage: service.percentage,
-      }));
-
-    return {
+    const templateData = {
       title: availability.title,
       dateRange: `${formatDate(availability.checkInTime)} - ${formatDate(availability.checkoutTime)}`,
       infoText:
@@ -678,14 +731,16 @@ export class HotelAvailabilityService {
       checkoutTime:availability.checkoutTime,
       rooms,
       generalServices:
-        servicePrices?.length ||
-        generalFoodPrices?.length ||
-        generalAdditionalServices?.length,
-      servicePrices,
+        servicesHierarchy?.length ||
+        generalFoodPrices?.length,
+      servicesHierarchy,
       generalFoodPrices,
-      generalAdditionalServices,
       createdDate: formatDate(new Date().toISOString()),
       hotelAddress: availability.hotel?.address || '',
     };
+
+    console.log('📋 Template Data prepared:', JSON.stringify(templateData, null, 2));
+
+    return templateData;
   }
 }

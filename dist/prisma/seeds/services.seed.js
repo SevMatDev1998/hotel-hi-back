@@ -105,16 +105,6 @@ async function seedServices() {
     const fitnessType = types.find((t) => t.name === 'Fitness');
     const services = [
         {
-            name: 'Arrival',
-            systemServiceTypeId: additionalType?.id,
-            isAdditional: true,
-        },
-        {
-            name: 'Departure',
-            systemServiceTypeId: additionalType?.id,
-            isAdditional: true,
-        },
-        {
             name: 'FoodDelivery',
             systemServiceTypeId: additionalType?.id,
             isAdditional: true,
