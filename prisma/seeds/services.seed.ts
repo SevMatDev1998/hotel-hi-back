@@ -143,17 +143,17 @@ export async function seedServices() {
 
   // === 3️⃣ Create services (ТОЛЬКО systemServiceTypeId!) ===
   const services = [
-    // ⭐ AdditionalServices
-    {
-      name: 'Arrival',
-      systemServiceTypeId: additionalType?.id,
-      isAdditional: true,
-    },
-    {
-      name: 'Departure',
-      systemServiceTypeId: additionalType?.id,
-      isAdditional: true,
-    },
+    // // ⭐ AdditionalServices
+    // {
+    //   name: 'Arrival',
+    //   systemServiceTypeId: additionalType?.id,
+    //   isAdditional: true,
+    // },
+    // {
+    //   name: 'Departure',
+    //   systemServiceTypeId: additionalType?.id,
+    //   isAdditional: true,
+    // },
     {
       name: 'FoodDelivery',
       systemServiceTypeId: additionalType?.id,

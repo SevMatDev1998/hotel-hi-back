@@ -1,10 +1,10 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { SystemServiceDto } from './dto';
 import { SystemServiceService } from './system-service.service';
 
 @Controller('system-services')
 export class SystemServiceController {
-  constructor(private readonly systemServiceService: SystemServiceService) { }
+  constructor(private readonly systemServiceService: SystemServiceService) {}
 
   @Get()
   async findAll(): Promise<SystemServiceDto[]> {
@@ -19,7 +19,13 @@ export class SystemServiceController {
   }
 
   @Get('/additional-services')
-  async findAdditionalService(): Promise<SystemServiceDto[]> {
-    return this.systemServiceService.findAdditionalService();
+  async findAdditionalService(
+    @Query('hotelId') hotelId?: number,
+    @Query('availabilityId') availabilityId?: number,
+  ): Promise<SystemServiceDto[]> {
+    return this.systemServiceService.findAdditionalService(
+      hotelId,
+      availabilityId,
+    );
   }
 }

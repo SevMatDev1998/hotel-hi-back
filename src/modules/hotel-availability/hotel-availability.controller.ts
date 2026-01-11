@@ -7,7 +7,11 @@ import {
   Get,
   Put,
   Delete,
+  StreamableFile,
+  Header,
+  Query,
 } from '@nestjs/common';
+import { Public } from '../auth/decorators/public.decorator';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HotelAvailabilityService } from './hotel-availability.service';
 import { CreateHotelAvailabilityDto } from './dto/create-hotel-availability.dto';
@@ -54,6 +58,41 @@ export class HotelAvailabilityController {
       availabilityId,
       updateHotelAvailabilityDto,
     );
+  }
+  @Public()
+  @Get('/pdf/:availabilityId')
+  @Header('Content-Type', 'application/pdf')
+  @ApiOperation({ summary: 'Generate and download PDF for hotel availability' })
+  @ApiResponse({
+    status: 200,
+    description: 'PDF generated successfully.',
+    content: {
+      'application/pdf': {
+        schema: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 404, description: 'Availability not found.' })
+  async generatePdf(
+    @Param('availabilityId', ParseIntPipe) availabilityId: number,
+    @Query('download') download?: string,
+  ): Promise<StreamableFile> {
+    const pdfBuffer =
+      await this.hotelAvailabilityService.generateAvailabilityPdf(
+        availabilityId,
+      );
+
+    const disposition = download === 'true' 
+      ? `attachment; filename="availability-${availabilityId}.pdf"`
+      : `inline; filename="availability-${availabilityId}.pdf"`;
+
+    return new StreamableFile(pdfBuffer, {
+      type: 'application/pdf',
+      disposition,
+    });
   }
 
   @Get('/:hotelId')
@@ -134,5 +173,18 @@ export class HotelAvailabilityController {
     @Body() dto: { calendarIds: string[] },
   ): Promise<{ success: boolean; message: string; count: number }> {
     return this.hotelAvailabilityService.deleteDatesBatch(dto.calendarIds);
+  }
+
+  @Post('/copy/:availabilityId')
+  @ApiOperation({ summary: 'Copy hotel availability with all related data' })
+  @ApiResponse({
+    status: 201,
+    description: 'Hotel availability has been successfully copied.',
+  })
+  @ApiResponse({ status: 404, description: 'Availability not found.' })
+  async copyAvailability(
+    @Param('availabilityId', ParseIntPipe) availabilityId: number,
+  ): Promise<HotelAvailability> {
+    return this.hotelAvailabilityService.copyAvailability(availabilityId);
   }
 }
