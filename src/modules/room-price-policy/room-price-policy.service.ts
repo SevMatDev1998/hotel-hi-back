@@ -101,7 +101,6 @@ export class RoomPricePolicyService {
           `Created ${createdFoodPrices.length} food price records`,
         );
 
-        // Сначала удаляем ВСЕ старые цены для этой комнаты
         await tx.hotelRoomPrice.deleteMany({
           where: {
             hotelRoomId: dto.roomPrices[0]?.hotelRoomId,
@@ -109,8 +108,28 @@ export class RoomPricePolicyService {
           },
         });
 
+        await tx.hotelFoodPrice.deleteMany({
+          where: {
+            hotelRoomId: dto.roomPrices[0]?.hotelRoomId,
+            hotelAvailabilityId: dto.hotelAvailabilityId,
+          },
+        });
+
+        await tx.hotelAdditionalService.deleteMany({
+          where: {
+            hotelRoomId: dto.roomPrices[0]?.hotelRoomId,
+            hotelAvailabilityId: dto.hotelAvailabilityId,
+          },
+        });
+
+        // await tx.hotelAgeAssignmentPrice.deleteMany({
+        //   where: {
+        //     hotelRoomId: dto.roomPrices[0]?.hotelRoomId,
+        //   },
+        // });
+
         this.logger.log(
-          `Deleted old room prices for room ID: ${dto.roomPrices[0]?.hotelRoomId}`,
+          `Deleted old price data for room ID: ${dto.roomPrices[0]?.hotelRoomId}`,
         );
 
         // Создаем новые room prices

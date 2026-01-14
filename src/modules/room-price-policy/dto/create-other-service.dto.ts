@@ -7,6 +7,7 @@ import {
   IsOptional,
   Min,
   IsPositive,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateOtherServiceDto {
@@ -41,6 +42,7 @@ export class CreateOtherServiceDto {
     nullable: true,
   })
   @IsOptional()
+  @ValidateIf((o) => o.price !== null)
   @IsNumber()
   @Min(0)
   price: number | null;
