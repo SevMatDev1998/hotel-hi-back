@@ -10,12 +10,14 @@ import * as puppeteer from 'puppeteer';
 import * as Handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
+import { I18nService } from '../../i18n/i18n.service';
 
 @Injectable()
 export class HotelAvailabilityService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly hotelAgeAssignmentService: HotelAgeAssignmentService,
+    private readonly i18nService: I18nService,
   ) {}
 
   async create(
@@ -509,7 +511,7 @@ export class HotelAvailabilityService {
     }
   }
 
-  async generateAvailabilityPdf(availabilityId: number): Promise<Buffer> {
+  async generateAvailabilityPdf(availabilityId: number, lang: string = 'hy'): Promise<Buffer> {
     try {
       // 1️⃣ Получаем данные availability с полной информацией
       const availability = await this.findDetailById(availabilityId);
@@ -521,7 +523,7 @@ export class HotelAvailabilityService {
       }
 
       // 2️⃣ Подготавливаем данные для шаблона
-      const templateData = this.prepareTemplateData(availability);
+      const templateData = this.prepareTemplateData(availability, lang);
 
       // 3️⃣ Загружаем и компилируем Handlebars шаблон
       // Используем путь относительно корня проекта (process.cwd())
@@ -566,7 +568,15 @@ export class HotelAvailabilityService {
     }
   }
 
-  private prepareTemplateData(availability: any) {
+  private prepareTemplateData(availability: any, lang: string = 'hy') {
+    const t = this.i18nService.getTranslations(lang, 'availability-pdf');
+
+    const translate = (key: string, category: string) => {
+      if (!key) return '';
+      const translated = t[category]?.[key];
+      return translated || key; // Если нет перевода, возвращаем исходный ключ
+    };
+
     const formatTime = (date: string) => {
       return new Date(date).toLocaleTimeString('ru-RU', {
         hour: '2-digit',
@@ -589,7 +599,7 @@ export class HotelAvailabilityService {
         ?.filter((rp: any) => rp.hotelRoomId === room.id)
         ?.map((rp: any) => ({
           guestCount: rp.guestCount,
-          price: Number(rp.price).toFixed(2),
+          price: Number(rp.price),
         }))
         ?.sort((a: any, b: any) => a.guestCount - b.guestCount) || [];
 
@@ -608,7 +618,7 @@ export class HotelAvailabilityService {
           }
           foodTypesMap.get(foodType).prices.push({
             ageAssignmentId: fp.hotelAgeAssignmentId,
-            price: fp.price ? Number(fp.price).toFixed(2) : '0.00',
+            price: fp.price ? Number(fp.price) : '0.00',
           });
         });
 
@@ -623,7 +633,7 @@ export class HotelAvailabilityService {
           }) || [];
 
         return {
-          foodType: food.foodType,
+          foodType: translate(food.foodType, 'foods'),
           prices: sortedPrices,
         };
       });
@@ -631,22 +641,22 @@ export class HotelAvailabilityService {
       const roomAdditionalServices = availability.hotelAdditionalServices
         ?.filter((as: any) => as.hotelRoomId === room.id)
         ?.map((service: any) => ({
-          serviceName: service.serviceName,
-          serviceType: service.hotelService.service.name,
+          serviceName: service.serviceName || translate(service.hotelService.service.name, 'system_services'),
+          serviceType: translate(service.hotelService.service.name, 'system_services'),
           isTimeLimited: service.isTimeLimited,
           startTime: service.startTime
             ? formatTime(service.startTime)
             : null,
-          price: service.price ? Number(service.price).toFixed(2) : null,
+          price: service.price ? Number(service.price) : null,
           percentage: service.percentage,
         }));
 
       const beds = room.hotelRoomParts?.map((part: any) => ({
-        partName: part.roomPart.name,
+        partName: translate(part.roomPart.name, 'room_parts_options'),
         bedDetails: part.hotelRoomPartBeds?.map((bed: any) => ({
           quantity: bed.quantity,
-          bedType: bed.roomBedType.name,
-          bedSize: bed.roomBedSize.name,
+          bedType: translate(bed.roomBedType.name, 'room_bed_types_names_options'),
+          bedSize: bed.roomBedSize.size || '',
         })),
       }));
 
@@ -659,15 +669,15 @@ export class HotelAvailabilityService {
       const ageAssignmentPrices = room.hotelAgeAssignmentPrice?.map(
         (aap: any) => ({
           ageRange: `${aap.hotelAgeAssignment.fromAge}-${aap.hotelAgeAssignment.toAge}`,
-          price: Number(aap.price).toFixed(2),
+          price: Number(aap.price),
         }),
       );
 
       return {
         name: room.name,
         area: room.area,
-        roomClass: room.roomClass.name,
-        roomView: room.roomView?.name,
+        roomClass: translate(room.roomClass.name, 'room_class_options'),
+        roomView: room.roomView?.name ? translate(room.roomView.name, 'room_view_options') : '',
         roomNumberQuantity: room.roomNumberQuantity,
         mainGuestQuantity: room.mainGuestQuantity,
         additionalGuestQuantity: room.additionalGuestQuantity,
@@ -686,10 +696,16 @@ export class HotelAvailabilityService {
 
     // Общие данные - группировка сервисов по иерархии
     const servicesHierarchy = availability.hotelServicePrices?.reduce((acc: any[], sp: any) => {
-      const groupName = sp.hotelService.service.systemServiceType.systemServiceGroup.name;
-      const typeName = sp.hotelService.service.systemServiceType.name;
-      const serviceName = sp.hotelService.service.name;
-      const price = Number(sp.price).toFixed(2);
+      const groupNameKey = sp.hotelService.service.systemServiceType.systemServiceGroup.name;
+      const typeNameKey = sp.hotelService.service.systemServiceType.name;
+      const serviceNameKey = sp.hotelService.service.name;
+      const servicePriceTypeKey = sp.priceType;
+      
+      const groupName = translate(groupNameKey, 'service_groups');
+      const typeName = translate(typeNameKey, 'service_types');
+      const serviceName = translate(serviceNameKey, 'system_services');
+      const servicePriceType = servicePriceTypeKey ? translate(servicePriceTypeKey, 'service_price_types') : '';
+      const price = Number(sp.price)
 
       let group = acc.find((g: any) => g.groupName === groupName);
       if (!group) {
@@ -703,7 +719,7 @@ export class HotelAvailabilityService {
         group.types.push(type);
       }
 
-      type.services.push({ serviceName, price });
+      type.services.push({ serviceName, priceType: servicePriceType, price });
 
       return acc;
     }, []);
@@ -713,14 +729,14 @@ export class HotelAvailabilityService {
       ?.map((food: any) => ({
         name: food.name,
         description: food.description,
-        foodType: food.foodType,
+        foodType: translate(food.foodType, 'foods'),
         offerTypes:
           food.hotelFoodOfferTypes
-            ?.map((o: any) => o.offerType.name)
+            ?.map((o: any) => translate(o.offerType.name, 'food_offer_types'))
             .join(', ') || '-',
         cuisines:
           food.hotelFoodCuisines
-            ?.map((c: any) => c.cuisine.name)
+            ?.map((c: any) => translate(c.cuisine.name, 'cuisines'))
             .join(', ') || '-',
         times: `${food.startDate}-${food.endDate}`,
         isFoodAvailable: food.isFoodAvailable,
@@ -735,6 +751,8 @@ export class HotelAvailabilityService {
       checkInTime: availability.checkInTime,
       checkoutTime:availability.checkoutTime,
       rooms,
+      totalRooms: rooms?.reduce((sum: number, room: any) => sum + (room.roomNumberQuantity || 0), 0) || 0,
+      totalGuestsWithMainBeds: rooms?.reduce((sum: number, room: any) => sum + (room.mainGuestQuantity ), 0) || 0,
       generalServices:
         servicesHierarchy?.length ||
         generalFoodPrices?.length,
@@ -742,10 +760,8 @@ export class HotelAvailabilityService {
       generalFoodPrices,
       createdDate: formatDate(new Date().toISOString()),
       hotelAddress: availability.hotel?.address || '',
+      t,
     };
-
-    console.log('📋 Template Data prepared:', JSON.stringify(templateData, null, 2));
-
     return templateData;
   }
 }

@@ -13,7 +13,7 @@
   <div
     style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px;">
     <div>
-      <p>Գործունեության ժամկետը</p>
+      <p>{{t.operatingPeriod}}</p>
     </div>
     <div>
       <span>{{checkInTime}}</span>
@@ -23,12 +23,12 @@
 
   <div
     style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-    <p>Մուտքի ժամ</p>
+    <p>{{t.checkInTime}}</p>
     <span>{{checkInTime}}</span>
   </div>
   <div
     style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-    <p>Ելքի ժամ</p>
+    <p>{{t.checkOutTime}}</p>
     <span>{{checkoutTime}}</span>
   </div>
 
@@ -37,67 +37,67 @@
     <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
       <thead>
         <tr>
-          <th style="padding: 10px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">Սենյակներ</th>
+          <th style="padding: 10px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">{{t.rooms}}</th>
           <th
             style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-            Մակերես</th>
+            {{t.area}}</th>
           <th
             style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-            Քանակ</th>
+            {{t.quantity}}</th>
           <th
             style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-            Հիմնական</th>
+            {{t.main}}</th>
           <th
             style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-            Հավելյալ</th>
+            {{t.additional}}</th>
           <th
             style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-            Օրորոց</th>
+            {{t.cradle}}</th>
         </tr>
       </thead>
       <tbody>
         {{#each rooms}}
         <tr>
           <td style="padding: 8px; border: 1px solid #e5e7eb;">{{roomClass}},{{roomView}}</td>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{area}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{area}} մ²</td>
           <td style="padding: 8px; border: 1px solid #e5e7eb;">{{roomNumberQuantity}}</td>
           <td style="padding: 8px; border: 1px solid #e5e7eb;">{{mainGuestQuantity}}</td>
           <td style="padding: 8px; border: 1px solid #e5e7eb;">{{additionalGuestQuantity}}</td>
-          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{#if hasCradle}}այո{{else}}ոչ{{/if}}</td>
+          <td style="padding: 8px; border: 1px solid #e5e7eb;">{{#if hasCradle}}{{../t.yes}}{{else}}{{../t.no}}{{/if}}</td>
         </tr>
         {{/each}}
       </tbody>
     </table>
     <div
       style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;padding: 0px 10px ">
-      <p>Սենյակների ընդհանուր քանակ</p>
-      <span>{{10}}</span>
+      <p>{{t.totalRooms}}</p>
+      <span>{{totalRooms}}</span>
     </div>
   </div>
   <div
     style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3;padding: 0px 10px ">
-    <p>Հուրերի ընդհանուր քանակ հիմնական մահճակալներով</p>
-    <span>{{10}}</span>
+    <p>{{t.totalGuestsWithMainBeds}}</p>
+    <span>{{totalGuestsWithMainBeds}}</span>
   </div>
   {{/if}}
 
 
   {{#if generalFoodPrices}}
-  <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 10px;">
     <thead>
       <tr>
         <th
-          style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-          Սնունդ</th>
+          style="font-weight: 700; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
+          {{t.food}}</th>
         <th
           style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-          Մատուցման եղանակը</th>
+          {{t.servingMethod}}</th>
         <th
           style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-          Տեսակը</th>
+          {{t.type}}</th>
         <th
           style="font-weight: 400; padding: 8px; text-align: left; font-size: 10px; border-bottom: 1px solid #e5e7eb;">
-          Ժամերը</th>
+          {{t.hours}}</th>
       </tr>
     </thead>
     <tbody>
@@ -114,11 +114,10 @@
   {{/if}}
 
 </div>
-
 <div style="font-family: Arial, sans-serif; font-size: 10px; line-height: 1.4; margin-top: 0px;">
   {{#if rooms}}
   {{#each rooms}}
-  <div style="border: 1px solid black; border-radius: 10px; margin-bottom: 5px;">
+  <div style="border: 1px solid black; border-radius: 10px; margin-top: 20px;">
 
     <div
       style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px; font-size: 14px; font-weight: 700;  ">
@@ -127,19 +126,19 @@
 
     <div
       style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-      <p>Սենյակների քանակ</p>
+      <p>{{../t.roomCount}}</p>
       <span>{{roomNumberQuantity}}</span>
     </div>
     <div
       style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-      <p>Սենյակների մակերես</p>
+      <p>{{../t.roomArea}}</p>
       <span>{{area}}</span>
     </div>
 
     {{#if beds}}
     <div
       style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-      <p style="font-weight: 600;">Նկարագրություն</p>
+      <p style="font-weight: 600; font-size: 11px;">{{../t.description}}</p>
     </div>
     {{#each beds}}
     <div
@@ -156,66 +155,31 @@
 
 
     <div
-      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-      <p>Սենյակների արժեքը մեկ գիշերվա համար</p>
+      style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px; margin-top: 10px; ">
+      <h3 style="font-size: 11px; font-weight: 700;">{{../t.roomPricePerNight}}</h3>
+      <p>AMD</p>
+
     </div>
 
     {{#if roomPrices}}
     {{#each roomPrices}}
     <div
       style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-      <p>{{guestCount}} անձի համար</p>
+      <p>{{guestCount}} {{../../t.forPerson}}</p>
       <span>{{price}}</span>
     </div>
     {{/each}}
     {{/if}}
 
-
-    {{!-- <div class="room-info-grid">
-      <div class="room-info-item">
-        <span class="room-info-label">Հիմնական հյուրեր: </span>
-        <span class="room-info-value">{{mainGuestQuantity}}</span>
-      </div>
-      <div class="room-info-item">
-        <span class="room-info-label">Լրացուցիչ հյուրեր: </span>
-        <span class="room-info-value">{{additionalGuestQuantity}}</span>
-      </div>
-    </div>
-    --}}
-
-
-
-    {{#if ageAssignmentPrices}}
+ {{#if foodPrices}}
     <div class="section">
-      <h4 style="font-size: 12px; margin-bottom: 10px;">Գիշերակացի արժեքը երեխաների և հավելյալ մահճակալի համար՝ 1 անձի հաշվարկով</h4>
+      <h4 style="font-size: 12px; margin-bottom: 10px; padding: 0px 10px;">{{../t.foodPriceNotIncluded}}</h4>
       <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
         <thead>
           <tr>
-            {{#each ageAssignmentPrices}}
-            <th style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{ageRange}} տարեկան</th>
-            {{/each}}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {{#each ageAssignmentPrices}}
-            <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{price}}</td>
-            {{/each}}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    {{/if}}
-
-    {{#if foodPrices}}
-    <div class="section">
-      <h4 style="font-size: 12px; margin-bottom: 10px;">Գիշերակացի մեջ չներառված սննդի արժեքը</h4>
-      <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-        <thead>
-          <tr>
-            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Ոսենքիխիթին տենսակները</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">{{../t.foodTypes}}</th>
             {{#each ageAssignments}}
-            <th style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{fromAge}}-{{toAge}}տարեկան</th>
+            <th style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{fromAge}}-{{toAge}} {{../../t.yearsOld}}</th>
             {{/each}}
           </tr>
         </thead>
@@ -233,22 +197,54 @@
     </div>
     {{/if}}
 
+    {{#if ageAssignmentPrices}}
+    <div class="section">
+      <h4 style="font-size: 12px; margin-bottom: 10px; padding: 0px 10px;">{{../t.nightPriceForChildrenAndExtraBed}}</h4>
+      <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+        <thead>
+          <tr>
+            {{#each ageAssignmentPrices}}
+            <th style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{ageRange}} {{../../t.yearsOld}}</th>
+            {{/each}}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {{#each ageAssignmentPrices}}
+            <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">{{price}}</td>
+            {{/each}}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+   
+
     {{#if additionalServices}}
     <div class="section">
-      <h4 style="font-size: 12px; margin-bottom: 10px;">Այլ ծառայություններ</h4>
-      {{#each additionalServices}}
-      <div
-        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-        <p>{{serviceType}}</p>
-        <span>
-          {{#if price}}
-          {{price}}
-          {{else}}
-          Ոչ հաստատված արժեք
-          {{/if}}
-        </span>
-      </div>
-      {{/each}}
+      <h4 style="font-size: 12px; margin-bottom: 10px; padding: 0px 10px;">{{../t.otherServices}}</h4>
+      <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+        <thead>
+          <tr>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Տեսակը</th>
+            <th style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">Արժեքը</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each additionalServices}}
+          <tr>
+            <td style="padding: 8px; border: 1px solid #e5e7eb;">{{serviceType}}</td>
+            <td style="padding: 8px; text-align: center; border: 1px solid #e5e7eb;">
+              {{#if price}}
+              {{price}}
+              {{else}}
+              {{../../t.unconfirmedPrice}}
+              {{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
     </div>
     {{/if}}
   </div>
@@ -256,32 +252,32 @@
   {{/if}}
 
 
-  <div style="border: 1px solid black; border-radius: 10px; margin-bottom: 10px;">
-
-
+  <div style="border: 1px solid black; border-radius: 10px; margin-top: 20px;">
     {{#if generalServices}}
     <div>
-      <h3>Ծառայություններ</h3>
+      <h4 style="font-size: 14px; margin-bottom: 10px; padding: 0px 10px;">{{t.services}}</h4>
       <div
-        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
-        <p>Գիշերակացի արժեքի մեջ ներառված ծառայություններ</p>
+        style="font-size: 11px; font-weight: 700; display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px">
+        <p>{{t.servicesIncludedInPrice}}</p>
       </div>
-
 
       {{#if servicesHierarchy}}
       {{#each servicesHierarchy}}
       <div
-        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 5px; ">
+        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px; ">
         <p style="font-weight: 700;">{{groupName}}</p>
       </div>
       {{#each types}}
       <div
-        style="display: flex;align-items: center; justify-content: space-between; padding: 0px 10px 0px 10px; ">
+        style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px 0px 20px; ">
         <p style="font-weight: 600;">{{typeName}}</p>
       </div>
       {{#each services}}
-      <div style="display: flex;align-items: center; justify-content: space-between; padding: 0px 10px 0px 20px">
+      <div style="display: flex;align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F3F3; padding: 0px 10px 0px 30px">
         <p>{{serviceName}}</p>
+        {{#if priceType}}
+        <p>{{priceType}}</p>
+        {{/if}}
         <span>{{price}}</span>
       </div>
       {{/each}}

@@ -63,7 +63,6 @@ export class RoomPricePolicyController {
   async createRoomPricePolicy(@Body() dto: CreateRoomPricePolicyDto) {
     return this.roomPricePolicyService.createRoomPricePolicy(dto);
   }
-  ////////////////////////////////////////////////////////////////////
 
   @Get(':hotelAvailabilityId/:roomId')
   @HttpCode(HttpStatus.OK)

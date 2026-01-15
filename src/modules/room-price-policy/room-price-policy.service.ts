@@ -108,12 +108,12 @@ export class RoomPricePolicyService {
           },
         });
 
-        await tx.hotelFoodPrice.deleteMany({
-          where: {
-            hotelRoomId: dto.roomPrices[0]?.hotelRoomId,
-            hotelAvailabilityId: dto.hotelAvailabilityId,
-          },
-        });
+        // await tx.hotelFoodPrice.deleteMany({
+        //   where: {
+        //     hotelRoomId: dto.roomPrices[0]?.hotelRoomId,
+        //     hotelAvailabilityId: dto.hotelAvailabilityId,
+        //   },
+        // });
 
         await tx.hotelAdditionalService.deleteMany({
           where: {

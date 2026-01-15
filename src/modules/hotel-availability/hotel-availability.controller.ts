@@ -79,10 +79,12 @@ export class HotelAvailabilityController {
   async generatePdf(
     @Param('availabilityId', ParseIntPipe) availabilityId: number,
     @Query('download') download?: string,
+    @Query('lang') lang?: string,
   ): Promise<StreamableFile> {
     const pdfBuffer =
       await this.hotelAvailabilityService.generateAvailabilityPdf(
         availabilityId,
+        lang || 'hy',
       );
 
     const disposition = download === 'true' 
