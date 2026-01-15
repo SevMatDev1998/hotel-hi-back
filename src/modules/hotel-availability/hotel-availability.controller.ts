@@ -109,6 +109,7 @@ export class HotelAvailabilityController {
     return this.hotelAvailabilityService.findByHotelId(hotelId);
   }
 
+  @Public()
   @Get('/detail/:availabilityId')
   @ApiOperation({
     summary:

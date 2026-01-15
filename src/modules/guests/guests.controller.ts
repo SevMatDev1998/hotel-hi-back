@@ -39,4 +39,12 @@ export class GuestsController {
   ) {
     return this.guestsService.getHotelAvailabilityWithDatesByPartnerid(hotelId);
   }
+
+  @Public()
+  @Get('availability/:availabilityId/hotel-info')
+  getHotelInfoByAvailabilityId(
+    @Param('availabilityId', ParseIntPipe) availabilityId: number,
+  ) {
+    return this.guestsService.getHotelInfoByAvailabilityId(availabilityId);
+  }
 }

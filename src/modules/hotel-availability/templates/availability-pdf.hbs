@@ -289,6 +289,48 @@
     {{/if}}
 
   </div>
+
+  <div style="margin-top: 20px; padding: 10px; font-size:12px display: flex; flex-direction: column; gap-0">
+    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 10px;">{{t.hotel}}</h4>
+    
+    {{#if hotelName}}
+    <div style="display: flex; align-items: center; margin-left: 10px;   ">
+      <p style="">{{hotelName}} </p>
+    </div>
+    {{/if}}
+
+    {{#if hotelTin}}
+    <div style="display: flex; align-items: center; margin-left: 10px;   ">
+      <p style="">{{t.tin}} - </p>
+      <span>{{hotelTin}}</span>
+    </div>
+    {{/if}}
+    
+    {{#if hotelBankAccount}}
+    <div style="display: flex; align-items: center; margin-left: 10px;   ">
+      <p style="">{{t.hotelBankAccount}} - </p>
+      <span>{{hotelBankAccount}}</span>
+    </div>
+    {{/if}}
+    
+  
+
+    {{#if hotelPhone}}
+    <div style="display: flex; align-items: center; margin-left: 10px;   ">
+      <p style="">{{t.phone}} - </p>
+      <span>{{hotelPhone}}</span>
+    </div>
+    {{/if}}
+    
+
+     {{#if hotelDirector}}
+    <div style="display: flex; align-items: center; margin-left: 10px;   ">
+      <p style="">{{t.director}} - </p>
+      <span>{{hotelDirector}}</span>
+    </div>
+    {{/if}}
+  
+  </div>
 </div>
 
 </html>

@@ -43,4 +43,42 @@ export class GuestsService {
       },
     });
   }
+
+  async getHotelInfoByAvailabilityId(availabilityId: number) {
+    const availability = await this.prisma.hotelAvailability.findUnique({
+      where: { id: availabilityId },
+      select: {
+        hotel: {
+          select: {
+            name: true,
+            city: true,
+            state: true,
+            userHotels: {
+              take: 1,
+              select: {
+                user: {
+                  select: {
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!availability) {
+      throw new Error(`Availability with ID ${availabilityId} not found`);
+    }
+
+    const userEmail = availability.hotel?.userHotels?.[0]?.user?.email;
+
+    return {
+      hotelName: availability.hotel?.name || '',
+      city: availability.hotel?.city || '',
+      state: availability.hotel?.state || '',
+      userEmail: userEmail || '',
+    };
+  }
 }

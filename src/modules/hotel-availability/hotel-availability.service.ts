@@ -748,6 +748,10 @@ export class HotelAvailabilityService {
       infoText:
         'Հյուրանոցի հիմնական արժեքները սահմանվում են սենյակների և ծառայությունների համար որոշակի ժամկետով։',
       hotelName: availability.hotel?.name || 'Hotel',
+      hotelBankAccount: availability.hotel?.bankAccountNumber || '',
+      hotelTin: availability.hotel?.tinNumber || '',
+      hotelDirector: availability.hotel?.director || '',
+      hotelPhone: availability.hotel?.phoneNumber ? `+${availability.hotel.phoneCode || ''} ${availability.hotel.phoneNumber}` : '',
       checkInTime: availability.checkInTime,
       checkoutTime:availability.checkoutTime,
       rooms,
